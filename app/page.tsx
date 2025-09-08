@@ -1,39 +1,67 @@
 "use client";
-import { ShaderAnimation } from "@/components/ui/shader-animation";
-import SplitText from "@/components/SplitText";
-import BlurText from "@/components/BlurText";
+import HeroSection from "@/components/hero_section";
+import AboutSection from "@/components/about_section"
+import ProjectSection from "@/components/projects_section";
+import ExperienceSection from "@/components/experience_section";
+import SkillsSection from "@/components/skills_section";
+import ContactSection from "@/components/contact_section";
 
 export default function Home() {
   return (
-    <>
-      <ShaderAnimation/>
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-        <span className="text-center text-7xl leading-none font-semibold tracking-tighter whitespace-pre-wrap text-white">
-          <SplitText
-            text="Hi! I'm Suraj Menon"
-            className="text-7xl font-semibold text-center"
-            delay={50}
-            duration={0.5}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 40 }}
-            to={{ opacity: 1, y: 0 }}
-            threshold={0.1}
-            rootMargin="-100px"
-            textAlign="center"
-          />
-          <BlurText
-            text="Full-Stack Developer | Tech Enthusiast"
-            delay={200}
-            animateBy="words"
-            direction="top"
-            className="text-4xl mb-8"
-            animationFrom={{ opacity: 0, y: -10 }}
-            animationTo={[{ opacity: 1, y: 0 }]}
-            textalign="center"
-          />
-        </span>
-      </div>
-    </>
+    <main className="w-full">
+      <section className="min-h-screen flex items-center justify-center">
+        <HeroSection />
+      </section>
+      <section
+        className="min-h-screen flex items-center justify-center text-white relative"
+        style={{ overflow: "hidden" }}
+      >
+        <div
+          className="absolute inset-0 backdrop-blur-lg pointer-events-none"
+          aria-hidden="true"
+        />
+        <AboutSection />
+      </section>
+      <section
+        className="min-h-screen flex items-center justify-center text-white relative"
+        style={{ overflow: "hidden" }}
+      >
+        <div
+          className="absolute inset-0 backdrop-blur-lg pointer-events-none"
+          aria-hidden="true"
+        />
+        <SkillsSection />
+      </section>
+      <section
+        className="min-h-screen flex items-center justify-center text-white relative"
+        style={{ overflow: "hidden" }}
+      >
+        <div
+          className="absolute inset-0 backdrop-blur-lg pointer-events-none"
+          aria-hidden="true"
+        />
+        <ProjectSection />
+      </section>
+      <section
+        className="min-h-screen flex items-center justify-center text-white relative"
+        style={{ overflow: "hidden" }}
+      >
+        <div
+          className="absolute inset-0 backdrop-blur-lg pointer-events-none"
+          aria-hidden="true"
+        />
+        <ExperienceSection />
+      </section>
+      <section
+        className="min-h-screen flex items-center justify-center text-white relative"
+        style={{ overflow: "hidden" }}
+      >
+        <div
+          className="absolute inset-0 backdrop-blur-lg pointer-events-none"
+          aria-hidden="true"
+        />
+        <ContactSection />
+      </section>
+    </main>
   );
 }
