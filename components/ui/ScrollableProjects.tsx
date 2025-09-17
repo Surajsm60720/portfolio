@@ -1,6 +1,6 @@
 "use client";
-import { cn } from '@/lib/utils';
-import { useState, useRef } from 'react';
+
+import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ExternalLink, Github } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -168,7 +168,6 @@ const ProjectCard = ({ project, isCenter }: {
 
 export default function ScrollableProjects() {
   const [centerIndex, setCenterIndex] = useState(0); // Start with first project (id:1)
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollToProject = (index: number) => {
     setCenterIndex(index);
