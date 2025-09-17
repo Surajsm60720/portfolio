@@ -46,7 +46,16 @@ const SKILL_ICONS = [
   { icon: SiShadcnui, color: "#2563EB", name: "shadcn/ui" },
 ];
 
-function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0 }: any) {
+interface SkillsOrbitProps {
+  radius: number;
+  centerX: number;
+  centerY: number;
+  count: number;
+  iconSize: number;
+  startIndex?: number;
+}
+
+function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0 }: SkillsOrbitProps) {
   return (
     <>
       {Array.from({ length: count }).map((_, index) => {

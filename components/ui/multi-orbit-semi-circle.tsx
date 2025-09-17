@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 
 const ICONS = [
   "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/gatsby-icon.svg",
@@ -10,7 +11,15 @@ const ICONS = [
   "https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/spotify-icon.svg",
 ];
 
-function SemiCircleOrbit({ radius, centerX, centerY, count, iconSize }: any) {
+interface SemiCircleOrbitProps {
+  radius: number;
+  centerX: number;
+  centerY: number;
+  count: number;
+  iconSize: number;
+}
+
+function SemiCircleOrbit({ radius, centerX, centerY, count, iconSize }: SemiCircleOrbitProps) {
   return (
     <>
       {/* Semi-circle glow background */}
@@ -48,7 +57,7 @@ function SemiCircleOrbit({ radius, centerX, centerY, count, iconSize }: any) {
               zIndex: 5,
             }}
           >
-            <img
+            <Image
               src={icon}
               alt={`icon-${index}`}
               width={iconSize}

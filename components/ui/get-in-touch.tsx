@@ -171,11 +171,11 @@ export const ProfessionalConnect = () => {
           {/* Footer text */}
           <div className="text-center pb-8">
             <h3 className="text-white font-semibold text-lg mb-3 drop-shadow-lg">
-              Let's Connect & Collaborate
+              Let&apos;s Connect & Collaborate
             </h3>
             <p className="text-white/80 text-sm leading-relaxed drop-shadow-sm max-w-2xl mx-auto">
-              Whether you're looking to discuss a project, explore collaboration opportunities, 
-              or just want to say hello, I'm always open to connecting with fellow developers, 
+              Whether you&apos;re looking to discuss a project, explore collaboration opportunities, 
+              or just want to say hello, I&apos;m always open to connecting with fellow developers, 
               designers, and innovators. Feel free to reach out through any of the platforms above!
             </p>
             <p className="text-white/80 text-sm leading-relaxed drop-shadow-sm max-w-2xl mx-auto">

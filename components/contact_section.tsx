@@ -1,6 +1,5 @@
 "use client";
-import { GlowingEffect } from "./ui/glowing-effect";
-import { cn } from "@/lib/utils";
+
 import SplitText from "./ui/SplitText";
 import { ProfessionalConnect } from "./ui/get-in-touch";
 
