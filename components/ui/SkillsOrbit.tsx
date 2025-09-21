@@ -53,9 +53,18 @@ interface SkillsOrbitProps {
   count: number;
   iconSize: number;
   startIndex?: number;
+  activeTooltip: string | null;
+  setActiveTooltip: (id: string | null) => void;
+  isMobile: boolean;
 }
 
-function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0 }: SkillsOrbitProps) {
+function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0, activeTooltip, setActiveTooltip, isMobile }: SkillsOrbitProps) {
+  const handleIconClick = (skillName: string) => {
+    if (isMobile) {
+      setActiveTooltip(activeTooltip === skillName ? null : skillName);
+    }
+  };
+
   return (
     <>
       {Array.from({ length: count }).map((_, index) => {
@@ -72,7 +81,7 @@ function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0
         return (
           <div
             key={index}
-            className="absolute flex flex-col items-center group"
+            className="absolute flex flex-col items-center group skill-icon"
             style={{
               left: `${centerX + x - iconSize / 2}px`,
               top: `${centerY - y - iconSize / 2}px`,
@@ -86,6 +95,7 @@ function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0
                 height: iconSize,
                 padding: iconSize * 0.2
               }}
+              onClick={() => handleIconClick(skill.name)}
             >
               <IconComponent 
                 size={iconSize * 0.8} 
@@ -98,7 +108,11 @@ function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0
             <div
               className={`absolute ${
                 tooltipAbove ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"
-              } hidden group-hover:block w-max rounded-lg bg-black/90 backdrop-blur-sm px-3 py-2 text-xs text-white shadow-xl text-center font-medium z-20`}
+              } ${
+                isMobile 
+                  ? (activeTooltip === skill.name ? 'block' : 'hidden')
+                  : 'hidden group-hover:block'
+              } w-max rounded-lg bg-black/90 backdrop-blur-sm px-3 py-2 text-xs text-white shadow-xl text-center font-medium z-20`}
             >
               {skill.name}
               <div
@@ -116,6 +130,8 @@ function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0
 
 export default function SkillsOrbitDisplay() {
   const [size, setSize] = useState({ width: 0, height: 0 });
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const updateSize = () => setSize({ width: window.innerWidth, height: window.innerHeight });
@@ -123,6 +139,30 @@ export default function SkillsOrbitDisplay() {
     window.addEventListener("resize", updateSize);
     return () => window.removeEventListener("resize", updateSize);
   }, []);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Close tooltips when clicking outside on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (isMobile && !target.closest('.skill-icon')) {
+        setActiveTooltip(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isMobile]);
 
   const baseWidth = Math.min(size.width * 0.8, 700);
   const centerX = baseWidth / 2;
@@ -163,6 +203,9 @@ export default function SkillsOrbitDisplay() {
           count={6} 
           iconSize={iconSize}
           startIndex={0}
+          activeTooltip={activeTooltip}
+          setActiveTooltip={setActiveTooltip}
+          isMobile={isMobile}
         />
         <SkillsOrbit 
           radius={baseWidth * 0.36} 
@@ -171,6 +214,9 @@ export default function SkillsOrbitDisplay() {
           count={8} 
           iconSize={iconSize}
           startIndex={6}
+          activeTooltip={activeTooltip}
+          setActiveTooltip={setActiveTooltip}
+          isMobile={isMobile}
         />
         <SkillsOrbit 
           radius={baseWidth * 0.5} 
@@ -179,6 +225,9 @@ export default function SkillsOrbitDisplay() {
           count={6} 
           iconSize={iconSize}
           startIndex={14}
+          activeTooltip={activeTooltip}
+          setActiveTooltip={setActiveTooltip}
+          isMobile={isMobile}
         />
       </div>
     </div>

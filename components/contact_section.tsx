@@ -8,7 +8,7 @@ export default function ContactSection() {
     <div className="container mx-auto flex max-w-7xl flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
         <SplitText
             text="Contact Me"
-            className="text-7xl font-bold text-center pb-12 py-30"
+            className="text-4xl md:text-7xl font-bold text-center pb-12 py-30"
             delay={50}
             duration={0.5}
             ease="power3.out"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ExternalLink, Github } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -58,18 +58,28 @@ const PROJECTS: Project[] = [
   },
 ];
 
-const ProjectCard = ({ project, isCenter }: { 
+const ProjectCard = ({ project, isCenter, isMobile }: { 
   project: Project; 
-  isCenter: boolean; 
+  isCenter: boolean;
+  isMobile: boolean;
 }) => {
+  // On mobile, only show the center card
+  if (isMobile && !isCenter) {
+    return null;
+  }
+
   return (
     <motion.div
-      className="flex-shrink-0 w-[28rem] transition-all duration-700 ease-out"
+      className={`flex-shrink-0 transition-all duration-700 ease-out ${
+        isMobile 
+          ? 'w-[90vw] max-w-[380px]' 
+          : 'w-[28rem]'
+      }`}
       animate={{
-        scale: isCenter ? 1.1 : 0.85,
-        opacity: isCenter ? 1 : 0.6,
-        filter: isCenter ? "blur(0px)" : "blur(4px)",
-        y: isCenter ? -20 : 10
+        scale: isMobile ? 1 : (isCenter ? 1.1 : 0.85),
+        opacity: isMobile ? 1 : (isCenter ? 1 : 0.6),
+        filter: isMobile ? "blur(0px)" : (isCenter ? "blur(0px)" : "blur(4px)"),
+        y: isMobile ? 0 : (isCenter ? -20 : 10)
       }}
       transition={{ 
         type: "spring", 
@@ -78,15 +88,15 @@ const ProjectCard = ({ project, isCenter }: {
         duration: 0.7
       }}
     >
-      <div className="relative h-[600px] group">
+      <div className={`relative group ${isMobile ? 'h-[550px]' : 'h-[600px]'}`}>
         {/* Main Card with Glassmorphism Effect */}
-        <div className="relative w-full h-full rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl overflow-hidden before:absolute before:inset-0 before:rounded-2xl before:p-[1px] before:bg-gradient-to-br before:from-white/20 before:via-white/5 before:to-transparent before:-z-10 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+        <div className={`relative w-full h-full rounded-2xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl overflow-hidden before:absolute before:inset-0 before:rounded-2xl before:p-[1px] before:bg-gradient-to-br before:from-white/20 before:via-white/5 before:to-transparent before:-z-10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 ${isMobile ? 'flex flex-col' : ''}`}>
           {/* Header Section */}
-          <div className="p-6 border-b border-white/10">
-            <div className="flex items-center justify-between mb-4">
+          <div className={`border-b border-white/10 ${isMobile ? 'p-5' : 'p-6'} ${isMobile ? 'flex-shrink-0' : ''}`}>
+            <div className={`flex items-center justify-between mb-4 ${isMobile ? 'flex-col items-start gap-3' : ''}`}>
               <div className="flex items-center gap-4">
                 <div>
-                  <h3 className="text-xl font-semibold text-white leading-tight drop-shadow-lg">
+                  <h3 className={`font-semibold text-white leading-tight drop-shadow-lg ${isMobile ? 'text-xl' : 'text-xl'}`}>
                     {project.title}
                   </h3>
                   <div className="flex items-center gap-3 mt-2">
@@ -119,47 +129,93 @@ const ProjectCard = ({ project, isCenter }: {
                 )}
               </div>
             </div>
-            <p className="text-white/80 text-sm leading-relaxed mb-1 drop-shadow-sm">
+            <p className={`text-white/80 leading-relaxed mb-1 drop-shadow-sm ${isMobile ? 'text-sm' : 'text-sm'}`}>
               {project.description}
             </p>
-            </div>
+          </div>
 
-          {/* Features and Achievements Grid */}
-          <div className="p-6 border-b border-white/10">
-            <div className="grid gap-6">
-              {/* Key Features */}
-              <div>
-                <h4 className="text-white font-medium mb-3 flex items-center gap-2 drop-shadow-lg">
-                  Key Features
-                </h4>
-                <div className="space-y-2">
-                  {project.features.map((feature, index) => (
-                    <div key={index} className="text-white/80 text-sm flex items-center gap-2 drop-shadow-sm">
-                      <div className="w-1 h-1 bg-white/60 rounded-full shadow-sm"></div>
-                      {feature}
+          {/* Content Area - Scrollable on Mobile, Static on Desktop */}
+          {isMobile ? (
+            // Mobile: Scrollable Content
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-white/5 hover:scrollbar-thumb-white/30 scroll-smooth">
+              {/* Features and Achievements Grid */}
+              <div className="border-b border-white/10 p-5">
+                <div className="grid gap-6">
+                  {/* Key Features */}
+                  <div>
+                    <h4 className="text-white font-medium mb-3 flex items-center gap-2 drop-shadow-lg text-base">
+                      Key Features
+                    </h4>
+                    <div className="space-y-3">
+                      {project.features.map((feature, index) => (
+                        <div key={index} className="text-white/80 flex items-start gap-3 drop-shadow-sm text-sm leading-relaxed">
+                          <div className="w-1.5 h-1.5 bg-white/60 rounded-full shadow-sm mt-2 flex-shrink-0"></div>
+                          <span>{feature}</span>
+                        </div>
+                      ))}
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Technologies Section */}
+              <div className="px-5 py-5">
+                <h4 className="text-white font-medium mb-4 flex items-center gap-2 drop-shadow-lg text-base">
+                  Technologies Used
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {project.technologies.map((tech, index) => (
+                    <span
+                      key={index}
+                      className="bg-white/10 backdrop-blur-sm text-white/90 rounded-lg border border-white/20 hover:border-white/40 hover:bg-white/15 transition-all duration-200 px-3 py-2 text-sm"
+                    >
+                      {tech}
+                    </span>
                   ))}
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            // Desktop: Static Content (Original Layout)
+            <>
+              {/* Features and Achievements Grid */}
+              <div className="border-b border-white/10 p-6">
+                <div className="grid gap-6">
+                  {/* Key Features */}
+                  <div>
+                    <h4 className="text-white font-medium mb-3 flex items-center gap-2 drop-shadow-lg">
+                      Key Features
+                    </h4>
+                    <div className="space-y-2">
+                      {project.features.map((feature, index) => (
+                        <div key={index} className="text-white/80 flex items-center gap-2 drop-shadow-sm text-sm">
+                          <div className="w-1 h-1 bg-white/60 rounded-full shadow-sm"></div>
+                          {feature}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-          {/* Technologies Section */}
-          <div className="px-6 py-6 pt-0">
-            <h4 className="text-white font-medium py-4 flex items-center gap-2 drop-shadow-lg">
-              Technologies Used
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {project.technologies.map((tech, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-white/10 backdrop-blur-sm text-white/90 text-sm rounded-lg border border-white/20 hover:border-white/40 hover:bg-white/15 transition-all duration-200"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>    
+              {/* Technologies Section */}
+              <div className="pt-0 px-6 py-6">
+                <h4 className="text-white font-medium py-4 flex items-center gap-2 drop-shadow-lg">
+                  Technologies Used
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {project.technologies.map((tech, index) => (
+                    <span
+                      key={index}
+                      className="bg-white/10 backdrop-blur-sm text-white/90 rounded-lg border border-white/20 hover:border-white/40 hover:bg-white/15 transition-all duration-200 px-3 py-1 text-sm"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}    
         </div>
       </div>
     </motion.div>
@@ -168,6 +224,18 @@ const ProjectCard = ({ project, isCenter }: {
 
 export default function ScrollableProjects() {
   const [centerIndex, setCenterIndex] = useState(0); // Start with first project (id:1)
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const scrollToProject = (index: number) => {
     setCenterIndex(index);
@@ -189,25 +257,31 @@ export default function ScrollableProjects() {
         {/* Navigation Buttons with Glassmorphism */}
         <button
           onClick={handlePrevious}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full backdrop-blur-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-200 shadow-lg"
+          className={`absolute top-1/2 -translate-y-1/2 z-20 rounded-full backdrop-blur-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-200 shadow-lg ${
+            isMobile ? 'left-2 p-2' : 'left-4 p-3'
+          }`}
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={isMobile ? 16 : 20} />
         </button>
         
         <button
           onClick={handleNext}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full backdrop-blur-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-200 shadow-lg"
+          className={`absolute top-1/2 -translate-y-1/2 z-20 rounded-full backdrop-blur-xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:border-white/30 transition-all duration-200 shadow-lg ${
+            isMobile ? 'right-2 p-2' : 'right-4 p-3'
+          }`}
         >
-          <ChevronRight size={20} />
+          <ChevronRight size={isMobile ? 16 : 20} />
         </button>
 
         {/* Projects Carousel */}
         <div className="overflow-hidden px-8">
-          <div className="flex justify-center items-center min-h-[700px]">
+          <div className={`flex justify-center items-center ${isMobile ? 'min-h-[600px]' : 'min-h-[700px]'}`}>
             <motion.div
-              className="flex gap-12 items-center"
+              className={`flex items-center ${isMobile ? 'gap-0' : 'gap-12'}`}
               animate={{
-                x: `calc(50vw - 224px - ${centerIndex * 496}px)` // Center first card: 50% viewport - half card width (224px) - offset
+                x: isMobile 
+                  ? 0 // Mobile: center the single card
+                  : `calc(50vw - 224px - ${centerIndex * 496}px)` // Desktop: original carousel
               }}
               transition={{
                 type: "spring",
@@ -221,11 +295,29 @@ export default function ScrollableProjects() {
                   key={project.id}
                   project={project}
                   isCenter={index === centerIndex}
+                  isMobile={isMobile}
                 />
               ))}
             </motion.div>
           </div>
         </div>
+
+        {/* Mobile Project Indicator */}
+        {isMobile && (
+          <div className="flex justify-center mt-6 gap-2">
+            {PROJECTS.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => scrollToProject(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === centerIndex 
+                    ? 'bg-white/80 scale-125' 
+                    : 'bg-white/30 hover:bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

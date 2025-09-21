@@ -7,7 +7,7 @@ export default function ProjectSection() {
     <div className="container mx-auto flex max-w-7xl flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
         <SplitText
             text="Projects"
-            className="text-7xl font-bold text-center pb-8"
+            className="text-4xl md:text-7xl font-bold text-center pb-8"
             delay={50}
             duration={0.5}
             ease="power3.out"

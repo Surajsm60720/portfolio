@@ -163,4 +163,16 @@
   .company-info {
     margin-bottom: 0.5rem;
   }
+  
+  /* Ensure touch targets are large enough */
+  .experience-pill {
+    padding: 1.25rem;
+    min-height: 80px;
+  }
+  
+  /* Add visual feedback for touch */
+  .experience-pill:active {
+    transform: scale(0.98);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
 }

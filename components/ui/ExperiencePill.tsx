@@ -22,19 +22,26 @@ const ExperiencePill = ({
   technologies = [],
   type = "Full-time"
 }: ExperiencePillProps) => {
-  const [isHovered, setIsHovered] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleToggle = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   return (
     <div className="experience-pill-container">
       <motion.div
         className="experience-pill"
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
+        onHoverStart={() => setIsExpanded(true)}
+        onHoverEnd={() => setIsExpanded(false)}
+        onClick={handleToggle}
         whileHover={{ 
           scale: 1.02,
           y: -5
         }}
+        whileTap={{ scale: 0.98 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
+        style={{ cursor: 'pointer' }}
       >
         {/* Main Pill Content */}
         <div className="pill-header">
@@ -56,7 +63,7 @@ const ExperiencePill = ({
               <span>{location}</span>
             </div>
             <motion.div
-              animate={{ rotate: isHovered ? 180 : 0 }}
+              animate={{ rotate: isExpanded ? 180 : 0 }}
               transition={{ duration: 0.3 }}
             >
               <ChevronDown size={16} />
@@ -66,7 +73,7 @@ const ExperiencePill = ({
 
         {/* Animated Dropdown */}
         <AnimatePresence>
-          {isHovered && (
+          {isExpanded && (
             <motion.div
               className="pill-dropdown"
               initial={{ height: 0, opacity: 0 }}
