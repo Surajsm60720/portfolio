@@ -4,24 +4,11 @@ import SkillsOrbitDisplay from "./ui/SkillsOrbit";
 
 export default function SkillsSection() {
   return (
-    <div className="container mx-auto flex max-w-7xl flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
-        <SplitText
-            text="Skills & Technologies"
-            className="text-4xl md:text-7xl font-bold text-center pb-8"
-            delay={50}
-            duration={0.5}
-            ease="power3.out"
-            splitType="chars"
-            from={{ opacity: 0, y: 40 }}
-            to={{ opacity: 1, y: 0 }}
-            threshold={0.1}
-            rootMargin="100px"
-            textAlign="center"
-        />
-        <div className="w-full py-8">
-          <SkillsOrbitDisplay />
-        </div>
-    </div>
+    <section id="skills" className="mb-16 scroll-mt-16 md:mb-24 lg:mb-36 lg:scroll-mt-24">
+      <div className="sticky top-0 z-20 -mx-6 mb-4 w-screen bg-background/75 px-6 py-5 backdrop-blur md:-mx-12 md:px-12 lg:sr-only lg:relative lg:top-auto lg:mx-auto lg:w-full lg:px-0 lg:py-0 lg:opacity-0">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-white">Skills</h2>
+      </div>
+      <SkillsOrbitDisplay />
+    </section>
   );
 };
-
