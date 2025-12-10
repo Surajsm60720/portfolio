@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Github, Linkedin, Mail, Twitter, Instagram, FileText } from "lucide-react";
+import Magnetic from "./ui/Magnetic";
 
 const NAV_ITEMS = [
   { name: "About", href: "#about" },
@@ -66,25 +67,37 @@ export default function HeroSection() {
 
         {/* Social Links Footer in Sidebar */}
         <div className="flex items-center gap-5">
-          <a href="https://github.com/Surajsm60720" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors" aria-label="GitHub">
-            <Github size={24} />
-          </a>
-          <a href="https://linkedin.com/in/suraj-menon" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors" aria-label="LinkedIn">
-            <Linkedin size={24} />
-          </a>
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors" aria-label="Instagram">
-            <Instagram size={24} />
-          </a>
-          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors" aria-label="Twitter">
-            <Twitter size={24} />
-          </a>
-          <a href="mailto:surajmenon@example.com" className="text-white/40 hover:text-white transition-colors" aria-label="Email">
-            <Mail size={24} />
-          </a>
-          <a href="/cv.pdf" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/40 hover:text-white transition-colors" aria-label="Resume">
-            <FileText size={24} />
-            <span className="text-sm font-medium uppercase tracking-widest hidden xl:block">Resume</span>
-          </a>
+          <Magnetic>
+            <a href="https://github.com/Surajsm60720" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="GitHub">
+              <Github size={24} />
+            </a>
+          </Magnetic>
+          <Magnetic>
+            <a href="https://linkedin.com/in/suraj-menon" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="LinkedIn">
+              <Linkedin size={24} />
+            </a>
+          </Magnetic>
+          <Magnetic>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="Instagram">
+              <Instagram size={24} />
+            </a>
+          </Magnetic>
+          <Magnetic>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="Twitter">
+              <Twitter size={24} />
+            </a>
+          </Magnetic>
+          <Magnetic>
+            <a href="mailto:surajmenon@example.com" className="text-white/40 hover:text-white transition-colors block" aria-label="Email">
+              <Mail size={24} />
+            </a>
+          </Magnetic>
+          <Magnetic>
+            <a href="/cv.pdf" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-white/40 hover:text-white transition-colors" aria-label="Resume">
+              <FileText size={24} />
+              <span className="text-sm font-medium uppercase tracking-widest hidden xl:block">Resume</span>
+            </a>
+          </Magnetic>
         </div>
       </div>
     </>

@@ -1,7 +1,13 @@
 "use client";
 
+import type { StaticImageData } from 'next/image';
+import Image from 'next/image';
+import travelease from "../Assets/travelease.png";
+import linux_starter_pack from "../Assets/lsp.png";
+import nammalakes from "../Assets/nammalakes.png";
 import { ExternalLink, Github } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useRef, useState } from 'react';
 
 interface Project {
   id: number;
@@ -12,7 +18,7 @@ interface Project {
   githubUrl?: string;
   liveUrl?: string;
   category: string;
-  mediaUrl?: string;
+  mediaUrl?: string | StaticImageData;
   mediaType?: 'video' | 'image';
 }
 
@@ -27,7 +33,7 @@ const PROJECTS: Project[] = [
     liveUrl: "https://travel-ease-mocha.vercel.app/",
     category: "Full Stack",
     mediaType: "image",
-    mediaUrl: "https://placehold.co/600x400/101010/FFF?text=TravelEase+Preview"
+    mediaUrl: travelease
   },
   {
     id: 2,
@@ -39,7 +45,7 @@ const PROJECTS: Project[] = [
     liveUrl: "https://linuxstarterpack.vercel.app/",
     category: "CLI Tool",
     mediaType: "image",
-    mediaUrl: "https://placehold.co/600x400/101010/FFF?text=Linux+Starter+Pack"
+    mediaUrl: linux_starter_pack
   },
   {
     id: 3,
@@ -51,73 +57,112 @@ const PROJECTS: Project[] = [
     liveUrl: "https://nammalakes.github.io/",
     category: "IoT / Distributed Systems",
     mediaType: "image",
-    mediaUrl: "https://placehold.co/600x400/101010/FFF?text=NammaLakes"
-  },
-  {
-    id: 4,
-    title: "QuizGo",
-    description: "Modern quiz management platform built with Next.js and Firebase for educational institutions.",
-    technologies: ["Next.js", "Firebase", "Tailwind CSS", "React Hooks"],
-    features: ["Timed quizzes", "Bulk upload", "Student reports", "Analytics dashboard", "Result breakdown"],
-    githubUrl: "https://github.com/suvanbanerjee/QuizGo",
-    liveUrl: "https://dscequiz.vercel.app/",
-    category: "Full Stack",
-    mediaType: "image",
-    mediaUrl: "https://placehold.co/600x400/101010/FFF?text=QuizGo"
+    mediaUrl: nammalakes
   },
 ];
 
 const ProjectCard = ({ project }: { project: Project }) => {
+  const divRef = useRef<HTMLDivElement>(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [opacity, setOpacity] = useState(0);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!divRef.current || isFocused) return;
+
+    const div = divRef.current;
+    const rect = div.getBoundingClientRect();
+
+    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    setOpacity(1);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    setOpacity(0);
+  };
+
+  const handleMouseEnter = () => {
+    setOpacity(1);
+  };
+
+  const handleMouseLeave = () => {
+    setOpacity(0);
+  };
+
   return (
     <motion.div
+      ref={divRef}
+      onMouseMove={handleMouseMove}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="group relative flex flex-col gap-4 rounded-lg bg-white/5 p-4 transition-colors hover:bg-white/10 lg:p-6"
+      className="group relative flex flex-col gap-4 rounded-xl border border-white/10 bg-white/5 p-4 lg:p-6 overflow-hidden"
     >
+      {/* Spotlight Overlay */}
+      <div
+        className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
+        style={{
+          opacity,
+          background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(255,255,255,.1), transparent 40%)`,
+        }}
+      />
+
       {/* Media Section */}
-      <div className="w-full h-48 sm:h-56 bg-black/20 overflow-hidden relative rounded-md border border-white/10">
-        {project.mediaUrl && (
+      <div className="w-full h-48 sm:h-56 bg-black/20 overflow-hidden relative rounded-md z-10">
+        {project.mediaUrl ? (
           project.mediaType === 'video' ? (
             <video
-              src={project.mediaUrl}
-              autoPlay
+              src={typeof project.mediaUrl === 'string' ? project.mediaUrl : ''}
               muted
               loop
+              autoPlay
               playsInline
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+              className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105 rounded-lg"
             />
           ) : (
-            <img
-              src={project.mediaUrl}
-              alt={project.title}
-              className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-105"
-            />
+            typeof project.mediaUrl === 'string' ? (
+              <img
+                src={project.mediaUrl}
+                alt={project.title}
+                className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-105 rounded-lg"
+              />
+            ) : (
+              <Image
+                src={project.mediaUrl}
+                alt={project.title}
+                fill
+                className="object-contain transition-transform duration-500 group-hover:scale-105 rounded-lg"
+              />
+            )
           )
-        )}
-        {!project.mediaUrl && (
+        ) : (
           <div className="w-full h-full flex items-center justify-center text-white/30 text-sm">
             No Preview
           </div>
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 z-10">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-medium leading-tight text-white group-hover:text-teal-300">
+          <h3 className="text-xl font-bold text-white group-hover:text-teal-300 transition-colors">
             {project.title}
           </h3>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             {project.githubUrl && (
-              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-white/70 hover:text-white">
-                <Github size={20} />
-              </a>
+              <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors"><Github size={18} /></a>
             )}
             {project.liveUrl && (
-              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="text-white/70 hover:text-white">
-                <ExternalLink size={20} />
-              </a>
+              <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors"><ExternalLink size={18} /></a>
             )}
           </div>
         </div>
@@ -126,9 +171,12 @@ const ProjectCard = ({ project }: { project: Project }) => {
           {project.description}
         </p>
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mt-2">
           {project.technologies.map((tech, i) => (
-            <span key={i} className="rounded-full bg-teal-400/10 px-3 py-1 text-xs font-medium leading-5 text-teal-300">
+            <span
+              key={i}
+              className="rounded-full bg-teal-400/10 px-2.5 py-0.5 text-xs font-medium text-teal-300 ring-1 ring-inset ring-teal-400/20"
+            >
               {tech}
             </span>
           ))}
