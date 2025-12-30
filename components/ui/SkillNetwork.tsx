@@ -61,21 +61,28 @@ export default function SkillNetwork() {
 
         const updateDimensions = () => {
             if (!containerRef.current) return;
-            const { clientWidth, clientHeight } = containerRef.current;
-            setDimensions({ width: clientWidth, height: clientHeight });
+            const { clientWidth } = containerRef.current;
+
+            // Responsive columns based on width
+            const cols = clientWidth < 400 ? 3 : clientWidth < 600 ? 4 : 5;
+            const rows = Math.ceil(SKILLS.length / cols);
+
+            // Calculate height based on rows (each row ~100px on mobile, ~120px on desktop)
+            const rowHeight = clientWidth < 600 ? 90 : 120;
+            const calculatedHeight = rows * rowHeight + 60; // Extra padding
+
+            setDimensions({ width: clientWidth, height: calculatedHeight });
+
+            // Recalculate node positions on resize
+            const cellWidth = clientWidth / (cols + 1);
+            const cellHeight = calculatedHeight / (rows + 1);
 
             if (nodesRef.current.length === 0) {
-                // Distribute nodes in a loose grid
-                const cols = 5;
-                const rows = Math.ceil(SKILLS.length / cols);
-                const cellWidth = clientWidth / (cols + 1);
-                const cellHeight = clientHeight / (rows + 1);
-
                 nodesRef.current = SKILLS.map((_, i) => {
                     const col = i % cols;
                     const row = Math.floor(i / cols);
-                    const anchorX = (col + 1) * cellWidth + (Math.random() - 0.5) * 40;
-                    const anchorY = (row + 1) * cellHeight + (Math.random() - 0.5) * 40;
+                    const anchorX = (col + 1) * cellWidth + (Math.random() - 0.5) * 20;
+                    const anchorY = (row + 1) * cellHeight + (Math.random() - 0.5) * 20;
 
                     return {
                         id: i,
@@ -86,6 +93,22 @@ export default function SkillNetwork() {
                         vx: 0,
                         vy: 0,
                         isDragging: false,
+                    };
+                });
+            } else {
+                // Update anchor positions on resize
+                nodesRef.current = nodesRef.current.map((node, i) => {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    const anchorX = (col + 1) * cellWidth;
+                    const anchorY = (row + 1) * cellHeight;
+
+                    return {
+                        ...node,
+                        anchorX,
+                        anchorY,
+                        x: anchorX,
+                        y: anchorY,
                     };
                 });
             }
@@ -118,24 +141,27 @@ export default function SkillNetwork() {
 
             nodes.forEach((node, i) => {
                 if (!node.isDragging) {
-                    // Magnetic spring force pulling back to anchor
+                    // Only do subtle idle drift when very close to anchor
                     const dx = node.anchorX - node.x;
                     const dy = node.anchorY - node.y;
-                    const springStrength = 0.05; // How strong the pull is
+                    const distance = Math.sqrt(dx * dx + dy * dy);
 
-                    node.vx += dx * springStrength;
-                    node.vy += dy * springStrength;
+                    // Small threshold for idle animation
+                    if (distance < 5) {
+                        // Subtle random drift for ambient movement
+                        node.vx += (Math.random() - 0.5) * 0.15;
+                        node.vy += (Math.random() - 0.5) * 0.15;
 
-                    // Add subtle random drift
-                    node.vx += (Math.random() - 0.5) * 0.1;
-                    node.vy += (Math.random() - 0.5) * 0.1;
+                        // Gentle spring back
+                        node.vx += dx * 0.05;
+                        node.vy += dy * 0.05;
 
-                    // Damping
-                    node.vx *= 0.9;
-                    node.vy *= 0.9;
+                        node.vx *= 0.9;
+                        node.vy *= 0.9;
 
-                    node.x += node.vx;
-                    node.y += node.vy;
+                        node.x += node.vx;
+                        node.y += node.vy;
+                    }
                 }
 
                 // Update DOM position
@@ -207,7 +233,26 @@ export default function SkillNetwork() {
 
     const handleMouseUp = () => {
         if (dragStateRef.current.nodeIndex !== null) {
-            nodesRef.current[dragStateRef.current.nodeIndex].isDragging = false;
+            const node = nodesRef.current[dragStateRef.current.nodeIndex];
+            const iconEl = iconRefs.current[dragStateRef.current.nodeIndex];
+
+            // Add transition class for smooth return
+            if (iconEl) {
+                iconEl.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                iconEl.style.transform = `translate3d(${node.anchorX - 28}px, ${node.anchorY - 28}px, 0)`;
+
+                // Remove transition after animation completes
+                setTimeout(() => {
+                    if (iconEl) iconEl.style.transition = '';
+                }, 300);
+            }
+
+            // Reset node position and state
+            node.x = node.anchorX;
+            node.y = node.anchorY;
+            node.vx = 0;
+            node.vy = 0;
+            node.isDragging = false;
             dragStateRef.current.nodeIndex = null;
         }
     };
@@ -215,7 +260,8 @@ export default function SkillNetwork() {
     return (
         <div
             ref={containerRef}
-            className="relative w-full h-[600px] overflow-hidden"
+            className="relative w-full overflow-hidden"
+            style={{ height: dimensions.height > 0 ? `${dimensions.height}px` : '500px' }}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
@@ -226,21 +272,23 @@ export default function SkillNetwork() {
                 <div
                     key={i}
                     ref={(el) => { iconRefs.current[i] = el; }}
-                    className="absolute top-0 left-0 w-14 h-14 flex items-center justify-center rounded-full bg-black/10 backdrop-blur-sm border border-white/20 shadow-lg z-10 will-change-transform group cursor-grab active:cursor-grabbing transition-shadow hover:shadow-xl hover:shadow-indigo-500/20"
+                    className="absolute top-0 left-0 flex flex-col items-center z-10 will-change-transform group cursor-grab active:cursor-grabbing"
                     style={{ transform: 'translate3d(-100px, -100px, 0)' }}
                     onMouseDown={(e) => handleMouseDown(e, i)}
                 >
-                    <skill.icon
-                        size={24}
-                        color={skill.color}
-                        className="transition-transform duration-300 group-hover:scale-125 pointer-events-none"
-                    />
-
-                    {/* Tooltip */}
-                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-black/90 backdrop-blur-md rounded-lg text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-xl border border-white/10">
-                        {skill.name}
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px w-2 h-2 rotate-45 bg-black/90 border-r border-b border-white/10" />
+                    {/* Icon Circle - smaller on mobile */}
+                    <div className="w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-black/10 backdrop-blur-sm border border-white/20 shadow-lg transition-shadow hover:shadow-xl hover:shadow-indigo-500/20">
+                        <skill.icon
+                            size={dimensions.width < 400 ? 18 : 24}
+                            color={skill.color}
+                            className="transition-transform duration-300 group-hover:scale-125 pointer-events-none"
+                        />
                     </div>
+
+                    {/* Always visible skill name */}
+                    <span className="mt-1 text-[9px] sm:text-[10px] font-medium text-white/70 text-center whitespace-nowrap group-hover:text-white transition-colors">
+                        {skill.name}
+                    </span>
                 </div>
             ))}
 

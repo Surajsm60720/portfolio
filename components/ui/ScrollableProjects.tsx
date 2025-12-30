@@ -20,6 +20,7 @@ interface Project {
   category: string;
   mediaUrl?: string | StaticImageData;
   mediaType?: 'video' | 'image';
+  aspectRatio?: string; // e.g., "16/9", "3/1", etc.
 }
 
 const PROJECTS: Project[] = [
@@ -33,7 +34,8 @@ const PROJECTS: Project[] = [
     liveUrl: "https://travel-ease-mocha.vercel.app/",
     category: "Full Stack",
     mediaType: "image",
-    mediaUrl: travelease
+    mediaUrl: travelease,
+    aspectRatio: "5/2" // 735x285 ≈ 2.6:1
   },
   {
     id: 2,
@@ -45,7 +47,8 @@ const PROJECTS: Project[] = [
     liveUrl: "https://linuxstarterpack.vercel.app/",
     category: "CLI Tool",
     mediaType: "image",
-    mediaUrl: linux_starter_pack
+    mediaUrl: linux_starter_pack,
+    aspectRatio: "9/2" // 1058x231 ≈ 4.6:1
   },
   {
     id: 3,
@@ -57,7 +60,8 @@ const PROJECTS: Project[] = [
     liveUrl: "https://nammalakes.github.io/",
     category: "IoT / Distributed Systems",
     mediaType: "image",
-    mediaUrl: nammalakes
+    mediaUrl: nammalakes,
+    aspectRatio: "5/2" // 711x268 ≈ 2.7:1
   },
 ];
 
@@ -117,8 +121,11 @@ const ProjectCard = ({ project }: { project: Project }) => {
         }}
       />
 
-      {/* Media Section */}
-      <div className="w-full h-48 sm:h-56 bg-black/20 overflow-hidden relative rounded-md z-10">
+      {/* Media Section - using per-project aspect ratio */}
+      <div
+        className="w-full bg-black/20 overflow-hidden relative rounded-md z-10"
+        style={{ aspectRatio: project.aspectRatio || '16/9' }}
+      >
         {project.mediaUrl ? (
           project.mediaType === 'video' ? (
             <video

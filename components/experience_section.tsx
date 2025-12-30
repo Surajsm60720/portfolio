@@ -5,13 +5,22 @@ import ExperiencePill from "./ui/ExperiencePill";
 export default function ExperienceSection() {
   const experiences = [
     {
-      company: "Bharatcrest Pvt. Ltd.",
-      position: "Frontend Developer",
+      company: "Jabsz Gaming Studios",
+      position: "Full Stack Developer Intern",
+      duration: "October 2025 - Present",
+      location: "Remote",
+      type: "Internship",
+      description: "Led a full UI/UX redesign of the company website — fixing cross-page issues, adding animations, and establishing a consistent visual theme. Migrated the production frontend from React to Next.js (App Router), integrating legacy JavaScript and global CSS using custom build tooling. Improved performance and SEO by converting all images to WebP with next/image, boosting Lighthouse scores from 50 to 90.",
+      technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "SEO"]
+    },
+    {
+      company: "BharatCrest Pvt. Ltd.",
+      position: "Full Stack Developer Intern",
       duration: "June 2025 - August 2025",
       location: "Remote",
-      type: "Part-Time",
-      description: "Helped build the frontend for 2 major projects that are successfully deployed and are in production. Designed and built the website HRMatcher using Django framework, which helps companies find the right candidates based on their requirements using AI. Collaborated with a team of 3 developers to build the ProfitPal application using React and Python, which helps restaurant owners and staff manage their inventory and sales.",
-      technologies: ["React", "Python", "TypeScript", "SQLite", "REST APIs"]
+      type: "Internship",
+      description: "Built HRMatcher, a recruitment platform that screens 100+ resumes in under 5 minutes using Google Gemini API for intelligent skill-matching. Also developed a full-stack restaurant management system with React and FastAPI — featuring real-time order tracking, billing, and automated low-stock alerts. Implemented performance optimizations including route-level code splitting and lazy-loading, cutting load times by 20–30%.",
+      technologies: ["React", "FastAPI", "Python", "TypeScript", "Google Gemini API", "SQLite"]
     }
   ];
 

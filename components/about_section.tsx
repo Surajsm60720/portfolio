@@ -9,12 +9,8 @@ export default function AboutSection() {
                 <h2 className="text-sm font-bold uppercase tracking-widest text-white">About</h2>
             </div>
             <div className="text-white/70 leading-relaxed">
-                <p className="mb-4">
-                    I am currently a final year student in Dept. of Information Science & Engg. at DSCE, Bengaluru.
-                    With a strong foundation in both front-end and back-end technologies, I thrive on creating seamless user experiences and efficient server-side solutions.
-                </p>
                 <p>
-                    I am dedicated to continuous learning and staying updated with the latest industry trends to deliver innovative solutions that meet client needs.
+                    I&apos;m the type who builds things for fun — whether that&apos;s a trip planner at 2 AM or an IoT system to track lake pollution. I get excited about turning messy problems into clean, fast interfaces. Outside of code, I&apos;m probably gaming, hunting for new music tracks, or deep in a rabbit hole learning something I&apos;ll definitely use &quot;someday.&quot; I believe great software should feel invisible — if you notice the UX, something went wrong.
                 </p>
             </div>
         </section>
