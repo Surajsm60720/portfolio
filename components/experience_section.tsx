@@ -1,6 +1,4 @@
 "use client";
-import SplitText from "./ui/SplitText";
-import ExperiencePill from "./ui/ExperiencePill";
 
 export default function ExperienceSection() {
   const experiences = [

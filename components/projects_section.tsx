@@ -1,5 +1,4 @@
 "use client";
-import SplitText from "./ui/SplitText";
 import ScrollableProjects from "./ui/ScrollableProjects";
 
 export default function ProjectSection() {

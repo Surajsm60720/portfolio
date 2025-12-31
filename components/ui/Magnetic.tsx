@@ -9,7 +9,7 @@ export default function Magnetic({ children }: { children: React.ReactNode }) {
 
     const handleMouse = (e: React.MouseEvent<HTMLDivElement>) => {
         const { clientX, clientY } = e;
-        // @ts-ignore
+        if (!ref.current) return;
         const { height, width, left, top } = ref.current.getBoundingClientRect();
         const middleX = clientX - (left + width / 2);
         const middleY = clientY - (top + height / 2);

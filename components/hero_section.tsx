@@ -20,7 +20,6 @@ const NAV_ITEMS = [
 
 export default function HeroSection() {
   const [activeSection, setActiveSection] = useState("about");
-  const [greeting, setGreeting] = useState("");
   const [isNightOwl, setIsNightOwl] = useState(false);
 
   useEffect(() => {
