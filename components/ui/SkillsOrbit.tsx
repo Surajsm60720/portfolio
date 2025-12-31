@@ -1,13 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { 
-  SiReact, 
-  SiNextdotjs, 
-  SiTypescript, 
-  SiTailwindcss, 
-  SiNodedotjs, 
-  SiFramer, 
-  SiGithub, 
+import {
+  SiReact,
+  SiNextdotjs,
+  SiTypescript,
+  SiTailwindcss,
+  SiNodedotjs,
+  SiFramer,
+  SiGithub,
   SiPython,
   SiJavascript,
   SiMysql,
@@ -90,15 +90,15 @@ function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0
           >
             <div
               className="flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-150"
-              style={{ 
-                width: iconSize, 
+              style={{
+                width: iconSize,
                 height: iconSize,
                 padding: iconSize * 0.2
               }}
               onClick={() => handleIconClick(skill.name)}
             >
-              <IconComponent 
-                size={iconSize * 0.8} 
+              <IconComponent
+                size={iconSize * 0.8}
                 color={skill.color}
                 style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
               />
@@ -106,19 +106,16 @@ function SkillsOrbit({ radius, centerX, centerY, count, iconSize, startIndex = 0
 
             {/* Tooltip */}
             <div
-              className={`absolute ${
-                tooltipAbove ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"
-              } ${
-                isMobile 
+              className={`absolute ${tooltipAbove ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]"
+                } ${isMobile
                   ? (activeTooltip === skill.name ? 'block' : 'hidden')
                   : 'hidden group-hover:block'
-              } w-max rounded-lg bg-black/90 backdrop-blur-sm px-3 py-2 text-xs text-white shadow-xl text-center font-medium z-20`}
+                } w-max rounded-lg bg-black/90 backdrop-blur-sm px-3 py-2 text-xs text-white shadow-xl text-center font-medium z-20`}
             >
               {skill.name}
               <div
-                className={`absolute left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-black/90 ${
-                  tooltipAbove ? "top-full" : "bottom-full"
-                }`}
+                className={`absolute left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 bg-black/90 ${tooltipAbove ? "top-full" : "bottom-full"
+                  }`}
               ></div>
             </div>
           </div>
@@ -144,10 +141,10 @@ export default function SkillsOrbitDisplay() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -164,7 +161,7 @@ export default function SkillsOrbitDisplay() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [isMobile]);
 
-  const baseWidth = Math.min(size.width * 0.8, 700);
+  const baseWidth = Math.min(size.width * 0.8, 550);
   const centerX = baseWidth / 2;
   const centerY = baseWidth * 0.5;
 
@@ -172,8 +169,8 @@ export default function SkillsOrbitDisplay() {
     size.width < 480
       ? Math.max(40, baseWidth * 0.06)
       : size.width < 768
-      ? Math.max(48, baseWidth * 0.07)
-      : Math.max(56, baseWidth * 0.08);
+        ? Math.max(48, baseWidth * 0.07)
+        : Math.max(56, baseWidth * 0.08);
 
   return (
     <div className="relative w-full flex justify-center">
@@ -196,33 +193,33 @@ export default function SkillsOrbitDisplay() {
         className="relative"
         style={{ width: baseWidth, height: baseWidth * 0.6 }}
       >
-        <SkillsOrbit 
-          radius={baseWidth * 0.22} 
-          centerX={centerX} 
-          centerY={centerY} 
-          count={6} 
+        <SkillsOrbit
+          radius={baseWidth * 0.22}
+          centerX={centerX}
+          centerY={centerY}
+          count={6}
           iconSize={iconSize}
           startIndex={0}
           activeTooltip={activeTooltip}
           setActiveTooltip={setActiveTooltip}
           isMobile={isMobile}
         />
-        <SkillsOrbit 
-          radius={baseWidth * 0.36} 
-          centerX={centerX} 
-          centerY={centerY} 
-          count={8} 
+        <SkillsOrbit
+          radius={baseWidth * 0.36}
+          centerX={centerX}
+          centerY={centerY}
+          count={8}
           iconSize={iconSize}
           startIndex={6}
           activeTooltip={activeTooltip}
           setActiveTooltip={setActiveTooltip}
           isMobile={isMobile}
         />
-        <SkillsOrbit 
-          radius={baseWidth * 0.5} 
-          centerX={centerX} 
-          centerY={centerY} 
-          count={6} 
+        <SkillsOrbit
+          radius={baseWidth * 0.5}
+          centerX={centerX}
+          centerY={centerY}
+          count={6}
           iconSize={iconSize}
           startIndex={14}
           activeTooltip={activeTooltip}
