@@ -133,22 +133,22 @@ export default function HeroSection() {
             </a>
           </Magnetic>
           <Magnetic>
-            <a href="https://linkedin.com/in/suraj-menon" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="LinkedIn">
+            <a href="https://www.linkedin.com/in/suraj-menon-a581ab305/" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="LinkedIn">
               <Linkedin size={24} />
             </a>
           </Magnetic>
           <Magnetic>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="Instagram">
+            <a href="https://www.instagram.com/stargazer60720/" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="Instagram">
               <Instagram size={24} />
             </a>
           </Magnetic>
           <Magnetic>
-            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="X">
+            <a href="https://x.com/surajsm223" target="_blank" rel="noopener noreferrer" className="text-white/40 hover:text-white transition-colors block" aria-label="X">
               <XIcon size={24} />
             </a>
           </Magnetic>
           <Magnetic>
-            <a href="mailto:surajmenon@example.com" className="text-white/40 hover:text-white transition-colors block" aria-label="Email">
+            <a href="mailto:surajsm218@gmail.com" className="text-white/40 hover:text-white transition-colors block" aria-label="Email">
               <Mail size={24} />
             </a>
           </Magnetic>
