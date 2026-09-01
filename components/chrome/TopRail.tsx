@@ -1,8 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
-import { applyTheme, resolveTheme, writeStored, type Theme } from "@/lib/theme";
+import {
+  commitTheme,
+  getThemeServerSnapshot,
+  getThemeSnapshot,
+  subscribeTheme,
+  type Theme,
+} from "@/lib/theme";
 import { istClock } from "@/lib/time";
 import { identity } from "@/lib/content";
 import ThemeSweep from "./ThemeSweep";
@@ -11,21 +17,26 @@ import ThemeSweep from "./ThemeSweep";
 const SWEEP_TOTAL = 520;
 const SWEEP_SWAP = 220;
 
+/** Ten seconds is plenty for a display that only shows hours and minutes. */
+function subscribeClock(onChange: () => void) {
+  const id = window.setInterval(onChange, 10_000);
+  return () => window.clearInterval(id);
+}
+
 export default function TopRail() {
-  /* Server render must not depend on the clock, so both the time and the
-     toggle icon start neutral and settle on mount. */
-  const [clock, setClock] = useState<string | null>(null);
-  const [theme, setTheme] = useState<Theme | null>(null);
+  /* Both of these are values the server cannot know, so both come through
+     useSyncExternalStore with a null server snapshot rather than being set
+     from inside an effect. */
+  const theme = useSyncExternalStore(
+    subscribeTheme,
+    getThemeSnapshot,
+    getThemeServerSnapshot,
+  );
+  const clock = useSyncExternalStore(subscribeClock, istClock, () => null);
+
   const [sweeping, setSweeping] = useState(false);
   const busy = useRef(false);
   const timers = useRef<number[]>([]);
-
-  useEffect(() => {
-    setTheme(resolveTheme());
-    setClock(istClock());
-    const tick = window.setInterval(() => setClock(istClock()), 10_000);
-    return () => window.clearInterval(tick);
-  }, []);
 
   useEffect(
     () => () => {
@@ -37,22 +48,16 @@ export default function TopRail() {
   const toggle = useCallback(() => {
     if (busy.current || !theme) return;
     const next: Theme = theme === "dark" ? "light" : "dark";
-    writeStored(next);
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      applyTheme(next);
-      setTheme(next);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      commitTheme(next);
       return;
     }
 
     busy.current = true;
     setSweeping(true);
     timers.current.push(
-      window.setTimeout(() => {
-        applyTheme(next);
-        setTheme(next);
-      }, SWEEP_SWAP),
+      window.setTimeout(() => commitTheme(next), SWEEP_SWAP),
       window.setTimeout(() => {
         setSweeping(false);
         busy.current = false;
@@ -81,9 +86,7 @@ export default function TopRail() {
               type="button"
               className="rail__toggle"
               onClick={toggle}
-              aria-label={
-                isDark ? "Switch to day theme" : "Switch to night theme"
-              }
+              aria-label={isDark ? "Switch to day theme" : "Switch to night theme"}
               aria-pressed={isDark}
             >
               {theme === null ? null : isDark ? <Moon size={15} /> : <Sun size={15} />}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ArrowUpRight, Github } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import GithubMark from "@/components/icons/GithubMark";
 import type { Project } from "@/lib/content";
 import { register, unregister, type Driven } from "@/lib/scroll-driver";
 
@@ -115,7 +116,7 @@ export default function ItchCard({ project }: { project: Project }) {
             <div className="itch__links">
               {project.repo ? (
                 <a className="action" href={project.repo} target="_blank" rel="noopener noreferrer">
-                  <Github size={13} aria-hidden="true" />
+                  <GithubMark size={13} />
                   Source
                 </a>
               ) : null}

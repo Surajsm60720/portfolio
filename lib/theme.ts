@@ -37,6 +37,45 @@ export function applyTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme;
 }
 
+/* ------------------------------------------------------------------ store
+
+   The theme is a value the server cannot know: it depends on localStorage
+   and on the current hour in Bengaluru. That is exactly what
+   useSyncExternalStore is for — a server snapshot of null (render the
+   neutral placeholder) and a client snapshot resolved on hydration, with no
+   setState inside an effect.
+
+   The snapshot is cached because getSnapshot must be referentially stable
+   between renders; recomputing it on every call would loop. */
+
+const listeners = new Set<() => void>();
+let current: Theme | null = null;
+
+export function subscribeTheme(onChange: () => void): () => void {
+  listeners.add(onChange);
+  return () => {
+    listeners.delete(onChange);
+  };
+}
+
+export function getThemeSnapshot(): Theme {
+  if (current === null) current = resolveTheme();
+  return current;
+}
+
+/** Nothing renders theme-dependent markup on the server. */
+export function getThemeServerSnapshot(): null {
+  return null;
+}
+
+/** Commits a new theme: persists it, paints it, and notifies subscribers. */
+export function commitTheme(next: Theme): void {
+  current = next;
+  writeStored(next);
+  applyTheme(next);
+  for (const listener of listeners) listener();
+}
+
 /**
  * Runs inline in <head> before first paint so the correct palette is on the
  * html element before anything renders. Kept small and dependency-free on

@@ -242,9 +242,26 @@ Hover: interactive elements lift 2px. That is the entire hover vocabulary.
 
 **Add:** none
 
-**Keep:** `next`, `react`, `react-dom`, `lucide-react`, `clsx`, `tailwind-merge`, `tailwindcss`
+**Keep:** `next`, `react`, `react-dom`, `lucide-react`, `tailwindcss`
 
 Removing `motion` also resolves the undeclared-`framer-motion` defect at the root rather than patching it, since the four files importing it are all deleted.
+
+`clsx` and `tailwind-merge` went with them: their only consumer was the
+shadcn `cn()` helper in `lib/utils.ts`, which no longer exists.
+
+### 9.2 Upgrade ceiling
+
+Two majors are held back by upstream incompatibility, not by choice. Both
+should be retried when the blocking issue closes.
+
+| Package | Held at | Latest | Blocker |
+|---|---|---|---|
+| `typescript` | 6.0.3 | 7.0.2 | `typescript-eslint` does not support the TS 7 API ([#10940](https://github.com/typescript-eslint/typescript-eslint/issues/10940)). `tsc` and `next build` both pass on 7; only `eslint` fails. |
+| `eslint` | 9.39.5 | 10.9.1 | `eslint-plugin-react`, bundled inside `eslint-config-next@16`, throws at rule-creation time under ESLint 10. |
+
+Brand icons were removed from `lucide-react` in v1, so the GitHub mark is
+inlined at `components/icons/GithubMark.tsx`. Any future brand icon belongs
+there too, not in a new dependency.
 
 ---
 
