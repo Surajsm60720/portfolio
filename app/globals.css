@@ -908,7 +908,6 @@ a {
 /* ---------- footer ---------- */
 
 .foot {
-  background: var(--panel);
   padding-bottom: calc(clamp(56px, 9vh, 108px) + env(safe-area-inset-bottom));
 }
 
@@ -1023,4 +1022,201 @@ a {
   font-family: var(--mono);
   font-size: 13px;
   letter-spacing: 0.06em;
+}
+
+/* ---------- written-first documents on a project card ---------- */
+
+.itch__docs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  margin: 18px 0 0;
+}
+
+.itch__docsLabel {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.itch__doc {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  transition: color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.itch__doc:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---------- rhythm ----------
+   The commit histogram. Tinted bars are the hours that put this page into
+   its night palette, so the theme mechanic can be checked against the data
+   rather than taken on trust. */
+
+.rhythm__bars {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  align-items: end;
+  gap: clamp(2px, 0.6vw, 7px);
+  height: clamp(120px, 20vh, 190px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.rhythm__bar {
+  --h: 0%;
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.rhythm__fill {
+  display: block;
+  width: 100%;
+  /* A floor of 2px keeps empty hours legible as zero rather than absent. */
+  height: max(2px, var(--h));
+  background: var(--ink-faint);
+  border-radius: 1px 1px 0 0;
+  transition: background-color 0.18s linear;
+}
+
+.rhythm__bar[data-night="true"] .rhythm__fill {
+  background: var(--accent);
+}
+
+.rhythm__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.rhythm__axis {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--ink-faint);
+  margin-top: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rhythm__meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  margin: 20px 0 0;
+}
+
+/* ---------- colophon ---------- */
+
+.colo {
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 38%);
+  gap: clamp(28px, 5vw, 68px);
+  align-items: start;
+}
+
+.colo__notes {
+  display: grid;
+  gap: 22px;
+}
+
+.colo__label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 7px;
+}
+
+.colo__body {
+  color: var(--ink-soft);
+  font-size: 15px;
+  margin: 0;
+  max-width: 62ch;
+}
+
+.colo__docs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.colo__doc {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.colo__log {
+  border-left: 1px solid var(--rule);
+  padding-left: clamp(18px, 2.4vw, 32px);
+}
+
+.colo__releases {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+
+.colo__version {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  margin: 0 0 5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.colo__version time {
+  color: var(--ink-faint);
+}
+
+.colo__release .colo__body {
+  font-size: 14px;
+}
+
+@media (max-width: 899px) {
+  .colo {
+    grid-template-columns: 1fr;
+  }
+
+  .colo__log {
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+    padding-left: 0;
+    padding-top: 26px;
+  }
 }

@@ -47,6 +47,6 @@ export function applyTheme(theme: Theme): void {
  */
 export const PREPAINT_SCRIPT = `(function(){try{
 var s=localStorage.getItem(${JSON.stringify(STORAGE_KEY)});
-if(s!=="light"&&s!=="dark"){var h=new Date(Date.now()+19800000).getUTCHours();s=(h>=22||h<6)?"dark":"light";}
+if(s!=="light"&&s!=="dark"){var h=new Date(Date.now()+19800000).getUTCHours();s=(h>=19||h<6)?"dark":"light";}
 document.documentElement.dataset.theme=s;
 }catch(e){document.documentElement.dataset.theme="dark";}})();`;

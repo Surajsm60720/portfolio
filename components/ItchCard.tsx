@@ -94,6 +94,23 @@ export default function ItchCard({ project }: { project: Project }) {
             ))}
           </ul>
 
+          {project.docs ? (
+            <p className="itch__docs">
+              <span className="itch__docsLabel">Written first</span>
+              {project.docs.map((doc) => (
+                <a
+                  className="itch__doc"
+                  key={doc.label}
+                  href={doc.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {doc.label}
+                </a>
+              ))}
+            </p>
+          ) : null}
+
           {project.repo || project.live ? (
             <div className="itch__links">
               {project.repo ? (

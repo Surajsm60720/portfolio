@@ -6,8 +6,9 @@
 
 export const TZ = "Asia/Kolkata";
 
-/** Night runs from 22:00 to 06:00 IST. Matches the badge the old site already had. */
-export const NIGHT_FROM = 22;
+/** Night runs 19:00 to 06:00 IST — where 179 commits of real activity actually
+ *  cluster. The previous site guessed 22:00; see lib/commit-hours.json. */
+export const NIGHT_FROM = 19;
 export const NIGHT_UNTIL = 6;
 
 const formatter = new Intl.DateTimeFormat("en-GB", {

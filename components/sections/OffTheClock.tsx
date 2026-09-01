@@ -5,7 +5,7 @@ import { offTheClock } from "@/lib/content";
 
 export default function OffTheClock() {
   return (
-    <section className="section" id="off-the-clock">
+    <section className="section section--panel" id="off-the-clock">
       <div className="wrap">
         <SectionHeader
           eyebrow="Off the clock"
