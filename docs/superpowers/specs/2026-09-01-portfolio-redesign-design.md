@@ -349,3 +349,50 @@ These are drafted from each repository's own README framing and **must be review
 - No claim on the page lacks a source in `cv.tex` or a repo README.
 - `footer` mailto is `surajsm218@gmail.com`; LinkedIn is `surajmenon60720`.
 - `package.json` contains no removed dependency, and `node_modules` is not required to resolve any undeclared import.
+
+---
+
+## 13. Self-measurement and paper
+
+Two additions that are neither interactions nor sections in their own right,
+so the two-signature budget in §0 is untouched.
+
+### 13.1 The page reports its own cost
+
+§9 states a performance budget. A budget a visitor cannot check is a claim,
+so the colophon reads the real figures back out of the Performance API —
+request count, bytes transferred, script bytes, font count, third-party
+count, and LCP — and prints them next to the budget that predicted them.
+
+- Exposed through `useSyncExternalStore` (`lib/page-cost.ts`), not effect
+  state: the numbers are unknowable on the server, they arrive across
+  several events, and `getSnapshot` must return a stable reference between
+  those events.
+- A cached repeat visit reports `transferSize: 0` on every entry. That is
+  reported as **cached**, never as "0 kB" — the flattering reading would be
+  technically true and materially misleading.
+- The row renders nothing until real numbers exist. A placeholder of dashes
+  is worse than an absent row.
+
+### 13.2 Print
+
+`Cmd-P` produces a typeset document on white, not a screenshot of a dark
+website. The stylesheet forces the light palette regardless of the active
+theme, drops the chrome, and sets page-break rules so a project or a role
+never splits across a page.
+
+Two rules carry most of the weight:
+
+- **Every deferred state resolves.** `.reveal` sits at `opacity: 0` until
+  observed, and an itch card's build is transform-driven. Without an
+  explicit print override, any section the reader had not scrolled to would
+  print as an empty box.
+- **Whole sections, not their innards.** `#rhythm` and `#colophon` are
+  hidden entirely rather than having their contents hidden, since hiding a
+  chart while keeping its heading prints an orphan title over blank space.
+  Both describe the website rather than its author.
+
+The contact line that replaces the icon links on paper is rendered from
+`lib/content.ts` and revealed by the print stylesheet. It is never a CSS
+`content` string — that would duplicate the contact details outside the
+single source of truth in §0.

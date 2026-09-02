@@ -477,7 +477,11 @@ export const colophon: ColophonNote[] = [
   },
   {
     label: "Budget",
-    body: "No 3D, no animation library, no component library, no new runtime dependency. Ideas borrowed from elsewhere are ported by hand into the token file.",
+    body: "No 3D, no animation library, no component library, no new runtime dependency. Ideas borrowed from elsewhere are ported by hand into the token file. The numbers below are read out of your browser, not quoted from a build log.",
+  },
+  {
+    label: "Paper",
+    body: "This page prints. Cmd-P or Ctrl-P gives a typeset document on white — no dark background, no navigation, no decoration — with the résumé PDF linked at the top for the version with the margins already argued about.",
   },
 ];
 

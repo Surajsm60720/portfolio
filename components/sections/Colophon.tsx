@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import PageCost from "@/components/PageCost";
 import Reveal from "@/components/Reveal";
 import SectionHeader from "@/components/SectionHeader";
 import { changelog, colophon, designDocs, site } from "@/lib/content";
@@ -24,6 +25,7 @@ export default function Colophon() {
               <Reveal className="colo__note" key={note.label} delay={i * 50}>
                 <h3 className="colo__label">{note.label}</h3>
                 <p className="colo__body">{note.body}</p>
+                {note.label === "Budget" ? <PageCost /> : null}
               </Reveal>
             ))}
 

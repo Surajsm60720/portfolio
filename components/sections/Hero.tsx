@@ -23,6 +23,12 @@ export default function Hero() {
           </a>
         </div>
 
+        {/* Print only: the icon links vanish on paper, so the addresses
+            behind them are spelled out. Sourced from lib/content.ts. */}
+        <p className="hero__print">
+          {[identity.email, ...socials.map((s) => s.href.replace(/^https?:\/\//, "").replace(/\/$/, "")), `surajmenon.vercel.app${identity.resume}`].join(" · ")}
+        </p>
+
         <ul className="hero__socials">
           {socials.map((social) => (
             <li key={social.label}>
