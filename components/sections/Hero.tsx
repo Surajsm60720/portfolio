@@ -1,16 +1,23 @@
 import { ArrowUpRight, FileText, Mail } from "lucide-react";
+import Greeting from "@/components/Greeting";
+import Quip from "@/components/Quip";
 import { identity, socials } from "@/lib/content";
 
 export default function Hero() {
   return (
     <section className="hero">
       <div className="wrap hero__inner">
+        {/* Your clock. The theme runs on his — see components/chrome/TopRail. */}
+        <Greeting />
+
         <p className="eyebrow">{identity.location} · {identity.role}</p>
 
         <h1 className="hero__name">{identity.name}</h1>
 
         {/* The thesis. Everything below this line on the page is evidence for it. */}
         <p className="hero__thesis">{identity.thesis}</p>
+
+        <Quip />
 
         <div className="hero__actions">
           <a className="action action--primary" href={`mailto:${identity.email}`}>

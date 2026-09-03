@@ -396,3 +396,59 @@ The contact line that replaces the icon links on paper is rendered from
 `lib/content.ts` and revealed by the print stylesheet. It is never a CSS
 `content` string — that would duplicate the contact details outside the
 single source of truth in §0.
+
+---
+
+## 14. The second clock
+
+The theme runs on Suraj's clock (§6b). The hero greeting runs on the
+**visitor's**, and the page says both out loud.
+
+> *Good evening.* Right now it is already 03:00 tomorrow where he is.
+
+This is the fourth wall, and it earns its place by being accurate rather than
+clever: a portfolio that greets you by your own hour and then reports its
+author's is stating two true things, where most sites pretend the reader has
+no location at all. It also completes the argument §6b started — once the
+page has told you it is late in Bengaluru, it owes you the comparison.
+
+**Bands** (visitor local hour): `<5` and `>=22` "Up late", `<12` "Good
+morning", `<17` "Good afternoon", `<22` "Good evening".
+
+**The gap clause** reports his wall-clock time, and names the day shift when
+his date differs from the visitor's ("already 03:00 tomorrow", "still 21:30
+yesterday"). When both clocks are in the small hours it collapses to a single
+line — "so this is late for both of us" — which outranks the day shift.
+
+### 14.1 Constraints
+
+- **Never server-rendered.** A server-side "Good morning" is wrong for most
+  of the planet, so the greeting is absent from the HTML and appears on
+  hydration. Same external-store shape as the theme and the cost row.
+- `getSnapshot` caches but never notifies. It runs during render, so
+  notifying from it would be a render-phase side effect; a separate `pull()`
+  does the caching and `refresh()` alone notifies.
+- The store only swaps its reference when a reader would notice — greeting
+  band, his clock, day shift, or the both-late flag. A 30-second tick that
+  re-rendered the hero for an unchanged minute would be waste.
+
+### 14.2 Quips
+
+One self-aware line under the thesis, picked at random per visit and cycled
+on click.
+
+- **Every quip is checkable against the page it sits on.** The prime
+  directive in §0 gets no comedy exemption: a joke that invented a fact would
+  be the only lie on a page whose entire argument is that it contains none.
+- **Not on a timer.** Text that changes while it is being read is an
+  accessibility problem, not a delight. The reader asks for the next one.
+- The random pick happens in a ref callback, after mount — picking during
+  render would hydrate a mismatch, and an effect body would trip the
+  set-state-in-effect rule for good reason.
+- Space for two lines is reserved so cycling never nudges the buttons below.
+- Both the greeting and the quip are hidden in print (§13.2). Neither is
+  about Suraj.
+
+Neither addition is a signature interaction, so the budget in §0 stands: the
+greeting has no interaction at all, and the quip's click is a content
+control, not a motion system.

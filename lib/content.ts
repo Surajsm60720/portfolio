@@ -499,3 +499,31 @@ export const designDocs = [
     href: "https://github.com/Surajsm60720/LifeOS-website/blob/main/docs/superpowers/specs/2026-08-20-lifeos-website-nextjs-migration-design.md",
   },
 ];
+
+/* -------------------------------------------------------------- quips */
+
+/**
+ * The line under the thesis, picked at random per visit and cycled on click.
+ *
+ * Every one of these is checkable against the page it sits on — the prime
+ * directive at the top of this file does not get a comedy exemption. A quip
+ * that invents a fact would be the one lie on a page whose whole argument is
+ * that it does not have any.
+ */
+export const quips: string[] = [
+  "This section is called \u201Chero\u201D. Every portfolio has one. Sorry.",
+  "There is a bar chart further down that proves he mostly works at 20:00.",
+  "The theme you are looking at was chosen by a clock in Bengaluru, not by you.",
+  "Three typefaces, none of them the framework default. That was the entire argument.",
+  "Nothing here is a stock photo, on the technicality that nothing here is a photo.",
+  "Every claim on this page traces to a r\u00e9sum\u00e9 or a README. Low bar. Most sites trip on it.",
+  "Scroll far enough and the page tells you what it cost your browser to load it.",
+  "The complaint comes before the project because that is the order it happened in.",
+  "This page prints properly. Genuinely. Try it.",
+  "No animation library. The one thing that moves does it with two CSS properties.",
+  "He builds software with a user base of one. You are reading its marketing site.",
+  "If this is dark right now, it is late where he is \u2014 not necessarily where you are.",
+  "The previous version of this page sat unchanged for nine months. The changelog admits it.",
+  "Yes, the quote shrinking into the margin was deliberate.",
+  "You can click this line. That is the whole feature.",
+];
