@@ -573,18 +573,20 @@ a {
 
 .itch[data-driven="true"] .itch__hero {
   transform-origin: left center;
-  /* Full strength until 0.40, gone at 0.88 — the hold is the reading time. */
-  opacity: calc((0.88 - var(--p)) / 0.48);
-  transform: translateY(calc(var(--p) * -14px)) scale(calc(1 - var(--p) * 0.04));
+  /* Full strength until 0.62 — by which point the quote's centre has risen
+     from the bottom edge to about three-quarters up — then a long fade that
+     only completes once it is well clear of the reading zone. */
+  opacity: calc((1 - var(--p)) / 0.38);
+  transform: translateY(calc(var(--p) * -12px)) scale(calc(1 - var(--p) * 0.03));
 }
 
 .itch[data-driven="true"] .itch__build {
-  opacity: calc((var(--p) - 0.52) / 0.36);
-  transform: translateY(calc((1 - var(--p)) * 22px));
+  opacity: calc((var(--p) - 0.66) / 0.34);
+  transform: translateY(calc((1 - var(--p)) * 18px));
 }
 
 .itch[data-driven="true"] .itch__note {
-  opacity: calc((var(--p) - 0.62) / 0.28);
+  opacity: calc((var(--p) - 0.75) / 0.25);
   transform: translateX(calc((1 - var(--p)) * -8px));
 }
 

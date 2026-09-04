@@ -187,17 +187,32 @@ Each project enters the viewport as a single italic complaint at display size, a
 
 As the card scrolls through, the complaint contracts and migrates into the left margin rail as a mono note, while the build resolves in beside it. No click; scroll progress drives it.
 
-**Timing.** The complaint holds at full opacity for the first 40% of the
-card's travel, then hands over between 0.52 and 0.88. The travel window
-itself spans 73% of viewport height (card top from 85% down to 12%).
+**Timing is anchored to the quote, not the card.** Progress runs on the
+blockquote's own centre, from 95% of viewport height as it enters to 40% as
+it clears the reading zone. The quote holds full opacity until its centre
+reaches 61% — roughly 307px of travel on a 900px viewport, all of it on
+screen — then fades as it rises past the middle. The build crossfades in
+from 0.66 and is complete at 1.0, by which point the card sits comfortably
+placed rather than half scrolled away.
 
-The first version was wrong on both counts: `opacity: 1 - p * 1.35` began
-fading on the first pixel of scroll, leaving roughly 0.004 viewport-heights
-at full strength — effectively none. A reader at normal speed never saw the
-complaint at all, which defeats the entire point of leading with it. The hold
-is now 0.296 viewport-heights. The `data-past` threshold that disables
-pointer events on the quote tracks the same crossfade, so the quote stays
-selectable for as long as it is the dominant element.
+This took three passes, and the first two failed for the same reason: they
+tuned the curve while the *anchor* was wrong.
+
+- v1 measured the card's top and used `opacity: 1 - p * 1.35`, which begins
+  fading at the first pixel of scroll — about 0.004 viewport-heights at full
+  strength, effectively none.
+- v2 kept the card's top and widened the hold. But the quote is
+  `align-self: center` in a tall stage, roughly 350px below the card top, so
+  it was still *below the fold* for its entire full-opacity window and
+  reached zero at the exact moment it arrived mid-screen. Better numbers,
+  same invisible quote.
+- v3 measures the quote itself. The curve barely matters once the anchor is
+  right.
+
+The lesson is worth keeping: when a scroll animation fires at the wrong
+time, check what is being measured before touching the easing. The
+`data-past` threshold that disables pointer events tracks the same
+crossfade, so the quote stays selectable while it is the dominant element.
 
 **Implementation constraints:**
 

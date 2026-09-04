@@ -8,7 +8,14 @@
  */
 
 export interface Driven {
-  el: HTMLElement;
+  /**
+   * The element whose position drives progress — the thing being *read*, not
+   * the card containing it. Anchoring to the card's top was wrong: the quote
+   * is centred in a tall stage, roughly 350px below that top, so it stayed
+   * below the fold for its entire full-opacity window and reached zero
+   * exactly as it arrived in a comfortable reading position.
+   */
+  anchor: HTMLElement;
   apply: (progress: number) => void;
 }
 
@@ -16,13 +23,12 @@ const active = new Set<Driven>();
 let frame = 0;
 
 /**
- * 0 while the card sits low in the viewport, 1 once it has risen into place.
- * The window is deliberately wide — 73% of viewport height — because the
- * complaint has to stay readable for someone scrolling at a normal pace, and
- * an earlier, narrower window resolved it before most readers got to it.
+ * Measured on the anchor's centre, as a fraction of viewport height.
+ * 0 as the quote enters from the bottom, 1 once it has risen to the upper
+ * third and the build has taken the space.
  */
-const START = 0.85; // card top near the bottom of the viewport
-const END = 0.12; // card top near the top of it
+const START = 0.95; // quote centre entering at the bottom edge
+const END = 0.4; // quote centre well up the screen, card comfortably placed
 
 function tick() {
   frame = 0;
@@ -30,8 +36,9 @@ function tick() {
   const span = (START - END) * vh;
 
   for (const target of active) {
-    const top = target.el.getBoundingClientRect().top;
-    const raw = (START * vh - top) / span;
+    const rect = target.anchor.getBoundingClientRect();
+    const centre = rect.top + rect.height / 2;
+    const raw = (START * vh - centre) / span;
     target.apply(raw < 0 ? 0 : raw > 1 ? 1 : raw);
   }
 }

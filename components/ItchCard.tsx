@@ -19,14 +19,17 @@ import { register, unregister, type Driven } from "@/lib/scroll-driver";
  */
 export default function ItchCard({ project }: { project: Project }) {
   const ref = useRef<HTMLElement>(null);
+  /* Progress is measured from the quote itself, not the card — see Driven. */
+  const quoteRef = useRef<HTMLQuoteElement>(null);
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    const anchor = quoteRef.current;
+    if (!el || !anchor) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const target: Driven = {
-      el,
+      anchor,
       apply: (p) => {
         el.style.setProperty("--p", p.toFixed(3));
         /* data-driven is set by the first real progress value, never at
@@ -37,7 +40,7 @@ export default function ItchCard({ project }: { project: Project }) {
            clicks. Before that it is ordinary selectable text. The threshold
            tracks the crossfade in globals.css: below it the quote is still
            the dominant element and must stay selectable. */
-        el.dataset.past = p > 0.72 ? "true" : "false";
+        el.dataset.past = p > 0.82 ? "true" : "false";
       },
     };
 
@@ -67,7 +70,9 @@ export default function ItchCard({ project }: { project: Project }) {
       </div>
 
       <div className="itch__stage">
-        <blockquote className="itch__hero">{project.itch}</blockquote>
+        <blockquote className="itch__hero" ref={quoteRef}>
+          {project.itch}
+        </blockquote>
 
         <div className="itch__build">
           <header className="itch__head">
