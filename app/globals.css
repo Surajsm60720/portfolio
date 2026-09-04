@@ -1,151 +1,1419 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
-/* Ensure full height for html and body */
-html,
-body {
-  min-height: 100dvh;
-  margin: 0;
-  padding: 0;
+/* ============================================================
+   PORTFOLIO — design tokens
+   Light: fountain-pen blue on warm paper
+   Dark:  night-shift amber on cold black
+
+   The two themes invert colour temperature, because that is what
+   a real screen does at 2 AM. Day is cool ink on warm paper;
+   night is warm amber on cold black. Same idea drives the clock
+   in the top rail — see lib/theme.ts.
+   ============================================================ */
+:root {
+  --bg: #faf7f2;
+  --panel: #f1ece3;
+  --ink: #14120f;
+  /* Alphas are set by contrast, not by eye: --ink-faint carries 11px mono
+     labels everywhere, so it has to clear 4.5:1 on both grounds. It was
+     0.42, which measured 2.73:1 — a straight AA failure across most of the
+     page's small text. --ink-soft rose with it to keep the two levels
+     visibly distinct. */
+  --ink-soft: rgba(20, 18, 15, 0.76);
+  --ink-faint: rgba(20, 18, 15, 0.6);
+  --rule: rgba(20, 18, 15, 0.14);
+  /* Boundary of an interactive control, which needs 3:1 in its own right.
+     Separate from --rule so decorative hairlines stay hairlines. */
+  --edge: rgba(20, 18, 15, 0.46);
+  --accent: #1f3d8f;
+  --accent-soft: rgba(31, 61, 143, 0.1);
+  --sweep: 255, 180, 84; /* the sweep is always warm — it is the night arriving */
+
+  --display: var(--font-display), Georgia, "Times New Roman", serif;
+  --body: var(--font-body), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --gut: clamp(20px, 5vw, 68px);
+  --maxw: 1180px;
+  --rail: clamp(180px, 19vw, 240px);
+  /* Shared by every rail/content row — Now, Work, Escaped, Ship log and
+     Proof all align on it. Do not set a one-off gap on a single section. */
+  --rail-gap: clamp(16px, 3.2vw, 44px);
+  --pad-y: clamp(56px, 9vh, 108px);
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+[data-theme="dark"] {
+  --bg: #08090b;
+  --panel: #0e1013;
+  --ink: #f5f2ec;
+  --ink-soft: rgba(245, 242, 236, 0.74);
+  --ink-faint: rgba(245, 242, 236, 0.48);
+  --rule: rgba(245, 242, 236, 0.15);
+  --edge: rgba(245, 242, 236, 0.36);
+  --accent: #ffb454;
+  --accent-soft: rgba(255, 180, 84, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
   scroll-behavior: smooth;
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  letter-spacing: -0.01em;
-  /* Premium tight tracking */
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: clamp(15px, 0.5vw + 13.8px, 17px);
+  line-height: 1.6;
+  overflow-x: hidden;
+  font-synthesis-weight: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.18s linear, color 0.18s linear;
 }
 
-#__next {
+img,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- layout primitives ---------- */
+
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding-inline: var(--gut);
+}
+
+.section {
+  border-top: 1px solid var(--rule);
+  padding-block: var(--pad-y);
+}
+
+.section--panel {
+  background: var(--panel);
+}
+
+/* ---------- type primitives ---------- */
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0;
+}
+
+.title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(24px, 3.6vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 10px 0 0;
+}
+
+.lede {
+  color: var(--ink-soft);
+  margin: 12px 0 0;
+  max-width: 62ch;
+}
+
+.mono {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+/* ---------- chips ---------- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.chip {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.chip--fact {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  background: var(--accent-soft);
+}
+
+/* ---------- links ---------- */
+
+.link {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  transition: border-color 0.15s var(--ease);
+}
+
+.link:hover {
+  border-bottom-color: var(--accent);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 0 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.action:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.action--primary {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- reveal (the only ambient motion) ----------
+   Gated on data-js, stamped by the pre-paint script. Content is visible by
+   default and only hidden once something is guaranteed to reveal it again —
+   a failed or blocked script must never leave the page blank. */
+
+[data-js="1"] .reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.62s var(--ease), transform 0.62s var(--ease);
+}
+
+[data-js="1"] .reveal[data-shown="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- theme sweep ----------
+   One fixed element. The warm edge crosses the viewport and the
+   palette swaps behind it at ~220ms, so the new theme appears to
+   have been there all along. Transform and opacity only. */
+
+.sweep {
+  position: fixed;
+  inset: -20vh -60vw;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(var(--sweep), 0.14) 46%,
+    rgba(var(--sweep), 0.9) 50%,
+    rgba(var(--sweep), 0.14) 54%,
+    transparent 62%,
+    transparent 100%
+  );
+  transform: translateX(-70%);
+}
+
+.sweep[data-running="true"] {
+  animation: sweep 520ms var(--ease) forwards;
+}
+
+@keyframes sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-70%);
+  }
+  18% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(70%);
+  }
+}
+
+/* ---------- reduced motion ----------
+   Every motion system collapses. Both signatures degrade to their
+   resolved static states; nothing becomes unreadable. */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /* Important, because the reveal rules are now attribute-scoped and
+     would otherwise outrank a bare .reveal selector. */
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .sweep {
+    display: none;
+  }
+}
+
+/* ============================================================
+   SECTIONS
+   ============================================================ */
+
+/* ---------- top rail ---------- */
+
+.rail {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 80;
+  height: 46px;
+  border-bottom: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  padding-top: env(safe-area-inset-top);
+}
+
+.rail__inner {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rail__mark {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.rail__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* The clock is the argument for the theme, so the two sit together. */
+.rail__clock {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.rail__city {
+  color: var(--ink-faint);
+}
+
+.rail__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 36px;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: border-color 0.15s var(--ease), transform 0.15s var(--ease);
+}
+
+.rail__toggle:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  padding-top: calc(46px + clamp(64px, 15vh, 150px));
+  padding-bottom: clamp(56px, 12vh, 130px);
+}
+
+.hero__name {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(46px, 8.5vw, 104px);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  margin: 18px 0 0;
+}
+
+.hero__thesis {
+  font-family: var(--display);
+  font-size: clamp(26px, 3.4vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  max-width: 20ch;
+  margin: 20px 0 0;
+}
+
+.hero__claim {
+  color: var(--ink-soft);
+  font-size: clamp(15px, 1.15vw, 17px);
+  line-height: 1.55;
+  max-width: 50ch;
+  margin: 16px 0 0;
+  text-wrap: pretty;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 34px;
+}
+
+.hero__socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  list-style: none;
+  padding: 0;
+  margin: 26px 0 0;
+}
+
+.hero__social {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 44px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink-faint);
+  transition: color 0.15s var(--ease);
+}
+
+.hero__social:hover {
+  color: var(--accent);
+}
+
+/* ---------- section header ---------- */
+
+.sec-head {
+  margin-bottom: clamp(30px, 5vh, 56px);
+}
+
+/* ---------- now ---------- */
+
+.now {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.now__row {
+  display: grid;
+  grid-template-columns: var(--rail) 1fr;
+  gap: var(--rail-gap);
+  padding-block: 20px;
+  border-top: 1px solid var(--rule);
+}
+
+.now__label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+
+.now__value {
+  font-family: var(--display);
+  font-size: clamp(19px, 2.2vw, 25px);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.now__detail {
+  color: var(--ink-soft);
+  font-size: 15px;
+  margin: 7px 0 0;
+  max-width: 62ch;
+}
+
+/* ============================================================
+   THE ITCH CARD — signature, spec §6a
+   The complaint enters alone, then contracts into the margin rail
+   as the build crossfades into the space it was holding. Driven by
+   --p (0 to 1) from lib/scroll-driver.ts. Transform and opacity only.
+   ============================================================ */
+
+@property --p {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.itch {
+  --p: 0;
+  display: grid;
+  grid-template-columns: var(--rail) 1fr;
+  gap: var(--rail-gap);
+  padding-block: clamp(46px, 8vh, 92px);
+  border-top: 1px solid var(--rule);
+}
+
+.work > .itch:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.itch__note {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.72;
+  color: var(--ink-faint);
+  border-left: 2px solid var(--accent);
+  padding-left: 12px;
+  margin: 6px 0 0;
+}
+
+/* Hero and build occupy the same grid cell, so the crossfade costs no
+   layout — the quote sits in exactly the space the build will fill. */
+.itch__stage {
+  display: grid;
+}
+
+.itch__hero,
+.itch__build {
+  grid-area: 1 / 1;
+}
+
+.itch__hero {
+  align-self: center;
+  justify-self: start;
+  max-width: 20ch;
+  margin: 0;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(26px, 4.4vw, 52px);
+  line-height: 1.14;
+  letter-spacing: -0.012em;
+  text-indent: -0.42em;
+}
+
+/* Selectable while it is the thing being read; inert once the build has
+   crossfaded over the top of it. */
+.itch[data-past="true"] .itch__hero {
+  pointer-events: none;
+}
+
+.itch__hero::before {
+  content: "\201C";
+  color: var(--accent);
+}
+
+.itch__hero::after {
+  content: "\201D";
+  color: var(--accent);
+}
+
+.itch[data-driven="true"] .itch__hero {
+  transform-origin: left center;
+  /* Full strength until 0.62 — by which point the quote's centre has risen
+     from the bottom edge to about three-quarters up — then a long fade that
+     only completes once it is well clear of the reading zone. */
+  opacity: calc((1 - var(--p)) / 0.38);
+  transform: translateY(calc(var(--p) * -12px)) scale(calc(1 - var(--p) * 0.03));
+}
+
+.itch[data-driven="true"] .itch__build {
+  opacity: calc((var(--p) - 0.66) / 0.34);
+  transform: translateY(calc((1 - var(--p)) * 18px));
+}
+
+.itch[data-driven="true"] .itch__note {
+  opacity: calc((var(--p) - 0.75) / 0.25);
+  transform: translateX(calc((1 - var(--p)) * -8px));
+}
+
+/* Keyboard focus forces the resolved state — nothing invisible is ever
+   focusable, whatever the scroll position says. */
+.itch[data-driven="true"]:focus-within .itch__build {
+  opacity: 1;
+  transform: none;
+}
+
+.itch[data-driven="true"]:focus-within .itch__hero {
+  opacity: 0;
+}
+
+.itch[data-driven="true"]:focus-within .itch__note {
+  opacity: 1;
+  transform: none;
+}
+
+.itch__name {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(27px, 3.4vw, 40px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.itch__what {
+  color: var(--ink);
+  font-size: clamp(16px, 1.2vw, 18px);
+  margin: 10px 0 0;
+  max-width: 56ch;
+}
+
+.itch__body {
+  color: var(--ink-soft);
+  margin: 14px 0 0;
+  max-width: 62ch;
+}
+
+.itch__flag {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 14px 0 0;
+}
+
+.itch .chips {
+  margin-top: 18px;
+}
+
+.itch__stack {
+  margin-top: 8px;
+}
+
+.itch__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.itch__private {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 22px 0 0;
+}
+
+/* ---------- experience ---------- */
+
+.roles,
+.log,
+.proof {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.role {
+  display: grid;
+  grid-template-columns: var(--rail) 1fr;
+  gap: var(--rail-gap);
+  padding-block: clamp(26px, 4vh, 42px);
+  border-top: 1px solid var(--rule);
+}
+
+.roles > .role:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.role__period {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+  margin: 6px 0 0;
+}
+
+.role__live {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, transparent);
+  background: var(--accent-soft);
+  border-radius: 2px;
+  padding: 2px 7px;
+}
+
+.role__title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(21px, 2.4vw, 28px);
+  line-height: 1.14;
+  margin: 0;
+}
+
+.role__at {
+  color: var(--accent);
+}
+
+.role__body {
+  color: var(--ink-soft);
+  margin: 12px 0 0;
+  max-width: 64ch;
+}
+
+.role .chips {
+  margin-top: 16px;
+}
+
+.role__stack {
+  margin-top: 8px;
+}
+
+/* ---------- ship log ---------- */
+
+.log__row {
+  display: grid;
+  grid-template-columns: var(--rail) 1fr;
+  gap: var(--rail-gap);
+  padding-block: 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.log > .log__row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.log__date {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 2px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.log__label {
+  font-size: 17px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.log__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.log__link:hover {
+  color: var(--accent);
+  border-bottom-color: color-mix(in srgb, var(--accent) 44%, transparent);
+}
+
+.log__detail {
+  color: var(--ink-soft);
+  font-size: 15px;
+  margin: 4px 0 0;
+  max-width: 62ch;
+}
+
+/* ---------- proof ---------- */
+
+.proof__row {
+  display: grid;
+  grid-template-columns: var(--rail) 1fr;
+  gap: var(--rail-gap);
+  padding-block: clamp(20px, 3vh, 32px);
+  border-top: 1px solid var(--rule);
+}
+
+.proof > .proof__row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.proof__kind {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 4px 0 0;
+}
+
+.proof__title {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(19px, 2vw, 24px);
+  line-height: 1.22;
+  margin: 0;
+  max-width: 48ch;
+}
+
+.proof__meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  margin: 8px 0 0;
+}
+
+.proof__detail {
+  color: var(--ink-soft);
+  font-size: 15px;
+  margin: 10px 0 0;
+  max-width: 62ch;
+}
+
+.proof__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+
+
+/* ---------- stack ledger ---------- */
+
+.ledger {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: clamp(24px, 3.4vw, 44px);
+}
+
+.ledger__label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ledger__rows {
+  margin: 0;
+}
+
+.ledger__row {
+  padding-block: 9px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ledger__name {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ledger__used {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+  margin: 3px 0 0;
+}
+
+/* ---------- footer ---------- */
+
+.foot {
+  padding-bottom: calc(clamp(56px, 9vh, 108px) + env(safe-area-inset-bottom));
+}
+
+.foot__pitch {
+  font-family: var(--display);
+  font-size: clamp(23px, 3.4vw, 38px);
+  line-height: 1.16;
+  letter-spacing: -0.018em;
+  max-width: 22ch;
+  margin: 14px 0 0;
+}
+
+.foot__mail {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: clamp(13px, 1.4vw, 16px);
+  letter-spacing: 0.04em;
+  margin-top: 26px;
+}
+
+.foot__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  list-style: none;
+  padding: 0;
+  margin: 22px 0 0;
+}
+
+.foot__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 44px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink-faint);
+  transition: color 0.15s var(--ease);
+}
+
+.foot__link:hover {
+  color: var(--accent);
+}
+
+.foot__fine {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--ink-faint);
+  max-width: 58ch;
+  margin: 34px 0 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+}
+
+/* ============================================================
+   NARROW — below 900px every two-column rail collapses.
+   The itch signature is a desktop affordance; on a phone the
+   complaint simply leads the card, which is the same idea.
+   ============================================================ */
+
+@media (max-width: 899px) {
+  .now__row,
+  .role,
+  .log__row,
+  .proof__row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .itch {
+    grid-template-columns: 1fr;
+  }
+
+  .itch__rail {
+    display: none;
+  }
+
+  .itch__stage {
+    display: block;
+  }
+
+  .itch__hero {
+    max-width: none;
+    margin-bottom: 26px;
+  }
+
+  .itch[data-driven="true"] .itch__hero,
+  .itch[data-driven="true"] .itch__build {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- /resume passthrough ---------- */
+
+.redirect {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: var(--gut);
+  text-align: center;
+}
+
+.redirect__fallback {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- written-first documents on a project card ---------- */
+
+.itch__docs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 14px;
+  margin: 18px 0 0;
+}
+
+.itch__docsLabel {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.itch__doc {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  transition: color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.itch__doc:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ---------- rhythm ----------
+   The commit histogram. Tinted bars are the hours that put this page into
+   its night palette, so the theme mechanic can be checked against the data
+   rather than taken on trust. */
+
+.rhythm__bars {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  align-items: end;
+  gap: clamp(2px, 0.6vw, 7px);
+  height: clamp(120px, 20vh, 190px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.rhythm__bar {
+  --h: 0%;
+  position: relative;
   height: 100%;
+  display: flex;
+  align-items: flex-end;
 }
 
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+.rhythm__fill {
+  display: block;
+  width: 100%;
+  /* A floor of 2px keeps empty hours legible as zero rather than absent. */
+  height: max(2px, var(--h));
+  background: var(--ink-faint);
+  border-radius: 1px 1px 0 0;
+  transition: background-color 0.18s linear;
 }
 
-:root {
-  --radius: 0.625rem;
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+.rhythm__bar[data-night="true"] .rhythm__fill {
+  background: var(--accent);
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+.rhythm__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.rhythm__axis {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--ink-faint);
+  margin-top: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rhythm__meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  margin: 20px 0 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ---------- page cost readout ---------- */
+
+.cost {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 14px 0 0;
+}
+
+.cost__cell {
+  background: var(--bg);
+  padding: 9px 11px;
+}
+
+.cost__label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.cost__value {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  margin: 3px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* On a panel ground the cells need the panel behind them, not the page. */
+.section--panel .cost__cell {
+  background: var(--panel);
+}
+
+.foot .cost {
+  margin-top: 26px;
+  max-width: 620px;
+}
+
+/* ============================================================
+   PRINT
+   Cmd-P should give a typeset document, not a screenshot of a
+   dark website. Forces the light palette regardless of theme,
+   drops chrome and decoration, and — critically — resolves every
+   scroll-driven state, since unobserved .reveal elements are at
+   opacity 0 and would otherwise print blank pages.
+   ============================================================ */
+
+@media print {
+  :root,
+  [data-theme="dark"] {
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --ink: #000000;
+    --ink-soft: #333333;
+    --ink-faint: #555555;
+    --rule: #cccccc;
+    --accent: #000000;
+    --accent-soft: transparent;
   }
 
+  @page {
+    margin: 14mm 13mm;
+  }
+
+  html,
   body {
-    @apply bg-background text-foreground;
+    background: #fff;
+    font-size: 10pt;
+    line-height: 1.42;
+  }
+
+  /* Nothing that only makes sense on a screen. */
+  .rail,
+  .sweep,
+  .hero__socials,
+  .hero__actions,
+  .foot__links {
+    display: none !important;
+  }
+
+  /* Whole sections, not their innards — hiding a chart but keeping its
+     heading prints an orphan title over empty space. Both of these
+     describe the website rather than its author. */
+  #rhythm {
+    display: none !important;
+  }
+
+  .hero__print {
+    display: block !important;
+  }
+
+  /* Every deferred state resolves. Without this, anything the reader had
+     not scrolled to prints as an empty box. */
+  .reveal,
+  .itch__build,
+  .itch__hero,
+  .itch__note {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* The complaint is a one-line lead-in on paper, not a display quote. */
+  .itch {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding-block: 10pt 0;
+    break-inside: avoid;
+  }
+
+  .itch__rail {
+    display: none;
+  }
+
+  .itch__stage {
+    display: block;
+  }
+
+  .itch__hero {
+    max-width: none;
+    font-size: 11pt;
+    line-height: 1.35;
+    text-indent: 0;
+    margin: 0 0 6pt;
+    color: #333;
+  }
+
+  .section {
+    padding-block: 12pt;
+    break-inside: auto;
+  }
+
+  .role,
+  .proof__row,
+  .log__row,
+  .now__row,
+  .ledger__group {
+    break-inside: avoid;
+  }
+
+  .sec-head,
+  .itch__name,
+  .role__title,
+  .proof__title {
+    break-after: avoid;
+  }
+
+  .hero {
+    padding-top: 0;
+    padding-bottom: 12pt;
+  }
+
+  .hero__name {
+    font-size: 26pt;
+  }
+
+  .hero__thesis {
+    font-size: 12pt;
+    max-width: none;
+    margin-top: 6pt;
+  }
+
+  .hero__print {
+    font-size: 8.5pt;
+    margin-top: 10pt;
+  }
+
+  .chip {
+    border-color: #bbb;
+    color: #333;
+    padding: 1px 5px;
+    font-size: 8pt;
+  }
+
+  .link,
+  .log__link {
+    border-bottom: 0;
+    color: #000;
+  }
+
+  /* Where a link is the whole point, print where it goes. */
+  .proof__link[href]::after,
+  .itch__doc[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 7.5pt;
+    color: #555;
+    word-break: break-all;
+  }
+
+  .foot__fine {
+    font-size: 7.5pt;
   }
 }
 
-/* Custom Scrollbar Styles for Project Cards */
-.scrollbar-thin {
-  scrollbar-width: thin;
+/* Rendered from lib/content.ts, revealed only by the print stylesheet — the
+   contact details must not be duplicated as a CSS string. */
+.hero__print {
+  display: none;
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+  color: var(--ink-soft);
 }
 
-.scrollbar-thumb-white\/20::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 9999px;
+/* ---------- greeting + quip ----------
+   The greeting is the page's other clock: the theme reports Bengaluru,
+   this reports the reader — their band, their hour's character, and then
+   the gap to his. Both clocks are stated; neither is pretended away. */
+
+.hero__hail {
+  margin: 0 0 20px;
+  max-width: 52ch;
 }
 
-.scrollbar-track-white\/5::-webkit-scrollbar-track {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 9999px;
+.hero__greeting {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(17px, 1.9vw, 23px);
+  line-height: 1.36;
+  margin: 0;
+  text-wrap: pretty;
 }
 
-.hover\:scrollbar-thumb-white\/30:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.3);
+.hero__hello {
+  color: var(--ink);
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+.hero__note {
+  color: var(--ink-soft);
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 9999px;
+.hero__gap {
+  font-family: var(--body);
+  font-size: clamp(13px, 1vw, 14px);
+  line-height: 1.5;
+  color: var(--ink-faint);
+  margin: 7px 0 0;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 9999px;
-  transition: background-color 0.2s ease;
+.hero__quip {
+  display: block;
+  margin: 22px 0 0;
+  padding: 0;
+  max-width: 56ch;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  text-align: left;
+  color: var(--ink-faint);
+  background: transparent;
+  border: 0;
+  border-left: 2px solid var(--rule);
+  padding-left: 12px;
+  cursor: pointer;
+  /* Reserve two lines so cycling never nudges the buttons below it. */
+  min-height: 2.6em;
+  transition: color 0.15s var(--ease), border-color 0.15s var(--ease);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+.hero__quip:hover {
+  color: var(--ink-soft);
+  border-left-color: var(--accent);
 }
 
-/* For Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+@media print {
+  /* The wrapper, not the greeting alone — hiding only .hero__greeting
+     leaves .hero__gap behind as an orphaned clock reading on paper. */
+  .hero__hail,
+  .hero__quip {
+    display: none !important;
+  }
+}
+
+.log__stamp {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  margin: 26px 0 0;
 }

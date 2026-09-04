@@ -1,38 +1,66 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Instrument_Serif, Karla, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import BackgroundCanvas from "@/components/background_canvas";
+import { PREPAINT_SCRIPT } from "@/lib/theme";
+import { identity } from "@/lib/content";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const display = Instrument_Serif({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const body = Karla({
+  variable: "--font-body",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const mono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Suraj Menon | Portfolio",
-  description: "Welcome to my portfolio website",
+  metadataBase: new URL("https://surajmenon.vercel.app"),
+  title: `${identity.name} — ${identity.role}`,
+  description: `${identity.thesis} ${identity.thesisNote}`,
+  openGraph: {
+    title: `${identity.name} — ${identity.role}`,
+    description: `${identity.thesis} ${identity.thesisNote}`,
+    url: "/",
+    siteName: identity.name,
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${identity.name} — ${identity.role}`,
+    description: `${identity.thesis} ${identity.thesisNote}`,
+  },
+};
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf7f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#08090b" },
+  ],
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="h-full">
-      <body
-        suppressHydrationWarning={true}
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full m-0 p-0`}
-      >
-        <BackgroundCanvas />
-        <div className="relative z-10">
-          {children}
-        </div>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Sets data-theme before first paint. No flash. See lib/theme.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: PREPAINT_SCRIPT }} />
+      </head>
+      <body className={`${display.variable} ${body.variable} ${mono.variable}`}>
+        {children}
       </body>
     </html>
   );

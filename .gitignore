@@ -27,3 +27,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# bare mirrors used by scripts/sync-github.mjs
+.repo-cache/

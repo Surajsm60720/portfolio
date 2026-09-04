@@ -1,16 +1,15 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
+import coreWebVitals from "eslint-config-next/core-web-vitals";
+import typescript from "eslint-config-next/typescript";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+/**
+ * eslint-config-next 16 ships flat configs directly, so they are spread in
+ * as-is. The previous FlatCompat wrapper is gone along with its
+ * @eslint/eslintrc dependency — compat mode cannot serialise the new config
+ * and fails with a circular-structure error.
+ */
+const config = [
+  ...coreWebVitals,
+  ...typescript,
   {
     ignores: [
       "node_modules/**",
@@ -22,4 +21,4 @@ const eslintConfig = [
   },
 ];
 
-export default eslintConfig;
+export default config;
