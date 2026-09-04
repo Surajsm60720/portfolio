@@ -1347,23 +1347,37 @@ a {
 
 /* ---------- greeting + quip ----------
    The greeting is the page's other clock: the theme reports Bengaluru,
-   this reports the reader. Both are stated rather than either pretended. */
+   this reports the reader — their band, their hour's character, and then
+   the gap to his. Both clocks are stated; neither is pretended away. */
+
+.hero__hail {
+  margin: 0 0 20px;
+  max-width: 52ch;
+}
 
 .hero__greeting {
   font-family: var(--display);
   font-style: italic;
-  font-size: clamp(17px, 1.8vw, 22px);
-  line-height: 1.35;
+  font-size: clamp(17px, 1.9vw, 23px);
+  line-height: 1.36;
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.hero__hello {
   color: var(--ink);
-  margin: 0 0 18px;
-  max-width: 44ch;
+}
+
+.hero__note {
+  color: var(--ink-soft);
 }
 
 .hero__gap {
-  color: var(--ink-faint);
-  font-style: normal;
   font-family: var(--body);
-  font-size: clamp(14px, 1.1vw, 15px);
+  font-size: clamp(13px, 1vw, 14px);
+  line-height: 1.5;
+  color: var(--ink-faint);
+  margin: 7px 0 0;
 }
 
 .hero__quip {
@@ -1393,7 +1407,9 @@ a {
 }
 
 @media print {
-  .hero__greeting,
+  /* The wrapper, not the greeting alone — hiding only .hero__greeting
+     leaves .hero__gap behind as an orphaned clock reading on paper. */
+  .hero__hail,
   .hero__quip {
     display: none !important;
   }

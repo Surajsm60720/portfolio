@@ -403,7 +403,8 @@ single source of truth in §0.
 The theme runs on Suraj's clock (§6b). The hero greeting runs on the
 **visitor's**, and the page says both out loud.
 
-> *Good evening.* Right now it is already 03:00 tomorrow where he is.
+> *Good evening. Prime time — a name broadcast television left behind.*
+> Right now it is already 03:00 tomorrow where he is.
 
 This is the fourth wall, and it earns its place by being accurate rather than
 clever: a portfolio that greets you by your own hour and then reports its
@@ -413,6 +414,20 @@ page has told you it is late in Bengaluru, it owes you the comparison.
 
 **Bands** (visitor local hour): `<5` and `>=22` "Up late", `<12` "Good
 morning", `<17` "Good afternoon", `<22` "Good evening".
+
+**Hour notes** — one line per hour, `hourNotes[0..23]` in `lib/content.ts`,
+saying what that hour is generally like.
+
+Two rules govern what may go in one:
+
+- **A note describes the hour, never Suraj.** The greeting runs on the
+  reader's clock, so anything keyed to his data — his peak commit hours, the
+  chart in §Rhythm — would be false for every reader outside IST. That
+  temptation is exactly why the rule is written down.
+- **No invented statistics.** Where a note asserts something it is something
+  that holds generally: the circadian low, postprandial somnolence, solar
+  noon drifting from clock noon. The rest are plainly observational, and read
+  as observation rather than measurement.
 
 **The gap clause** reports his wall-clock time, and names the day shift when
 his date differs from the visitor's ("already 03:00 tomorrow", "still 21:30
@@ -428,7 +443,7 @@ line — "so this is late for both of us" — which outranks the day shift.
   notifying from it would be a render-phase side effect; a separate `pull()`
   does the caching and `refresh()` alone notifies.
 - The store only swaps its reference when a reader would notice — greeting
-  band, his clock, day shift, or the both-late flag. A 30-second tick that
+  band, hour note, his clock, day shift, or the both-late flag. A 30-second tick that
   re-rendered the hero for an unchanged minute would be waste.
 
 ### 14.2 Quips
@@ -446,7 +461,9 @@ on click.
   set-state-in-effect rule for good reason.
 - Space for two lines is reserved so cycling never nudges the buttons below.
 - Both the greeting and the quip are hidden in print (§13.2). Neither is
-  about Suraj.
+  about Suraj. The print rule targets the `.hero__hail` wrapper, not
+  `.hero__greeting`: hiding the greeting alone strands the clock line
+  beneath it as an orphan reading on paper.
 - Quips reference page features, so removing a feature means auditing them.
   Dropping the colophon (§15) invalidated two, and both were rewritten
   rather than left standing as the only false statements on the page.

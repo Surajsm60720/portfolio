@@ -11,11 +11,14 @@
  * the server cannot know the visitor's clock, and getSnapshot has to return a
  * stable reference between ticks.
  */
+import { hourNotes } from "./content";
 import { TZ, istClock } from "./time";
 
 export interface Salutation {
   /** "Good evening" — banded on the visitor's local hour. */
   greeting: string;
+  /** What that hour is generally like. Keyed to the visitor, never to Suraj. */
+  note: string;
   /** Suraj's wall-clock time, "HH:MM". */
   theirClock: string;
   /** -1 yesterday, 0 same day, +1 tomorrow — his date relative to yours. */
@@ -56,6 +59,7 @@ function compute(): Salutation {
 
   return {
     greeting: band(hour),
+    note: hourNotes[hour],
     theirClock: istClock(now),
     dayShift,
     bothLate: late(hour) && late(theirHour),
@@ -68,7 +72,7 @@ const listeners = new Set<() => void>();
 let timer: number | null = null;
 
 const keyOf = (s: Salutation) =>
-  `${s.greeting}|${s.theirClock}|${s.dayShift}|${s.bothLate}`;
+  `${s.greeting}|${s.note}|${s.theirClock}|${s.dayShift}|${s.bothLate}`;
 
 /** Recomputes and caches. Returns true when a reader would notice a change. */
 function pull(): boolean {

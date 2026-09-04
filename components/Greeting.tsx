@@ -9,9 +9,9 @@ import {
 
 /**
  * The page holds two clocks. The theme runs on Suraj's; this greeting runs on
- * yours. Saying both out loud is the point — a portfolio that greets you by
- * your own hour and then tells you it is tomorrow where its author lives is
- * being accurate, not clever.
+ * yours, down to what your particular hour is generally like. Saying both out
+ * loud is the point — a portfolio that greets you by your own hour and then
+ * reports its author's is being accurate, not clever.
  *
  * Renders nothing before hydration. A server-rendered "Good morning" would be
  * wrong for most of the planet.
@@ -25,7 +25,7 @@ export default function Greeting() {
 
   if (!now) return null;
 
-  const { greeting, theirClock, dayShift, bothLate } = now;
+  const { greeting, note, theirClock, dayShift, bothLate } = now;
 
   const gap = bothLate
     ? `it is ${theirClock} where he is, so this is late for both of us`
@@ -36,8 +36,12 @@ export default function Greeting() {
         : `it is ${theirClock} where he is`;
 
   return (
-    <p className="hero__greeting">
-      {greeting}.<span className="hero__gap"> Right now {gap}.</span>
-    </p>
+    <div className="hero__hail">
+      <p className="hero__greeting">
+        <span className="hero__hello">{greeting}.</span>{" "}
+        <span className="hero__note">{note}</span>
+      </p>
+      <p className="hero__gap">Right now {gap}.</p>
+    </div>
   );
 }

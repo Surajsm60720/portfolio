@@ -442,3 +442,44 @@ export const quips: string[] = [
   "Yes, the quote shrinking into the margin was deliberate.",
   "You can click this line. That is the whole feature.",
 ];
+
+/* --------------------------------------------------------- hour notes */
+
+/**
+ * One line per hour of the visitor's day, appended to the greeting.
+ *
+ * These describe the *hour*, never Suraj. The greeting runs on the reader's
+ * clock, so anything keyed to his data — the commit chart, his peak hours —
+ * would be false for everyone outside IST. Nothing here is a statistic
+ * either: where a claim is made it is one that holds generally (the
+ * circadian low, postprandial somnolence, solar noon drifting from clock
+ * noon), and the rest are plainly observational rather than measured.
+ *
+ * Indexed 0–23.
+ */
+export const hourNotes: string[] = [
+  "Midnight. The date changed while you were reading this.",
+  "The hour of one more episode.",
+  "Nothing written now survives review.",
+  "The circadian low \u2014 the body's least favourite hour.",
+  "Bakers are up. Almost nobody else is.",
+  "Birds first. Everyone else in a bit.",
+  "Roughly sunrise, most of the year, most of the world.",
+  "First coffee, last snooze.",
+  "Commutes, and the quiet resentment of commutes.",
+  "Standup is happening somewhere, and running long.",
+  "Peak focus, for about forty minutes, before the first meeting.",
+  "Too late for breakfast, too early to admit you want lunch.",
+  "Solar noon, give or take how far your timezone is lying.",
+  "The after-lunch dip. It has a real name: postprandial somnolence.",
+  "The afternoon trough. Move the important meeting.",
+  "Chai, in the country this page was written from.",
+  "The hour of remembering what you meant to do at ten.",
+  "Somewhere a deploy is going out before the weekend. Bold.",
+  "Commutes again, backwards.",
+  "Dinner, for most of the world that keeps to one.",
+  "Prime time \u2014 a name broadcast television left behind.",
+  "The hour of one more small fix.",
+  "The hour of the fix that breaks two other things.",
+  "Late enough that tomorrow is technically the plan.",
+];
