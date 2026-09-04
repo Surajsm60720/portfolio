@@ -121,6 +121,13 @@ All three load via `next/font/google` and are self-hosted at build time. JetBrai
 
 **Section rhythm:** each section separated by a 1px `--rule` hairline, alternating `--bg` / `--panel` grounds. Vertical padding `clamp(56px, 9vh, 108px)`.
 
+**The rail is one measurement, not five.** Every rail/content row — Now,
+Work, Escaped, Ship log, Proof — shares `--rail` for the label column and
+`--rail-gap` for the space beside it, so the content column starts at the
+same x down the whole page. Setting a one-off gap on a single section breaks
+the vertical line the reader is following; Work had drifted to a wider gap
+and put itself visibly out of step with everything below it.
+
 **Section headers** carry a two-part stack: a mono uppercase eyebrow above an Instrument Serif title, with an optional Karla lede in `--ink-soft`.
 
 **Itch cards** use a two-column split at ≥900px: a `minmax(180px, 240px)` margin rail carrying the retired complaint as a mono note, and the content column carrying the build. Below 900px the rail collapses above the content.
