@@ -38,6 +38,22 @@ function band(hour: number): string {
 const isoDate = (tz?: string) =>
   new Intl.DateTimeFormat("en-CA", tz ? { timeZone: tz } : undefined);
 
+/* The chosen note is held per hour, not per call. compute() runs from
+   getSnapshot during render, so re-rolling on every call would hand React a
+   new value each time and loop forever. Re-rolling only when the hour turns
+   also means the line does not flicker on the 30-second tick. */
+let rolledHour = -1;
+let rolledIndex = 0;
+
+function noteFor(hour: number): string {
+  const options = hourNotes[hour];
+  if (hour !== rolledHour) {
+    rolledHour = hour;
+    rolledIndex = Math.floor(Math.random() * options.length);
+  }
+  return options[rolledIndex];
+}
+
 function compute(): Salutation {
   const now = new Date();
   const hour = now.getHours();
@@ -59,7 +75,7 @@ function compute(): Salutation {
 
   return {
     greeting: band(hour),
-    note: hourNotes[hour],
+    note: noteFor(hour),
     theirClock: istClock(now),
     dayShift,
     bothLate: late(hour) && late(theirHour),

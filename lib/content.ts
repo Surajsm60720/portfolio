@@ -446,40 +446,166 @@ export const quips: string[] = [
 /* --------------------------------------------------------- hour notes */
 
 /**
- * One line per hour of the visitor's day, appended to the greeting.
+ * What each hour of the visitor's day is generally like. One of the four is
+ * chosen per visit; the pick is stable for as long as the hour is.
  *
- * These describe the *hour*, never Suraj. The greeting runs on the reader's
- * clock, so anything keyed to his data — the commit chart, his peak hours —
- * would be false for everyone outside IST. Nothing here is a statistic
- * either: where a claim is made it is one that holds generally (the
- * circadian low, postprandial somnolence, solar noon drifting from clock
- * noon), and the rest are plainly observational rather than measured.
+ * Two rules govern what may go in here:
  *
- * Indexed 0–23.
+ *  1. A note describes the hour, never Suraj. The greeting runs on the
+ *     reader's clock, so anything keyed to his data — his peak commit hours,
+ *     the chart further down this page — is false for every reader outside
+ *     IST. It was the first thing I reached for, hence the rule.
+ *  2. No invented statistics. Where a note asserts something it is something
+ *     that holds generally and can be checked: clocks skipping at 2 AM for
+ *     daylight saving, the circadian nadir, the cortisol rise after waking,
+ *     meridiem giving us AM and PM, melatonin onset in the late evening.
+ *     Everything else is plainly observational and reads that way.
+ *
+ * Indexed 0-23.
  */
-export const hourNotes: string[] = [
-  "Midnight. The date changed while you were reading this.",
-  "The hour of one more episode.",
-  "Nothing written now survives review.",
-  "The circadian low \u2014 the body's least favourite hour.",
-  "Bakers are up. Almost nobody else is.",
-  "Birds first. Everyone else in a bit.",
-  "Roughly sunrise, most of the year, most of the world.",
-  "First coffee, last snooze.",
-  "Commutes, and the quiet resentment of commutes.",
-  "Standup is happening somewhere, and running long.",
-  "Peak focus, for about forty minutes, before the first meeting.",
-  "Too late for breakfast, too early to admit you want lunch.",
-  "Solar noon, give or take how far your timezone is lying.",
-  "The after-lunch dip. It has a real name: postprandial somnolence.",
-  "The afternoon trough. Move the important meeting.",
-  "Chai, in the country this page was written from.",
-  "The hour of remembering what you meant to do at ten.",
-  "Somewhere a deploy is going out before the weekend. Bold.",
-  "Commutes again, backwards.",
-  "Dinner, for most of the world that keeps to one.",
-  "Prime time \u2014 a name broadcast television left behind.",
-  "The hour of one more small fix.",
-  "The hour of the fix that breaks two other things.",
-  "Late enough that tomorrow is technically the plan.",
+export const hourNotes: string[][] = [
+  [
+    "Midnight. The date changed while you were reading this.",
+    "The one hour that belongs to two days at once.",
+    "Cinderella's deadline. Everyone else negotiates.",
+    "The hour of \u201Cone more thing\u201D, indefinitely.",
+  ],
+  [
+    "The hour of one more episode.",
+    "Nothing good has ever been bought at one in the morning.",
+    "Too late to start, too early to give up.",
+    "The hour tomorrow's problem gets created.",
+  ],
+  [
+    "Nothing written now survives review.",
+    "The hour clocks skip in spring and repeat in autumn.",
+    "Bars are closing. Somewhere, always.",
+    "The last honest hour before the body objects.",
+  ],
+  [
+    "The circadian low \u2014 the body's least favourite hour.",
+    "Core body temperature is near its lowest right about now.",
+    "The hour that makes every decision look worse than it is.",
+    "The devil's hour, if you are superstitious. Just cold, if not.",
+  ],
+  [
+    "Bakers are up. Almost nobody else is.",
+    "The hour before the one anyone admits to.",
+    "First flights are boarding somewhere unpleasant.",
+    "Dawn is closer than it feels.",
+  ],
+  [
+    "Birds first. Everyone else in a bit.",
+    "The dawn chorus is peaking, seasonally speaking.",
+    "The hour alarms are set for and then renegotiated.",
+    "Bread is out of the oven. You are not near it.",
+  ],
+  [
+    "Roughly sunrise, most of the year, most of the world.",
+    "The hour of the first honest decision of the day.",
+    "Cortisol is climbing whether you asked it to or not.",
+    "A gym is unlocking somewhere. A snooze button elsewhere.",
+  ],
+  [
+    "First coffee, last snooze.",
+    "The hour of showers and half-formed plans.",
+    "Toast is being burnt at scale.",
+    "The news is on and nobody is listening yet.",
+  ],
+  [
+    "Commutes, and the quiet resentment of commutes.",
+    "The hour of school runs and unread messages.",
+    "Peak toast-to-inbox transition.",
+    "Trains are full. Patience is not.",
+  ],
+  [
+    "Standup is happening somewhere, and running long.",
+    "The hour calendars were invented to ruin.",
+    "Inbox zero is briefly plausible.",
+    "Markets are opening somewhere, loudly.",
+  ],
+  [
+    "Peak focus, for about forty minutes, before the first meeting.",
+    "The hour the second coffee stops helping.",
+    "The hour meetings colonised first.",
+    "Concentration is real now. Spend it well.",
+  ],
+  [
+    "Too late for breakfast, too early to admit you want lunch.",
+    "The hour of pretending you are not hungry.",
+    "Elevenses, if you are being honest about it.",
+    "The last quiet hour before the afternoon happens.",
+  ],
+  [
+    "Solar noon, give or take how far your timezone is lying.",
+    "Midday. The sun is roughly where the clock claims it is.",
+    "The hour lunch is decided by whoever speaks first.",
+    "Noon \u2014 meridiem, and the reason we say AM and PM.",
+  ],
+  [
+    "The after-lunch dip. It has a real name: postprandial somnolence.",
+    "The hour meetings should be illegal.",
+    "One o'clock, and the day quietly resets.",
+    "Attention is elsewhere, and it is not entirely your fault.",
+  ],
+  [
+    "The afternoon trough. Move the important meeting.",
+    "The hour of the third coffee and its diminishing returns.",
+    "Nothing decided now will be remembered by five.",
+    "Peak hour for staring at a wall productively.",
+  ],
+  [
+    "Chai, in the country this page was written from.",
+    "Afternoon tea, wherever that is still observed.",
+    "The hour school lets out and traffic notices.",
+    "The second wind, if it is coming at all.",
+  ],
+  [
+    "The hour of remembering what you meant to do at ten.",
+    "Alertness climbs again around now. Use it.",
+    "The hour of \u201Clet us pick this up tomorrow\u201D.",
+    "Physical performance peaks in the late afternoon, roughly here.",
+  ],
+  [
+    "Somewhere a deploy is going out before the weekend. Bold.",
+    "Five o'clock \u2014 the hour clocks were built to reach.",
+    "The hour of the last honest commit.",
+    "A standup is being rescheduled to tomorrow as we speak.",
+  ],
+  [
+    "Commutes again, backwards.",
+    "The hour of the walk home and the podcast that finishes it.",
+    "Golden hour, if the sky is cooperating.",
+    "The hour work stops being paid for.",
+  ],
+  [
+    "Dinner, for most of the world that keeps to one.",
+    "The hour the day stops asking anything of you.",
+    "Kitchens are loud. Inboxes are not.",
+    "The hour after which nothing urgent is actually urgent.",
+  ],
+  [
+    "Prime time \u2014 a name broadcast television left behind.",
+    "The hour of the good intention and the second episode.",
+    "Somewhere a side project is being opened.",
+    "The hour the day turns voluntary.",
+  ],
+  [
+    "The hour of one more small fix.",
+    "Melatonin is rising. It has opinions about your screen.",
+    "The hour tomorrow's plans are made and not kept.",
+    "Everything feels tractable now. It will not at eleven.",
+  ],
+  [
+    "The hour of the fix that breaks two other things.",
+    "The hour sleep is scheduled, then negotiated.",
+    "Ten o'clock. Somewhere the last train is leaving.",
+    "The hour good judgement starts filing for leave.",
+  ],
+  [
+    "Late enough that tomorrow is technically the plan.",
+    "The hour before the date changes underneath you.",
+    "The last hour that still counts as today.",
+    "Eleven. Everything after this is borrowed.",
+  ],
 ];

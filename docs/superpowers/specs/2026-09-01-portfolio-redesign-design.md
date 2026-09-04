@@ -415,8 +415,14 @@ page has told you it is late in Bengaluru, it owes you the comparison.
 **Bands** (visitor local hour): `<5` and `>=22` "Up late", `<12` "Good
 morning", `<17` "Good afternoon", `<22` "Good evening".
 
-**Hour notes** — one line per hour, `hourNotes[0..23]` in `lib/content.ts`,
-saying what that hour is generally like.
+**Hour notes** — `hourNotes[0..23]` in `lib/content.ts`, four lines per hour
+saying what that hour is generally like. One is chosen per visit.
+
+The pick is held per hour, not per call. `compute()` runs from `getSnapshot`
+during render, so re-rolling on every call would hand React a new value each
+time and loop forever; re-rolling only when the hour turns also stops the
+line flickering on the 30-second tick. Randomness is safe here only because
+the greeting never server-renders — there is no markup for it to mismatch.
 
 Two rules govern what may go in one:
 
