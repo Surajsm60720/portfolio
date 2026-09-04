@@ -16,19 +16,19 @@
     {
       "date": "2026-08-05",
       "label": "Saizen v1.2.0",
-      "detail": "",
+      "detail": "Settings → Downloads: folder access, parallel jobs, Wi‑Fi only, storage use",
       "href": "https://github.com/Surajsm60720/Saizen/releases/tag/v1.2.0"
     },
     {
       "date": "2026-08-04",
       "label": "Saizen v1.1.0",
-      "detail": "",
+      "detail": "Major changes from v1.0 → v1.1.0 (patch detail lives in-app under Settings → Changelog)",
       "href": "https://github.com/Surajsm60720/Saizen/releases/tag/v1.1.0"
     },
     {
       "date": "2026-08-02",
       "label": "Saizen v1.0.0",
-      "detail": "",
+      "detail": "First release",
       "href": "https://github.com/Surajsm60720/Saizen/releases/tag/v1.0.0"
     }
   ]
