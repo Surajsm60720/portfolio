@@ -83,8 +83,15 @@ export function commitTheme(next: Theme): void {
  *
  * IST is UTC+05:30 year-round with no DST, so the offset arithmetic here and
  * the Intl-based lookup in lib/time.ts always agree.
+ *
+ * It also stamps data-js on <html>. Scroll-reveal hides its content until an
+ * observer shows it, which without this flag means a failed or disabled
+ * script leaves most of the page blank. The hidden state is opt-in: no
+ * script, no hiding.
  */
-export const PREPAINT_SCRIPT = `(function(){try{
+export const PREPAINT_SCRIPT = `(function(){
+document.documentElement.dataset.js="1";
+try{
 var s=localStorage.getItem(${JSON.stringify(STORAGE_KEY)});
 if(s!=="light"&&s!=="dark"){var h=new Date(Date.now()+19800000).getUTCHours();s=(h>=19||h<6)?"dark":"light";}
 document.documentElement.dataset.theme=s;

@@ -4,9 +4,10 @@ import { projects } from "@/lib/content";
 
 export default function Work() {
   return (
-    <section className="section" id="work">
+    <section className="section" id="work" aria-labelledby="work-title">
       <div className="wrap">
         <SectionHeader
+          titleId="work-title"
           eyebrow="Work"
           title="Every one of these started as a complaint"
           lede="Ordered by what they took, not by when they happened."

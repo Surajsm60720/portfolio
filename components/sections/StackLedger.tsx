@@ -4,9 +4,10 @@ import { ledger } from "@/lib/content";
 
 export default function StackLedger() {
   return (
-    <section className="section section--panel" id="stack">
+    <section className="section section--panel" id="stack" aria-labelledby="stack-title">
       <div className="wrap">
         <SectionHeader
+          titleId="stack-title"
           eyebrow="Stack"
           title="Each one, and where it was used"
           lede="A tool with no project next to it is not a tool I know."

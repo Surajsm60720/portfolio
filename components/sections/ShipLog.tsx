@@ -5,9 +5,10 @@ import { shipLog } from "@/lib/content";
 
 export default function ShipLog() {
   return (
-    <section className="section" id="ship-log">
+    <section className="section" id="ship-log" aria-labelledby="ship-log-title">
       <div className="wrap">
         <SectionHeader
+          titleId="ship-log-title"
           eyebrow="Ship log"
           title="Releases, not resolutions"
           lede="Most recent first."

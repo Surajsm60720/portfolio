@@ -4,9 +4,10 @@ import { now } from "@/lib/content";
 
 export default function Now() {
   return (
-    <section className="section section--panel" id="now">
+    <section className="section section--panel" id="now" aria-labelledby="now-title">
       <div className="wrap">
         <SectionHeader
+          titleId="now-title"
           eyebrow="Now"
           title="What is actually open right now"
           lede="Kept short on purpose. If this is stale, so is everything under it."

@@ -5,14 +5,14 @@ import { identity, socials } from "@/lib/content";
 
 export default function Hero() {
   return (
-    <section className="hero">
+    <section className="hero" aria-labelledby="hero-name">
       <div className="wrap hero__inner">
         {/* Your clock. The theme runs on his — see components/chrome/TopRail. */}
         <Greeting />
 
         <p className="eyebrow">{identity.location} · {identity.role}</p>
 
-        <h1 className="hero__name">{identity.name}</h1>
+        <h1 className="hero__name" id="hero-name">{identity.name}</h1>
 
         {/* The thesis. Everything below this line on the page is evidence for it. */}
         <p className="hero__thesis">{identity.thesis}</p>

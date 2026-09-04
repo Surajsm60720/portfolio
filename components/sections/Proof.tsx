@@ -5,9 +5,9 @@ import { proof } from "@/lib/content";
 
 export default function Proof() {
   return (
-    <section className="section section--panel" id="proof">
+    <section className="section section--panel" id="proof" aria-labelledby="proof-title">
       <div className="wrap">
-        <SectionHeader eyebrow="Proof" title="On the record" />
+        <SectionHeader titleId="proof-title" eyebrow="Proof" title="On the record" />
 
         <ul className="proof">
           {proof.map((item, i) => (

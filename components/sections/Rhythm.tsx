@@ -17,9 +17,10 @@ export default function Rhythm() {
   const isNightHour = (h: number) => h >= NIGHT_FROM || h < NIGHT_UNTIL;
 
   return (
-    <section className="section" id="rhythm">
+    <section className="section" id="rhythm" aria-labelledby="rhythm-title">
       <div className="wrap">
         <SectionHeader
+          titleId="rhythm-title"
           eyebrow="Rhythm"
           title="When the work actually happens"
           lede="Two peaks, not one: before the day starts and after it ends. The tinted hours are the ones that switch this page to its night palette — the mechanic reads off this chart, not off a mood."

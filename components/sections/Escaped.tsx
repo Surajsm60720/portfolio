@@ -4,9 +4,10 @@ import { roles } from "@/lib/content";
 
 export default function Escaped() {
   return (
-    <section className="section section--panel" id="escaped">
+    <section className="section section--panel" id="escaped" aria-labelledby="escaped-title">
       <div className="wrap">
         <SectionHeader
+          titleId="escaped-title"
           eyebrow="Escaped"
           title="Where it was for other people"
           lede="Three internships. The constraint changes; the work does not get easier."
