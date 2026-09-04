@@ -908,6 +908,7 @@ a {
 /* ---------- footer ---------- */
 
 .foot {
+  background: var(--panel);
   padding-bottom: calc(clamp(56px, 9vh, 108px) + env(safe-area-inset-bottom));
 }
 
@@ -1124,102 +1125,16 @@ a {
   margin: 20px 0 0;
 }
 
-/* ---------- colophon ---------- */
 
-.colo {
-  display: grid;
-  grid-template-columns: 1fr minmax(280px, 38%);
-  gap: clamp(28px, 5vw, 68px);
-  align-items: start;
-}
 
-.colo__notes {
-  display: grid;
-  gap: 22px;
-}
 
-.colo__label {
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin: 0 0 7px;
-}
 
-.colo__body {
-  color: var(--ink-soft);
-  font-size: 15px;
-  margin: 0;
-  max-width: 62ch;
-}
 
-.colo__docs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 18px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
 
-.colo__doc {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
 
-.colo__log {
-  border-left: 1px solid var(--rule);
-  padding-left: clamp(18px, 2.4vw, 32px);
-}
 
-.colo__releases {
-  list-style: none;
-  margin: 0 0 20px;
-  padding: 0;
-  display: grid;
-  gap: 18px;
-}
 
-.colo__version {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--ink);
-  margin: 0 0 5px;
-  font-variant-numeric: tabular-nums;
-}
 
-.colo__version time {
-  color: var(--ink-faint);
-}
-
-.colo__release .colo__body {
-  font-size: 14px;
-}
-
-@media (max-width: 899px) {
-  .colo {
-    grid-template-columns: 1fr;
-  }
-
-  .colo__log {
-    border-left: 0;
-    border-top: 1px solid var(--rule);
-    padding-left: 0;
-    padding-top: 26px;
-  }
-}
 
 /* ---------- page cost readout ---------- */
 
@@ -1254,9 +1169,15 @@ a {
   font-variant-numeric: tabular-nums;
 }
 
-/* On the panel ground the cells need the panel behind them, not the page. */
-.section--panel .cost__cell {
+/* On a panel ground the cells need the panel behind them, not the page. */
+.section--panel .cost__cell,
+.foot .cost__cell {
   background: var(--panel);
+}
+
+.foot .cost {
+  margin-top: 26px;
+  max-width: 620px;
 }
 
 /* ============================================================
@@ -1304,13 +1225,12 @@ a {
   /* Whole sections, not their innards — hiding a chart but keeping its
      heading prints an orphan title over empty space. Both of these
      describe the website rather than its author. */
-  #rhythm,
-  #colophon {
+  #rhythm {
     display: none !important;
   }
 
   .hero__print {
-    display: block;
+    display: block !important;
   }
 
   /* Every deferred state resolves. Without this, anything the reader had

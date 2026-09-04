@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
-import { identity, socials } from "@/lib/content";
+import PageCost from "@/components/PageCost";
+import { identity, site, socials } from "@/lib/content";
 
 export default function Footer() {
   return (
@@ -30,7 +31,17 @@ export default function Footer() {
               <ArrowUpRight size={12} aria-hidden="true" />
             </a>
           </li>
+          <li>
+            <a className="foot__link" href={site.repo} target="_blank" rel="noopener noreferrer">
+              This site
+              <ArrowUpRight size={12} aria-hidden="true" />
+            </a>
+          </li>
         </ul>
+
+        {/* What this page actually cost to load, measured in your browser
+            rather than quoted from a build log. */}
+        <PageCost />
 
         <p className="foot__fine">
           © {new Date().getFullYear()} {identity.fullName}. Built in Next.js, no

@@ -409,96 +409,11 @@ export const ledger: LedgerGroup[] = [
 
 /* ------------------------------------------------------- the site itself */
 
-/**
- * The site is versioned the way the apps are, and the changelog is dated.
- * That is partly habit and partly a tripwire: a visible date makes a stale
- * site obvious instead of invisible, which is how the last one rotted for
- * nine months without anyone noticing.
- *
- * Versions reconstructed from this repository's own history.
- */
+/** Where this page itself lives. */
 export const site = {
   version: "3.0.0",
   repo: "https://github.com/Surajsm60720/portfolio",
-  spec: "https://github.com/Surajsm60720/portfolio/blob/main/docs/superpowers/specs/2026-09-01-portfolio-redesign-design.md",
 } as const;
-
-export interface Release {
-  version: string;
-  date: string;
-  body: string;
-}
-
-export const changelog: Release[] = [
-  {
-    version: "3.0.0",
-    date: "2026-09-01",
-    body: "Rebuilt around a single thesis. Complaint-first project cards, a clock that reports Bengaluru time and picks the theme from it, and every word moved into one content file. Dropped three.js, GSAP and the animation library; added nothing.",
-  },
-  {
-    version: "2.0.0",
-    date: "2025-12-08",
-    body: "Sidebar layout with an orbiting skill graph, magnetic hover and a mouse-follower background. Looked expensive, said very little, and then sat unchanged for nine months.",
-  },
-  {
-    version: "1.0.0",
-    date: "2025-09-07",
-    body: "First real version, after the scaffold. Structure over style.",
-  },
-];
-
-/* ----------------------------------------------------------- colophon */
-
-export interface ColophonNote {
-  label: string;
-  body: string;
-}
-
-/**
- * Every project above started as a document. So did this page — the notes
- * below are the short version, and the links are the long one.
- */
-export const colophon: ColophonNote[] = [
-  {
-    label: "Temperature",
-    body: "The two themes invert colour temperature, because that is what a real screen does at 2 AM. Cool fountain-pen blue on warm paper by day; warm amber on cold black at night.",
-  },
-  {
-    label: "Clock",
-    body: "The theme is picked by the time in Bengaluru, not yours. Night runs 19:00 to 06:00 IST, which is where the commit data below actually clusters — not the 22:00 the previous version guessed at.",
-  },
-  {
-    label: "Restraint",
-    body: "Two signature interactions and no more: the complaint contracting into the margin, and the warm sweep across a theme change. Everything else is a scroll reveal and a two-pixel hover lift.",
-  },
-  {
-    label: "Type",
-    body: "Instrument Serif for display, Karla for prose, JetBrains Mono for anything that is really a label. Three roles, no framework defaults.",
-  },
-  {
-    label: "Budget",
-    body: "No 3D, no animation library, no component library, no new runtime dependency. Ideas borrowed from elsewhere are ported by hand into the token file. The numbers below are read out of your browser, not quoted from a build log.",
-  },
-  {
-    label: "Paper",
-    body: "This page prints. Cmd-P or Ctrl-P gives a typeset document on white — no dark background, no navigation, no decoration — with the résumé PDF linked at the top for the version with the margins already argued about.",
-  },
-];
-
-export const designDocs = [
-  {
-    label: "This site",
-    href: site.spec,
-  },
-  {
-    label: "Saizen site",
-    href: "https://github.com/Surajsm60720/Saizen-website/blob/master/saizen-site-DESIGN.md",
-  },
-  {
-    label: "LifeOS site",
-    href: "https://github.com/Surajsm60720/LifeOS-website/blob/main/docs/superpowers/specs/2026-08-20-lifeos-website-nextjs-migration-design.md",
-  },
-];
 
 /* -------------------------------------------------------------- quips */
 
@@ -517,13 +432,13 @@ export const quips: string[] = [
   "Three typefaces, none of them the framework default. That was the entire argument.",
   "Nothing here is a stock photo, on the technicality that nothing here is a photo.",
   "Every claim on this page traces to a r\u00e9sum\u00e9 or a README. Low bar. Most sites trip on it.",
-  "Scroll far enough and the page tells you what it cost your browser to load it.",
+  "At the very bottom, the page tells you what it cost your browser to load it.",
   "The complaint comes before the project because that is the order it happened in.",
   "This page prints properly. Genuinely. Try it.",
   "No animation library. The one thing that moves does it with two CSS properties.",
   "He builds software with a user base of one. You are reading its marketing site.",
   "If this is dark right now, it is late where he is \u2014 not necessarily where you are.",
-  "The previous version of this page sat unchanged for nine months. The changelog admits it.",
+  "The previous version of this page sat unchanged for nine months. Every word now lives in one file so that is harder to repeat.",
   "Yes, the quote shrinking into the margin was deliberate.",
   "You can click this line. That is the whole feature.",
 ];

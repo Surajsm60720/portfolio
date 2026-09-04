@@ -140,7 +140,7 @@ Single page. The only route besides `/` is the existing `/cv.pdf` passthrough.
 | 6 | Proof | Publication + DOI, education, certification |
 | 7 | Off the clock | Personality: gacha cadence, anime, music, self-destroying Linux installs |
 | 8 | Stack ledger | Grouped technologies, each cross-referenced to the project it was used in |
-| 9 | Footer | Real mailto, correct socials, resume |
+| 9 | Footer | Real mailto, correct socials, résumé, and the page's measured cost |
 
 ### 5.1 Deliberate removals
 
@@ -360,9 +360,9 @@ so the two-signature budget in §0 is untouched.
 ### 13.1 The page reports its own cost
 
 §9 states a performance budget. A budget a visitor cannot check is a claim,
-so the colophon reads the real figures back out of the Performance API —
+so the footer reads the real figures back out of the Performance API —
 request count, bytes transferred, script bytes, font count, third-party
-count, and LCP — and prints them next to the budget that predicted them.
+count, and LCP — and prints them where the page ends.
 
 - Exposed through `useSyncExternalStore` (`lib/page-cost.ts`), not effect
   state: the numbers are unknowable on the server, they arrive across
@@ -387,10 +387,9 @@ Two rules carry most of the weight:
   observed, and an itch card's build is transform-driven. Without an
   explicit print override, any section the reader had not scrolled to would
   print as an empty box.
-- **Whole sections, not their innards.** `#rhythm` and `#colophon` are
-  hidden entirely rather than having their contents hidden, since hiding a
-  chart while keeping its heading prints an orphan title over blank space.
-  Both describe the website rather than its author.
+- **Whole sections, not their innards.** `#rhythm` is hidden entirely
+  rather than having its contents hidden, since hiding a chart while keeping
+  its heading prints an orphan title over blank space.
 
 The contact line that replaces the icon links on paper is rendered from
 `lib/content.ts` and revealed by the print stylesheet. It is never a CSS
@@ -448,7 +447,32 @@ on click.
 - Space for two lines is reserved so cycling never nudges the buttons below.
 - Both the greeting and the quip are hidden in print (§13.2). Neither is
   about Suraj.
+- Quips reference page features, so removing a feature means auditing them.
+  Dropping the colophon (§15) invalidated two, and both were rewritten
+  rather than left standing as the only false statements on the page.
 
 Neither addition is a signature interaction, so the budget in §0 stands: the
 greeting has no interaction at all, and the quip's click is a content
 control, not a motion system.
+
+---
+
+## 15. Removed: the colophon
+
+The colophon — design notes, the site's own changelog, and links to the
+three design documents — was cut on 2026-09-04 as self-indulgent. It
+described the website to an audience that came to read about its author.
+
+What survived and where it went:
+
+| Was in the colophon | Now |
+|---|---|
+| Page cost readout (§13.1) | Footer, below the links |
+| Link to this site's source | Footer, in the links row |
+| Design notes, changelog, design-doc links | Removed |
+
+`lib/content.ts` keeps `site.version` as metadata even though nothing renders
+it. Recoverable from git if the changelog is ever wanted back:
+`git show fb7e654 -- components/sections/Colophon.tsx`.
+
+The two-signature budget is unaffected; the colophon was never one.
