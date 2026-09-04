@@ -535,3 +535,71 @@ it. Recoverable from git if the changelog is ever wanted back:
 `git show fb7e654 -- components/sections/Colophon.tsx`.
 
 The two-signature budget is unaffected; the colophon was never one.
+
+---
+
+## 16. Weekly GitHub sync
+
+The Rhythm chart and the release half of the Ship log regenerate weekly from
+GitHub instead of being maintained by hand. The previous site rotted for nine
+months because every number on it needed a person; §0 moved the copy into one
+file, and this moves the *facts* out of human hands entirely.
+
+**Where it runs.** A GitHub Actions cron (`30 0 * * 1`, 06:00 Monday in
+Bengaluru) regenerates `lib/commit-hours.json` and `lib/ship-log.json`,
+commits them if they changed, and lets Vercel's git integration redeploy.
+Not a Vercel cron and not a build-time fetch: the data stays committed and
+diffable, the build still needs no network, and nothing extra ships to the
+client.
+
+### 16.1 Why it clones instead of using the commits API
+
+The REST API normalises commit dates to UTC and discards the author's
+timezone offset:
+
+```
+git log      2026-08-22T20:48:45+05:30   ← true local hour, 20
+GitHub API   2026-08-22T15:18:45Z        ← offset gone
+```
+
+The chart is explicitly about local hours. Rebuilding it from the API means
+assuming IST for every commit — an assumption that currently reproduces the
+real distribution exactly, and would break silently the first time Suraj
+commits from another timezone. The workflow clones each repository with
+`--filter=tree:0 --bare`, which fetches commit metadata and nothing else, and
+reads the offset straight out of `git log`.
+
+### 16.2 What is generated and what is not
+
+Only Saizen cuts GitHub releases; every other repository has none. So the
+ship log is a merge:
+
+| Source | Holds |
+|---|---|
+| `lib/ship-log.json` (generated) | GitHub releases — tag, date, summary, link |
+| `shipLogCurated` in `lib/content.ts` | Everything GitHub cannot see: the IJLTEMAS paper, starting at Plivo, the add-on reaching the Firefox store, the two marketing sites, and Saizen 1.4.2, which its own README says shipped in-app rather than as a release IPA |
+
+Merged, sorted, and capped at `SHIP_LOG_LIMIT`, with a count of what the cap
+hides. An automated feed grows without bound; a highlight reel should not.
+
+### 16.3 Failure modes, handled
+
+- **Partial release list.** A rate limit mid-run would drop entries from the
+  ship log. The script tracks completeness and leaves `ship-log.json`
+  untouched rather than writing a truncated one, exiting non-zero. The hours
+  half, which needs no API, still writes.
+- **Partial clone failure.** The workflow refuses to commit when the totals
+  fall below a floor, so a bad network run cannot silently erase the chart.
+- **Stale prose over fresh data.** The Rhythm lede is composed from the
+  peaks in the data rather than asserted over them. It previously read "Two
+  peaks, not one: before the day starts and after it ends" — a hand-written
+  reading of a snapshot. Once the numbers began syncing, that sentence was a
+  claim nobody was checking, and the first drift would have made it the only
+  false statement on the page. Anything automated must have its prose derived
+  from the same source, or say nothing that can go stale.
+
+### 16.4 Scope
+
+Public repositories Suraj owns, excluding forks — the set a visitor can
+verify against his profile. Private work would inflate a number nobody can
+check. Two authoring addresses are counted; merges are excluded.

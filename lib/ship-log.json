@@ -1,0 +1,35 @@
+{
+  "generated": "2026-09-04",
+  "entries": [
+    {
+      "date": "2026-08-11",
+      "label": "Saizen v1.4.0",
+      "detail": "Saizen’s playback middleware moved from “search torrents → stream” to “install modules → resolve HTTPS streams → AVPlayer”",
+      "href": "https://github.com/Surajsm60720/Saizen/releases/tag/v1.4.0"
+    },
+    {
+      "date": "2026-08-06",
+      "label": "Saizen v1.3.0",
+      "detail": "Settings power-user controls",
+      "href": "https://github.com/Surajsm60720/Saizen/releases/tag/v1.3.0"
+    },
+    {
+      "date": "2026-08-05",
+      "label": "Saizen v1.2.0",
+      "detail": "",
+      "href": "https://github.com/Surajsm60720/Saizen/releases/tag/v1.2.0"
+    },
+    {
+      "date": "2026-08-04",
+      "label": "Saizen v1.1.0",
+      "detail": "",
+      "href": "https://github.com/Surajsm60720/Saizen/releases/tag/v1.1.0"
+    },
+    {
+      "date": "2026-08-02",
+      "label": "Saizen v1.0.0",
+      "detail": "",
+      "href": "https://github.com/Surajsm60720/Saizen/releases/tag/v1.0.0"
+    }
+  ]
+}

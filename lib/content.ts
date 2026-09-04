@@ -219,51 +219,68 @@ export const roles: Role[] = [
 /* --------------------------------------------------------- ship log */
 
 export interface ShipEntry {
+  /** ISO, at whatever precision is honest: YYYY, YYYY-MM or YYYY-MM-DD. */
   date: string;
   label: string;
   detail: string;
   href?: string;
 }
 
-/** Reverse-chronological. Dates from repo history and README release notes. */
-export const shipLog: ShipEntry[] = [
+/**
+ * The entries GitHub cannot know about. Releases are generated weekly into
+ * lib/ship-log.json by scripts/sync-github.mjs; these are merged with them at
+ * render and sorted together.
+ *
+ * Do not add a release here — it will appear twice. This list is for things
+ * that happened off GitHub.
+ */
+export const shipLogCurated: ShipEntry[] = [
   {
-    date: "Aug 2026",
+    date: "2026-08-28",
     label: "Saizen site",
     detail: "One-page static site for the app. No animation dependencies.",
     href: "https://saizen.vercel.app",
   },
   {
-    date: "Aug 2026",
+    /* Saizen's README is explicit that 1.4.1 and 1.4.2 shipped in-app rather
+       than as GitHub release IPAs, so the sync cannot see them. */
+    date: "2026-08-22",
     label: "Saizen v1.4.2",
-    detail: "Home personalization reliability and liquid-glass chrome controls.",
+    detail:
+      "Home personalization reliability and liquid-glass chrome controls. Shipped in-app, not as a GitHub release.",
     href: "https://github.com/Surajsm60720/Saizen",
   },
   {
-    date: "Aug 2026",
+    date: "2026-08-23",
     label: "LifeOS site",
     detail: "Rebuilt from a single-file prototype onto Next.js.",
     href: "https://lifeossite.vercel.app/",
   },
   {
-    date: "Aug 2026",
+    date: "2026-08-17",
     label: "LifeOS v1.0.2",
     detail: "Map-first place picker and occurrence-cycle Ongoing Events.",
     href: "https://github.com/Surajsm60720/LifeOS",
   },
   {
-    date: "Mar 2026",
+    date: "2026-03",
     label: "NanoPrune Canvas",
     detail: "Pruning and quantization simulator with edge-hardware fit analysis.",
     href: "https://github.com/Surajsm60720/nano-prune-canvas",
   },
   {
-    date: "Feb 2026",
+    date: "2025-09",
+    label: "i-made-an-oopsie",
+    detail: "A recovery script, written after the fact. Repeatedly.",
+    href: "https://github.com/Surajsm60720/i-made-an-oopsie",
+  },
+  {
+    date: "2026-02",
     label: "Started at Plivo",
     detail: "Forward Deployed Engineer Intern.",
   },
   {
-    date: "Nov 2025",
+    date: "2025-11",
     label: "LLM Chat Navigator",
     detail: "Published on the Firefox add-ons store.",
     href: "https://addons.mozilla.org/en-US/firefox/addon/llm-chat-navigator/",
@@ -273,12 +290,6 @@ export const shipLog: ShipEntry[] = [
     label: "NammaLakes paper",
     detail: "Published in IJLTEMAS.",
     href: "https://doi.org/10.51583/IJLTEMAS.2025.1409000060",
-  },
-  {
-    date: "Sep 2025",
-    label: "i-made-an-oopsie",
-    detail: "A recovery script, written after the fact. Repeatedly.",
-    href: "https://github.com/Surajsm60720/i-made-an-oopsie",
   },
 ];
 

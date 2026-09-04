@@ -1409,3 +1409,11 @@ a {
     display: none !important;
   }
 }
+
+.log__stamp {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+  margin: 26px 0 0;
+}
