@@ -14,8 +14,13 @@
 export const identity = {
   name: "Suraj Menon",
   fullName: "Suraj Sreeprakash Menon",
-  /* The thesis. Everything below is evidence for it. */
-  thesis: "I build software with a user base of one. Sometimes it escapes.",
+  /* The thesis. Everything below is evidence for it.
+     An earlier version read "a user base of one, sometimes it escapes",
+     which was wrong about the person: it framed shipped apps, a published
+     add-on, a paper and three internships as a private hobby. */
+  thesis: "I ship what I start.",
+  thesisNote:
+    "Every one of these began as a problem \u2014 mine, a customer's, or a team's. The good ones stopped being only mine.",
   role: "Forward Deployed Engineer at Plivo",
   location: "Bengaluru, IN",
   timezone: "Asia/Kolkata",
@@ -314,36 +319,6 @@ export const proof: ProofItem[] = [
   },
 ];
 
-/* --------------------------------------------------- off the clock */
-
-export interface Aside {
-  label: string;
-  body: string;
-  href?: string;
-  hrefLabel?: string;
-}
-
-export const offTheClock: Aside[] = [
-  {
-    label: "Linux",
-    body: "“I am prone to making my Linux system go down the drains by doing things I clearly shouldn’t.” So there is a script that puts it all back. It has been used more than once.",
-    href: "https://github.com/Surajsm60720/i-made-an-oopsie",
-    hrefLabel: "i-made-an-oopsie",
-  },
-  {
-    label: "Gacha",
-    body: "Genshin, Star Rail and Wuthering Waves have dailies, banners and patch cycles that do not care about your calendar. That cadence is a first-class entry type in LifeOS, which is the most honest thing on this page.",
-  },
-  {
-    label: "Anime",
-    body: "Enough of it that building a client was easier than tolerating the ones that exist. Saizen has watch-order relations because franchise order is genuinely hard to get right.",
-  },
-  {
-    label: "Music",
-    body: "Permanently mid-search for the next track. Two forked music players in the repo list are evidence of a problem, not a solution.",
-  },
-];
-
 /* ----------------------------------------------------- stack ledger */
 
 export interface LedgerRow {
@@ -436,7 +411,7 @@ export const quips: string[] = [
   "The complaint comes before the project because that is the order it happened in.",
   "This page prints properly. Genuinely. Try it.",
   "No animation library. The one thing that moves does it with two CSS properties.",
-  "He builds software with a user base of one. You are reading its marketing site.",
+  "The projects below are ordered by what they took, not by when they happened.",
   "If this is dark right now, it is late where he is \u2014 not necessarily where you are.",
   "The previous version of this page sat unchanged for nine months. Every word now lives in one file so that is harder to repeat.",
   "Yes, the quote shrinking into the margin was deliberate.",

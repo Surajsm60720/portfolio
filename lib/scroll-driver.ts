@@ -15,9 +15,14 @@ export interface Driven {
 const active = new Set<Driven>();
 let frame = 0;
 
-/** 0 while the card sits low in the viewport, 1 once it has risen into place. */
-const START = 0.72; // card top at 72% of viewport height
-const END = 0.2; // card top at 20% of viewport height
+/**
+ * 0 while the card sits low in the viewport, 1 once it has risen into place.
+ * The window is deliberately wide — 73% of viewport height — because the
+ * complaint has to stay readable for someone scrolling at a normal pace, and
+ * an earlier, narrower window resolved it before most readers got to it.
+ */
+const START = 0.85; // card top near the bottom of the viewport
+const END = 0.12; // card top near the top of it
 
 function tick() {
   frame = 0;

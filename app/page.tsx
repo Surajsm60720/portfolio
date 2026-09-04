@@ -6,7 +6,6 @@ import Escaped from "@/components/sections/Escaped";
 import ShipLog from "@/components/sections/ShipLog";
 import Proof from "@/components/sections/Proof";
 import Rhythm from "@/components/sections/Rhythm";
-import OffTheClock from "@/components/sections/OffTheClock";
 import StackLedger from "@/components/sections/StackLedger";
 import Footer from "@/components/sections/Footer";
 
@@ -22,7 +21,6 @@ export default function Home() {
         <ShipLog />
         <Proof />
         <Rhythm />
-        <OffTheClock />
         <StackLedger />
       </main>
       <Footer />

@@ -34,8 +34,10 @@ export default function ItchCard({ project }: { project: Project }) {
            visible, instead of being stranded at opacity 0. */
         el.dataset.driven = "true";
         /* Once the build has taken over, the quote stops intercepting
-           clicks. Before that it is ordinary selectable text. */
-        el.dataset.past = p > 0.55 ? "true" : "false";
+           clicks. Before that it is ordinary selectable text. The threshold
+           tracks the crossfade in globals.css: below it the quote is still
+           the dominant element and must stay selectable. */
+        el.dataset.past = p > 0.72 ? "true" : "false";
       },
     };
 

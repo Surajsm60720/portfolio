@@ -16,6 +16,7 @@ export default function Hero() {
 
         {/* The thesis. Everything below this line on the page is evidence for it. */}
         <p className="hero__thesis">{identity.thesis}</p>
+        <p className="hero__claim">{identity.thesisNote}</p>
 
         <Quip />
 

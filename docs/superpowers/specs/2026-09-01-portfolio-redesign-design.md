@@ -29,7 +29,9 @@ A single-page portfolio for Suraj Sreeprakash Menon — Forward Deployed Enginee
 
 ### 1.1 Thesis
 
-> Suraj builds software with a user base of one. Sometimes it escapes.
+> **I ship what I start.**
+> Every one of these began as a problem — mine, a customer's, or a team's.
+> The good ones stopped being only mine.
 
 This is not a slogan bolted onto a generic layout — it is an observed fact about the work. `i-made-an-oopsie` exists because he keeps breaking his own Linux install. `linux-starter-pack` exists because he then has to reinstall everything. `llm-chat-navigator` exists because he got tired of scrolling ChatGPT. `LifeOS` exists so he stops forgetting things. `Saizen` is explicitly a "personal iOS anime client" with no App Store CTA. `CIEMarksCalculator` computes his own college marks.
 
@@ -139,8 +141,8 @@ Single page. The only route besides `/` is the existing `/cv.pdf` passthrough.
 | 5 | Ship log | Dated release stream |
 | 6 | Proof | Publication + DOI, education, certification |
 | 7 | Off the clock | Personality: gacha cadence, anime, music, self-destroying Linux installs |
-| 8 | Stack ledger | Grouped technologies, each cross-referenced to the project it was used in |
-| 9 | Footer | Real mailto, correct socials, résumé, and the page's measured cost |
+| 7 | Stack ledger | Grouped technologies, each cross-referenced to the project it was used in |
+| 8 | Footer | Real mailto, correct socials, résumé, and the page's measured cost |
 
 ### 5.1 Deliberate removals
 
@@ -177,6 +179,18 @@ Each project enters the viewport as a single italic complaint at display size, a
 > *"Every anime client I tried wanted an account, an ad, or a subscription."*
 
 As the card scrolls through, the complaint contracts and migrates into the left margin rail as a mono note, while the build resolves in beside it. No click; scroll progress drives it.
+
+**Timing.** The complaint holds at full opacity for the first 40% of the
+card's travel, then hands over between 0.52 and 0.88. The travel window
+itself spans 73% of viewport height (card top from 85% down to 12%).
+
+The first version was wrong on both counts: `opacity: 1 - p * 1.35` began
+fading on the first pixel of scroll, leaving roughly 0.004 viewport-heights
+at full strength — effectively none. A reader at normal speed never saw the
+complaint at all, which defeats the entire point of leading with it. The hold
+is now 0.296 viewport-heights. The `data-past` threshold that disables
+pointer events on the quote tracks the same crossfade, so the quote stays
+selectable for as long as it is the dominant element.
 
 **Implementation constraints:**
 

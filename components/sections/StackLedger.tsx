@@ -4,7 +4,7 @@ import { ledger } from "@/lib/content";
 
 export default function StackLedger() {
   return (
-    <section className="section" id="stack">
+    <section className="section section--panel" id="stack">
       <div className="wrap">
         <SectionHeader
           eyebrow="Stack"

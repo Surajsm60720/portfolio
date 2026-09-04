@@ -27,10 +27,10 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://surajmenon.vercel.app"),
   title: `${identity.name} — ${identity.role}`,
-  description: identity.thesis,
+  description: `${identity.thesis} ${identity.thesisNote}`,
   openGraph: {
     title: `${identity.name} — ${identity.role}`,
-    description: identity.thesis,
+    description: `${identity.thesis} ${identity.thesisNote}`,
     url: "/",
     siteName: identity.name,
     type: "website",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: `${identity.name} — ${identity.role}`,
-    description: identity.thesis,
+    description: `${identity.thesis} ${identity.thesisNote}`,
   },
 };
 
