@@ -81,7 +81,7 @@ const ARROW: [number, number, number, number][] = [
 ];
 
 export default function DPad() {
-  const { on: consoleOn } = useSyncExternalStore(
+  const { on: consoleOn, phase } = useSyncExternalStore(
     subscribeConsole,
     getConsoleSnapshot,
     getConsoleServerSnapshot,
@@ -293,7 +293,12 @@ export default function DPad() {
      the Konami code, the controller poll — run either way, above. */
   return (
     <>
-      {consoleOn ? (
+      {/* The power-on flash. Present only while the mode is changing. */}
+      {phase === "opening" || phase === "closing" ? (
+        <div className="boot" data-phase={phase} aria-hidden="true" />
+      ) : null}
+
+      {consoleOn || phase === "closing" ? (
         <div className="console">
           <div className="console__screen">
             <p className="console__row">
