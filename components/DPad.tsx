@@ -9,6 +9,7 @@ import {
 } from "react";
 import NightSky from "./NightSky";
 import { skyLines } from "@/lib/content";
+import { cycleTheme } from "@/lib/theme";
 import { watchKonami } from "@/lib/konami";
 import { watchGamepads, type Pad } from "@/lib/gamepad";
 import {
@@ -32,12 +33,18 @@ import {
  * Left and right are placeholders. Change ACTIONS and nothing else moves.
  */
 type Dir = "up" | "down" | "left" | "right";
+type Face = "a" | "b" | "start" | "select";
+type Input = Dir | Face;
 
-const ACTIONS: Record<Dir, string> = {
-  up: "Up past the top",
-  down: "Next section",
-  left: "Previous section",
-  right: "Jump to contact",
+const ACTIONS: Record<Input, string> = {
+  up: "Previous stage",
+  down: "Next stage",
+  left: "Page up",
+  right: "Page down",
+  a: "Warp to the top",
+  b: "Power off",
+  start: "Contact",
+  select: "Toggle theme",
 };
 
 /** Every landmark the pad can move between, in document order. */
@@ -88,7 +95,7 @@ export default function DPad() {
   );
   const [skyOpen, setSkyOpen] = useState(false);
   const [skyLine, setSkyLine] = useState(skyLines[0]);
-  const [hint, setHint] = useState<Dir | null>(null);
+  const [hint, setHint] = useState<Input | null>(null);
   const [at, setAt] = useState(0);
   const [where, setWhere] = useState("");
   const [total, setTotal] = useState(0);
@@ -173,22 +180,38 @@ export default function DPad() {
     };
   }, [consoleOn]);
 
-  const go = useCallback((dir: Dir) => {
+  const go = useCallback((input: Input) => {
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
     const behavior: ScrollBehavior = reduced ? "auto" : "smooth";
-    const all = stops();
-
     const box = scroller();
+    const top = () => (box instanceof Window ? window.scrollY : box.scrollTop);
+    const view = () =>
+      box instanceof Window ? window.innerHeight : box.clientHeight;
 
-    if (dir === "up") {
-      /* Scroll back to the beginning first, then keep going — the sky only
-         arrives once there is nowhere left to scroll. The line is chosen
-         here, in an event handler, so the panel never picks during render. */
+    if (input === "b") {
+      setConsole(false);
+      return;
+    }
+
+    if (input === "select") {
+      cycleTheme();
+      return;
+    }
+
+    if (input === "start") {
+      document
+        .querySelector<HTMLElement>("#contact")
+        ?.scrollIntoView({ behavior, block: "start" });
+      return;
+    }
+
+    if (input === "a") {
+      /* Back to the beginning, and then past it. The line is chosen here, in
+         an event handler, so the panel never picks during render. */
       setSkyLine(skyLines[Math.floor(Math.random() * skyLines.length)]);
-      const top = box instanceof Window ? window.scrollY : box.scrollTop;
-      if (top < 4) {
+      if (top() < 4) {
         setSkyOpen(true);
         return;
       }
@@ -199,16 +222,21 @@ export default function DPad() {
       return;
     }
 
-    if (dir === "right") {
-      const end =
-        box instanceof Window ? document.body.scrollHeight : box.scrollHeight;
-      box.scrollTo({ top: end, behavior });
+    /* Left and right page within the current screen; up and down move between
+       stages. A d-pad should not have two buttons doing the same thing. */
+    if (input === "left" || input === "right") {
+      const step = view() * 0.82;
+      box.scrollTo({
+        top: top() + (input === "right" ? step : -step),
+        behavior,
+      });
       return;
     }
 
+    const all = stops();
     const i = currentIndex(all);
     const next =
-      dir === "down" ? Math.min(i + 1, all.length - 1) : Math.max(i - 1, 0);
+      input === "down" ? Math.min(i + 1, all.length - 1) : Math.max(i - 1, 0);
     all[next]?.scrollIntoView({ behavior, block: "start" });
   }, []);
 
@@ -291,6 +319,21 @@ export default function DPad() {
 
   /* The handheld exists only while the page is inside it. Its listeners —
      the Konami code, the controller poll — run either way, above. */
+  const face = (input: Face, label: string) => (
+    <button
+      type="button"
+      className={`face face--${input}`}
+      onClick={() => go(input)}
+      onPointerEnter={() => setHint(input)}
+      onPointerLeave={() => setHint(null)}
+      onFocus={() => setHint(input)}
+      onBlur={() => setHint(null)}
+      aria-label={ACTIONS[input]}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <>
       {/* The power-on flash. Present only while the mode is changing. */}
@@ -299,56 +342,61 @@ export default function DPad() {
       ) : null}
 
       {consoleOn || phase === "closing" ? (
-        <div className="console">
-          <div className="console__screen">
-            <p className="console__row">
-              <span className="console__tag">
-                {flash ? "!!" : pad ? "P1" : hint ? "GO" : "AT"}
-              </span>
-              <span className="console__where" data-flash={Boolean(flash)}>
-                {flash ?? pad ?? (hint ? ACTIONS[hint] : where || "\u2014")}
-              </span>
-            </p>
-
-            <p className="console__at" aria-hidden="true">
-              {total ? `${at + 1} / ${total}` : ""}
-            </p>
-
-            <p className="console__bar" aria-hidden="true">
-              {Array.from({ length: total }, (_, i) => (
-                <span className="console__seg" key={i} data-on={i <= at} />
+        <div className="shell">
+          {/* The strip above the screen. A stage number and a name is how a
+              game tells you where you are, and it is more useful here than a
+              breadcrumb would be. */}
+          <div className="shell__hud">
+            <span className="hud__stage">
+              STAGE {String(at + 1).padStart(2, "0")}/
+              {String(total).padStart(2, "0")}
+            </span>
+            <span className="hud__name">
+              {flash ?? (hint ? ACTIONS[hint] : where || "\u2014")}
+            </span>
+            <span className="hud__pad">{pad ?? "1P"}</span>
+            <span className="hud__bar" aria-hidden="true">
+              {Array.from({ length: total }, (_, n) => (
+                <span className="hud__seg" key={n} data-on={n <= at} />
               ))}
-            </p>
-
+            </span>
             <span className="console__sr" aria-live="polite">
               {hint ? ACTIONS[hint] : where ? `At ${where}` : ""}
             </span>
           </div>
 
-          <div
-            className="dpad"
-            role="group"
-            aria-label="Page navigation pad"
-            onKeyDown={onKeyDown}
-          >
-            {key("up")}
-            {key("left")}
-            <span className="dpad__hub" aria-hidden="true" />
-            {key("right")}
-            {key("down")}
+          {/* The screen itself is .page; this only lays scanlines over it. */}
+          <div className="shell__glass" aria-hidden="true" />
+
+          <div className="shell__deck">
+            <div
+              className="dpad"
+              role="group"
+              aria-label="Stage navigation"
+              onKeyDown={onKeyDown}
+            >
+              {key("up")}
+              {key("left")}
+              <span className="dpad__hub" aria-hidden="true" />
+              {key("right")}
+              {key("down")}
+            </div>
+
+            <div className="shell__middle">
+              <p className="console__mark" aria-hidden="true">
+                SM&nbsp;·&nbsp;01
+              </p>
+              <div className="shell__system">
+                {face("select", "SELECT")}
+                {face("start", "START")}
+              </div>
+            </div>
+
+            <div className="shell__face">
+              {face("b", "B")}
+              {face("a", "A")}
+            </div>
           </div>
-
-          <p className="console__mark" aria-hidden="true">
-            SM&nbsp;·&nbsp;01
-          </p>
-
-          <button
-            type="button"
-            className="console__exit"
-            onClick={() => setConsole(false)}
-          >
-            Exit — Esc
-          </button>
         </div>
       ) : null}
 

@@ -115,6 +115,12 @@ export function getThemeServerSnapshot(): null {
 }
 
 /** Commits a new choice: persists it, paints it, and notifies subscribers. */
+/** Advances Auto → Day → Night. Used by SELECT on the pad. */
+export function cycleTheme(): void {
+  const choice = getThemeSnapshot().choice;
+  commitChoice(CHOICES[(CHOICES.indexOf(choice) + 1) % CHOICES.length]);
+}
+
 export function commitChoice(choice: ThemeChoice): void {
   writeStored(choice);
   current = { choice, theme: resolve(choice) };

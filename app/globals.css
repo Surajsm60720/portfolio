@@ -27,7 +27,12 @@
   --edge: rgba(20, 18, 15, 0.46);
   --accent: #1f3d8f;
   --accent-soft: rgba(31, 61, 143, 0.1);
-  --sweep: 255, 180, 84; /* the sweep is always warm — it is the night arriving */
+  --sweep: 255, 180, 84;
+  /* CRT glass. Declared here, ahead of the dark override — :root and
+     [data-theme="dark"] have equal specificity, so a later :root would win
+     and dark mode would draw the light scanline. */
+  --scan: rgba(20, 18, 15, 0.075);
+  --vignette: rgba(20, 18, 15, 0.28); /* the sweep is always warm — it is the night arriving */
 
   /* Reverted to the system stacks on 2026-09-05, by request. These are what
      the page was actually rendering before the token bug was fixed: the
@@ -51,6 +56,8 @@
 }
 
 [data-theme="dark"] {
+  --scan: rgba(255, 255, 255, 0.055);
+  --vignette: rgba(0, 0, 0, 0.55);
   --bg: #08090b;
   --panel: #0e1013;
   --ink: #f5f2ec;
@@ -2016,67 +2023,6 @@ footer[id] {
 
 /* The console leaves the hero and becomes the shell's controls. Positioned
    without transform, for the reason given at the top of this block. */
-[data-console="on"] .console {
-  position: fixed;
-  bottom: 22px;
-  left: 0;
-  right: 0;
-  margin-inline: auto;
-  width: min(1080px, 92vw);
-  z-index: 60;
-  /* The screen is capped rather than given every spare pixel. An 800px-wide
-     readout holding two short lines looked like a debug bar, not a device. */
-  grid-template-columns: auto minmax(220px, 380px) 1fr auto;
-  align-items: center;
-  gap: clamp(16px, 2.4vw, 34px);
-  padding: 16px 20px;
-}
-
-[data-console="on"] .console__screen {
-  order: 2;
-  height: 100%;
-  /* Push the readout to the top and the position bar to the bottom, rather
-     than stacking both at the top and leaving a void underneath. */
-  align-content: space-between;
-  padding: 12px 13px 13px;
-}
-
-[data-console="on"] .console__where {
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-[data-console="on"] .console__tag {
-  font-size: 10.5px;
-}
-
-[data-console="on"] .console__seg {
-  height: 7px;
-}
-
-.console__at {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  color: #2f7d53;
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-}
-
-[data-console="on"] .console .dpad {
-  order: 1;
-  width: 148px;
-  max-width: none;
-}
-
-/* The mark earns its place here: it fills the gap between the screen and the
-   exit, and keeps the bar reading as one object rather than three. */
-[data-console="on"] .console__mark {
-  order: 3;
-  display: block;
-  font-size: 10px;
-  letter-spacing: 0.3em;
-}
 
 [data-console="on"] .console__exit {
   order: 4;
@@ -2509,7 +2455,7 @@ footer[id] {
 }
 
 /* The controls arrive after the screen is lit, and leave before it dies. */
-[data-phase="opening"] .console {
+[data-phase="opening"] .shell {
   animation: controls-in 420ms cubic-bezier(0.22, 0.68, 0.24, 1) 340ms both;
 }
 
@@ -2524,7 +2470,7 @@ footer[id] {
   }
 }
 
-[data-phase="closing"] .console {
+[data-phase="closing"] .shell {
   animation: controls-out 260ms cubic-bezier(0.6, 0, 0.9, 0.3) both;
 }
 
@@ -2545,7 +2491,234 @@ footer[id] {
 @media (prefers-reduced-motion: reduce) {
   [data-phase] .boot,
   [data-phase] .page,
-  [data-phase] .console {
+  [data-phase] .shell {
     animation: none !important;
+  }
+}
+
+
+/* ============================================================
+   THE HANDHELD
+
+   Console mode used to be a bordered box with a control bar
+   floating under it. It is one object now: a housing with a HUD
+   strip, the screen behind glass, and a deck underneath holding
+   a d-pad, SELECT and START, and two face buttons.
+
+   Geometry lives in these four custom properties. The screen is
+   .page, positioned into the gap the housing leaves for it, so
+   the two cannot drift apart by hand-tuned pixels.
+   ============================================================ */
+
+:root {
+  /* Clears the fixed rail, which the housing was sliding under. */
+  --shell-top: 58px;
+  --shell-bottom: 16px;
+  --shell-pad: 14px;
+  --hud-h: 26px;
+  --deck-h: 150px;
+}
+
+.shell {
+  --bv: var(--px);
+  position: fixed;
+  top: var(--shell-top);
+  bottom: var(--shell-bottom);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: min(1120px, 94vw);
+  z-index: 55;
+  display: grid;
+  grid-template-rows: var(--hud-h) 1fr var(--deck-h);
+  gap: 10px;
+  padding: var(--shell-pad);
+  background: var(--pad-face);
+  box-shadow: var(--bevel-out);
+  filter: drop-shadow(var(--px) var(--px) 0 var(--pad-edge));
+  pointer-events: none;
+}
+
+.shell > * {
+  pointer-events: auto;
+}
+
+/* The screen sits in the housing's middle row. Same arithmetic, so it cannot
+   drift away from the hole cut for it. */
+[data-console="on"] .page {
+  position: fixed;
+  top: calc(var(--shell-top) + var(--shell-pad) + var(--hud-h) + 10px);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: calc(min(1120px, 94vw) - var(--shell-pad) * 2);
+  height: calc(
+    100dvh - var(--shell-top) - var(--shell-bottom) - var(--shell-pad) * 2 -
+      var(--hud-h) - var(--deck-h) - 20px
+  );
+  z-index: 56;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y proximity;
+  background: var(--bg);
+  padding: 0 clamp(12px, 1.8vw, 26px);
+  box-shadow: var(--bevel-in);
+  scrollbar-width: none;
+}
+
+/* ---------- HUD ---------- */
+
+.shell__hud {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px;
+  background: #0b1a12;
+  box-shadow: var(--bevel-in);
+  --bv: 2px;
+}
+
+.hud__stage,
+.hud__pad {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: #2f7d53;
+  white-space: nowrap;
+}
+
+.hud__name {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5cf2a0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hud__bar {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 2px;
+  margin-bottom: 5px;
+}
+
+.hud__seg {
+  flex: 1;
+  height: 3px;
+  background: #163b28;
+  transition: background-color 0.2s var(--ease);
+}
+
+.hud__seg[data-on="true"] {
+  background: #5cf2a0;
+}
+
+/* ---------- the glass ----------
+   Scanlines and a corner vignette, laid over the screen rather than inside
+   it, so nothing has to be applied to the content itself. */
+
+.shell__glass {
+  position: relative;
+  z-index: 57;
+  /* .shell > * turns pointer events back on; the glass must stay out of the
+     way or it swallows every scroll and click meant for the screen. */
+  pointer-events: none !important;
+  /* Black lines on a near-black screen are no lines at all, so the scan
+     colour follows the theme rather than being painted dark either way. */
+  background:
+    repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px),
+    radial-gradient(118% 100% at 50% 50%, transparent 54%, var(--vignette));
+}
+
+/* ---------- the deck ---------- */
+
+.shell__deck {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(16px, 3vw, 44px);
+  padding: 0 6px;
+}
+
+.shell .dpad {
+  width: 132px;
+  max-width: none;
+  filter: none;
+}
+
+.shell__middle {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+.shell__system {
+  display: flex;
+  gap: 10px;
+}
+
+.shell__face {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* B sits lower than A, as it does on every pad that has ever had two. */
+.face--b {
+  transform: translateY(16px);
+}
+
+.face {
+  --bv: 2px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--pad-ink);
+  background: var(--pad-face);
+  border: 0;
+  border-radius: 0;
+  box-shadow: var(--bevel-out);
+  cursor: pointer;
+  transition: background-color 0.14s var(--ease), color 0.14s var(--ease);
+}
+
+.face--a,
+.face--b {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  font-size: 13px;
+}
+
+.face--select,
+.face--start {
+  height: 26px;
+  padding: 0 14px;
+  border-radius: 13px;
+}
+
+.face:hover {
+  background: color-mix(in srgb, var(--accent) 22%, var(--pad-face));
+}
+
+.face:active {
+  color: var(--bg);
+  background: var(--accent);
+  box-shadow: var(--bevel-in);
+}
+
+@media (max-width: 899px) {
+  .shell {
+    display: none;
+  }
+}
+
+@media print {
+  .shell {
+    display: none !important;
   }
 }
