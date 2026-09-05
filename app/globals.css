@@ -1593,9 +1593,15 @@ footer[id] {
 }
 
 /* ---------- the night sky ----------
-   Arrives from overhead after the page has scrolled back to the top, and
-   slides the page down under it. Transform and opacity only. Stars twinkle
-   slowly on a long stagger — this is a room to sit in, not an effect. */
+   Reached by pressing up at the top of the page.
+
+   The sense of still travelling upward comes from the stars arriving as
+   long vertical streaks falling downward — the world moving the opposite
+   way to the reader — which then shorten to points and begin to twinkle.
+   A single line follows.
+
+   The streak is scaleY on a fixed 2px dot, never an animated height, so the
+   entire sequence is transform and opacity and never touches layout. */
 
 .sky {
   position: fixed;
@@ -1604,34 +1610,97 @@ footer[id] {
   display: grid;
   place-items: center;
   background: #05070d;
-  color: #e8ecf6;
   opacity: 0;
-  transform: translateY(-100%);
-  transition: transform 0.62s var(--ease), opacity 0.28s linear;
-  will-change: transform;
+  visibility: hidden;
+  transition: opacity 0.3s linear, visibility 0s linear 0.3s;
 }
 
 .sky[data-open="true"] {
   opacity: 1;
-  transform: none;
+  visibility: visible;
+  transition: opacity 0.3s linear, visibility 0s;
 }
 
 .sky__field {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
 .sky__star {
   position: absolute;
-  background: #f2f5ff;
-  opacity: 0.7;
-  animation: twinkle 6.5s ease-in-out infinite;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 1px;
+  opacity: 0;
+  transform-origin: 50% 0;
+  will-change: transform, opacity;
+}
+
+/* Three lanes so the streaks do not arrive as one flat curtain. */
+.sky__star[data-lane="0"] { --len: 60; --fall: -55vh; }
+.sky__star[data-lane="1"] { --len: 95; --fall: -75vh; }
+.sky__star[data-lane="2"] { --len: 40; --fall: -40vh; }
+
+.sky[data-open="true"] .sky__star {
+  animation:
+    fall 900ms cubic-bezier(0.16, 0.84, 0.3, 1) var(--d) both,
+    twinkle 5.2s ease-in-out calc(var(--d) + 1000ms) infinite;
+}
+
+@keyframes fall {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--fall)) scaleY(var(--len));
+  }
+  14% {
+    opacity: 0.5;
+  }
+  70% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0.55;
+    transform: translateY(0) scaleY(1);
+  }
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.22; }
-  50% { opacity: 0.85; }
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.9; }
+}
+
+.sky__line {
+  position: relative;
+  max-width: 22ch;
+  padding-inline: var(--gut);
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(22px, 3.4vw, 38px);
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  text-align: center;
+  color: #eef2fb;
+  opacity: 0;
+  text-wrap: balance;
+}
+
+/* Arrives only once the sky has settled. */
+.sky[data-open="true"] .sky__line {
+  animation: skyline 900ms var(--ease) 1150ms both;
+}
+
+@keyframes skyline {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .sky__close {
@@ -1642,83 +1711,16 @@ footer[id] {
   place-items: center;
   width: 44px;
   height: 40px;
-  color: #e8ecf6;
+  color: #eef2fb;
   background: transparent;
-  border: 1px solid rgba(232, 236, 246, 0.4);
+  border: 1px solid rgba(238, 242, 251, 0.34);
   border-radius: 3px;
   cursor: pointer;
   transition: background-color 0.15s var(--ease);
 }
 
 .sky__close:hover {
-  background: rgba(232, 236, 246, 0.12);
-}
-
-.sky__inner {
-  position: relative;
-  width: 100%;
-  max-width: 900px;
-}
-
-.sky__eyebrow {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #8fa2c8;
-  margin: 0;
-}
-
-.sky__lede {
-  font-family: var(--display);
-  font-style: italic;
-  font-size: clamp(20px, 2.8vw, 30px);
-  line-height: 1.28;
-  margin: 12px 0 0;
-  max-width: 26ch;
-}
-
-.sky__list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: clamp(20px, 3vw, 40px);
-  list-style: none;
-  padding: 0;
-  margin: clamp(26px, 4vh, 44px) 0 0;
-}
-
-.sky__label {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #8fa2c8;
-  margin: 0 0 8px;
-}
-
-.sky__body {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(232, 236, 246, 0.82);
-  margin: 0;
-}
-
-.sky__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #9db4e8;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(157, 180, 232, 0.4);
-  margin-top: 10px;
-}
-
-.sky__link:hover {
-  border-bottom-color: #9db4e8;
+  background: rgba(238, 242, 251, 0.12);
 }
 
 .sky :focus-visible {
@@ -1726,15 +1728,16 @@ footer[id] {
   outline-offset: 3px;
 }
 
+/* No travel, no twinkle — the sky simply is, and the line is simply there. */
 @media (prefers-reduced-motion: reduce) {
-  .sky {
-    transition: opacity 0.01ms;
-    transform: none;
+  .sky[data-open="true"] .sky__star {
+    animation: none;
+    opacity: 0.55;
   }
 
-  .sky__star {
+  .sky[data-open="true"] .sky__line {
     animation: none;
-    opacity: 0.6;
+    opacity: 1;
   }
 }
 

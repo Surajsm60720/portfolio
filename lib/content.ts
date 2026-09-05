@@ -328,38 +328,19 @@ export const proof: ProofItem[] = [
 
 /* --------------------------------------------------- the night sky */
 
-export interface Aside {
-  label: string;
-  body: string;
-  href?: string;
-  hrefLabel?: string;
-}
-
 /**
- * What is behind the up arrow. This was a section once and sat oddly among
- * the professional ones, so it was cut. A night sky at the very top of the
- * page is the room it always wanted: the after-hours half of the person,
- * reached only by deliberately going back past the beginning.
+ * The one line shown above the top of the page. Nothing else goes up there —
+ * the sky is a room, not another section.
+ *
+ * Unattributed on purpose. A famous quotation would be the one thing on this
+ * site that nobody could check, and misattribution is the most common way
+ * that happens.
  */
-export const offTheClock: Aside[] = [
-  {
-    label: "Linux",
-    body: "“I am prone to making my Linux system go down the drains by doing things I clearly shouldn’t.” So there is a script that puts it all back.",
-    href: "https://github.com/Surajsm60720/i-made-an-oopsie",
-    hrefLabel: "i-made-an-oopsie",
-  },
-  {
-    label: "Gacha",
-    body: "Genshin, Star Rail and Wuthering Waves have dailies, banners and patch cycles that do not care about your calendar. That cadence is a first-class entry type in LifeOS.",
-  },
-  {
-    label: "Anime",
-    body: "Enough of it that building a client was easier than tolerating the ones that exist. Saizen has watch-order relations because franchise order is genuinely hard to get right.",
-  },
-  {
-    label: "Music",
-    body: "Permanently mid-search for the next track. Two forked music players in the repo list are evidence of a problem, not a solution.",
-  },
+export const skyLines: string[] = [
+  "You went up past the top. There is nothing here but this.",
+  "Most people stop at the beginning.",
+  "The page ends downward. This is the other direction.",
+  "Nothing up here. That was rather the point.",
 ];
 
 /* ----------------------------------------------------- stack ledger */

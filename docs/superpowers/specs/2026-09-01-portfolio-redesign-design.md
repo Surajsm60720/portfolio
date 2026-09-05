@@ -638,16 +638,32 @@ reads as broken.
 
 ### 17.2 The sky
 
-Pressing up scrolls back to the beginning and then keeps going: a night sky
-slides down from overhead. It holds the off-the-clock material, which was cut
-as a section for sitting oddly among the professional ones. A sky reached
-only by deliberately going up past the start is the room it always wanted.
+Pressing up scrolls back to the beginning and then keeps going.
 
-- Stars are a fixed list, not randomised — the same sky every time, and
-  nothing to hydrate.
+The sequence, in order:
+
+1. The page scrolls smoothly to the top.
+2. The sky fades in and the stars arrive as **long vertical trails falling
+   downward** — the world moving the opposite way to the reader, which is
+   what sells the travel. Three lanes at 120, 190 and 80px, staggered across
+   nine offsets so they do not land as one flat curtain.
+3. Each trail shortens into a point and begins to twinkle on a 5.2s cycle.
+4. One line fades up at 1150ms.
+
+Nothing else is up there. It is a room, not another section — an earlier
+version put the off-the-clock material in it and that was one thing too many.
+
+- **The trail is `scaleY` on a fixed 2px dot, never an animated height**, so
+  the whole sequence is transform and opacity and never touches layout.
+- Star positions are a fixed list, not randomised — the same sky every time,
+  and nothing to hydrate.
+- The line is chosen in the click handler that opens the sky, never in an
+  effect and never during render. It is unattributed on purpose: a famous
+  quotation would be the one thing here nobody could check, and
+  misattribution is the usual way that goes wrong.
 - It is a modal: Escape and a close button dismiss it, the close button takes
   focus on open, the panel is `inert` while shut, and body scroll is locked
   while it is open so the reader cannot move content they cannot see.
-- Under `prefers-reduced-motion` it appears without sliding and the stars do
-  not twinkle.
+- Under `prefers-reduced-motion` there is no fall and no twinkle — the stars
+  are simply there and so is the line.
 - Hidden in print, along with the pad.

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import NightSky from "./NightSky";
+import { skyLines } from "@/lib/content";
 
 /**
  * A four-way pad, drawn as pixel art in SVG rather than shipped as an image
@@ -49,6 +50,7 @@ const ARROW: [number, number, number][] = [
 
 export default function DPad() {
   const [skyOpen, setSkyOpen] = useState(false);
+  const [skyLine, setSkyLine] = useState(skyLines[0]);
   const [hint, setHint] = useState<Dir | null>(null);
   const [at, setAt] = useState(0);
   const [total, setTotal] = useState(0);
@@ -84,7 +86,9 @@ export default function DPad() {
 
     if (dir === "up") {
       /* Scroll back to the beginning first, then keep going — the sky only
-         arrives once there is nowhere left to scroll. */
+         arrives once there is nowhere left to scroll. The line is chosen
+         here, in an event handler, so the panel never picks during render. */
+      setSkyLine(skyLines[Math.floor(Math.random() * skyLines.length)]);
       if (window.scrollY < 4) {
         setSkyOpen(true);
         return;
@@ -173,7 +177,7 @@ export default function DPad() {
         {hint ? ACTIONS[hint] : "Arrow keys work while it has focus."}
       </p>
 
-      <NightSky open={skyOpen} onClose={() => setSkyOpen(false)} />
+      <NightSky open={skyOpen} line={skyLine} onClose={() => setSkyOpen(false)} />
     </>
   );
 }
