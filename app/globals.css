@@ -2874,3 +2874,50 @@ footer[id] {
 [data-console="on"] .page .foot__pitch > span {
   transform: none !important;
 }
+
+/* ---------- terse ----------
+   The screen shows the headline and the numbers. Prose is hidden, never
+   rewritten: lib/content.ts already carries a one-sentence `what` beside
+   every three-sentence `body`, and roles already carry fact chips beside
+   their paragraphs. Keeping a second, shorter copy of everything is exactly
+   the drift this file's single source of truth exists to prevent, and the
+   short copy — being the one nobody reads — would drift first.
+
+   This is a view, not an edit. Nothing leaves lib/content.ts, the full text
+   is one keypress away, and the ordinary page is untouched. */
+
+[data-console="on"] .page .lede,
+[data-console="on"] .page .itch__body,
+[data-console="on"] .page .role__body,
+[data-console="on"] .page .now__detail,
+[data-console="on"] .page .log__detail,
+[data-console="on"] .page .proof__detail {
+  display: none;
+}
+
+/* With the prose gone the remaining pieces were floating in the gaps the
+   paragraphs used to fill. */
+[data-console="on"] .page .itch__what {
+  margin-top: 8px;
+  max-width: 62ch;
+}
+
+[data-console="on"] .page .itch .chips {
+  margin-top: 12px;
+}
+
+[data-console="on"] .page .role .chips {
+  margin-top: 10px;
+}
+
+[data-console="on"] .page .sec-head {
+  margin-bottom: clamp(20px, 3vh, 34px);
+}
+
+[data-console="on"] .page .itch {
+  padding-block: clamp(26px, 4vh, 44px);
+}
+
+[data-console="on"] .page .role {
+  padding-block: clamp(18px, 2.6vh, 28px);
+}
