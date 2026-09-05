@@ -7,7 +7,7 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { Gamepad2, Monitor, Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import {
   CHOICES,
   commitChoice,
@@ -18,13 +18,6 @@ import {
 } from "@/lib/theme";
 import { istClock } from "@/lib/time";
 import { identity } from "@/lib/content";
-import {
-  getConsoleServerSnapshot,
-  getConsoleSnapshot,
-  subscribeConsole,
-  toggleConsole,
-  wideEnough,
-} from "@/lib/console-mode";
 import ThemeSweep from "./ThemeSweep";
 
 /** Sweep is 520ms total; the palette swaps at 220ms, behind the bright edge. */
@@ -53,23 +46,6 @@ export default function TopRail() {
     getThemeServerSnapshot,
   );
   const clock = useSyncExternalStore(subscribeClock, istClock, () => null);
-
-  /* The Konami code still works, but an easter egg with no other entrance
-     is one almost nobody finds. This is the door for everyone else. */
-  const { on: consoleOn } = useSyncExternalStore(
-    subscribeConsole,
-    getConsoleSnapshot,
-    getConsoleServerSnapshot,
-  );
-  const [wide, setWide] = useState(true);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 900px)");
-    const sync = () => setWide(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
 
   const [sweeping, setSweeping] = useState(false);
   const busy = useRef(false);
@@ -125,22 +101,6 @@ export default function TopRail() {
               <time suppressHydrationWarning>{clock ?? "--:--"}</time>
             </span>
 
-            {wide ? (
-              <button
-                type="button"
-                className="rail__toggle rail__toggle--console"
-                onClick={() => wideEnough() && toggleConsole()}
-                aria-label={
-                  consoleOn
-                    ? "Leave console mode"
-                    : "Play this page as a console"
-                }
-                aria-pressed={consoleOn}
-                title={consoleOn ? "Leave console mode" : "Console mode"}
-              >
-                <Gamepad2 size={15} />
-              </button>
-            ) : null}
 
             <button
               type="button"

@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import ConsoleLink from "@/components/ConsoleLink";
 import { identity, site, socials } from "@/lib/content";
 
 const links = [
@@ -47,7 +48,7 @@ export default function Footer() {
 
       <p className="wrap foot__fine">
         © {new Date().getFullYear()} {identity.fullName}. Every claim on this
-        page traces to the résumé or a repository README.
+        page traces to the résumé or a repository README. <ConsoleLink />
       </p>
     </footer>
   );

@@ -2188,3 +2188,113 @@ footer[id] {
 .console__where[data-flash="true"] {
   color: #ffd166;
 }
+
+/* ============================================================
+   ENTRANCE
+
+   The page used to arrive all at once, fully formed, which reads
+   as abrupt rather than as fast. These are load animations, not
+   scroll ones: the hero is above the fold, so it has no
+   IntersectionObserver to wait for.
+
+   Opacity and transform only, staggered by about a tenth of a
+   second, and the whole sequence is done inside a second. The
+   name rises from behind its own edge — a mask, not a fade —
+   because that is the one piece of type worth animating properly.
+   ============================================================ */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes unmask {
+  from {
+    transform: translateY(104%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.hero__top {
+  animation: rise 700ms var(--ease) 40ms both;
+}
+
+/* The mask. Descenders need the padding or the j in Suraj is clipped; the
+   negative margin puts the baseline back where the layout expects it. */
+.hero__name {
+  overflow: hidden;
+  padding-bottom: 0.09em;
+  margin-bottom: -0.09em;
+}
+
+.hero__name > span {
+  display: block;
+  animation: unmask 900ms cubic-bezier(0.22, 0.68, 0.24, 1) 120ms both;
+}
+
+.hero__body {
+  animation: rise 700ms var(--ease) 340ms both;
+}
+
+.hero__foot {
+  animation: rise 700ms var(--ease) 460ms both;
+}
+
+/* The greeting mounts after hydration rather than with the document, so it
+   would otherwise appear with a snap after everything else had settled. */
+.hero__hail {
+  animation: rise 600ms var(--ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__top,
+  .hero__body,
+  .hero__foot,
+  .hero__hail,
+  .hero__name > span {
+    animation: none !important;
+  }
+}
+
+@media print {
+  .hero__top,
+  .hero__body,
+  .hero__foot,
+  .hero__hail,
+  .hero__name > span {
+    animation: none !important;
+  }
+
+  .hero__name {
+    overflow: visible;
+  }
+}
+
+/* Sits inside the footer's fine print, in the same type at the same size.
+   The dotted rule is the whole affordance — enough that someone reading the
+   last line notices it is a control, not enough to announce itself from
+   across the page. It is the only way in that is not a keystroke. */
+.foot__play {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 1px dotted currentColor;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.16s var(--ease), border-bottom-color 0.16s var(--ease);
+}
+
+.foot__play:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  border-bottom-style: solid;
+}

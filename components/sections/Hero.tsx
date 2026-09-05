@@ -24,7 +24,7 @@ export default function Hero() {
         </div>
 
         <h1 className="hero__name" id="hero-name">
-          {identity.name}
+          <span>{identity.name}</span>
         </h1>
 
         <div className="hero__body">
