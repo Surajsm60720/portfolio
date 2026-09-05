@@ -13,17 +13,19 @@ export default function Home() {
   return (
     <>
       <TopRail />
-      <main id="top">
-        <Hero />
-        <Now />
-        <Work />
-        <Escaped />
-        <ShipLog />
-        <Proof />
-        <Rhythm />
-        <StackLedger />
-      </main>
-      <Footer />
+      <div className="page">
+        <main id="top">
+          <Hero />
+          <Now />
+          <Work />
+          <Escaped />
+          <ShipLog />
+          <Proof />
+          <Rhythm />
+          <StackLedger />
+        </main>
+        <Footer />
+      </div>
     </>
   );
 }

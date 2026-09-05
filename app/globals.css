@@ -1911,3 +1911,181 @@ footer[id] {
     display: none !important;
   }
 }
+
+/* ============================================================
+   CONSOLE MODE — the easter egg
+
+   Entered with the Konami code, or by connecting a controller.
+   Nothing on the page advertises it; that is the point.
+
+   It is a CSS state, never a second render. The same DOM is
+   re-laid-out, so every section stays in the document and a
+   crawler or a screen reader sees the identical page either way.
+
+   No `transform` anywhere in here: a transformed ancestor creates
+   a containing block and would strand the night sky's
+   position: fixed inside the screen.
+   ============================================================ */
+
+[data-console="on"] {
+  overflow: hidden;
+}
+
+[data-console="on"] body {
+  background: var(--pad-edge);
+}
+
+/* The shell. A hard bevelled housing with the page living inside it. */
+[data-console="on"] .page {
+  position: fixed;
+  top: 26px;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: min(1080px, 92vw);
+  height: calc(100dvh - 232px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y proximity;
+  background: var(--bg);
+  padding: 0 clamp(10px, 1.6vw, 22px);
+  box-shadow: var(--bevel-in);
+  --bv: var(--px);
+  scrollbar-width: none;
+}
+
+[data-console="on"] .page::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sections page rather than flow. Heights stay natural — forcing every
+   section to fill the screen leaves Proof stranded in white space and
+   crushes Work's seven cards. */
+[data-console="on"] .page > * > section[id],
+[data-console="on"] .page > footer[id] {
+  scroll-snap-align: start;
+  scroll-margin-top: 0;
+}
+
+/* Chrome that only makes sense against document scroll. */
+[data-console="on"] .rail {
+  display: none;
+}
+
+/* The console leaves the hero and becomes the shell's controls. Positioned
+   without transform, for the reason given at the top of this block. */
+[data-console="on"] .console {
+  position: fixed;
+  bottom: 22px;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: min(1080px, 92vw);
+  z-index: 60;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 16px;
+}
+
+[data-console="on"] .console__screen {
+  height: 100%;
+}
+
+[data-console="on"] .console .dpad {
+  max-width: 132px;
+}
+
+[data-console="on"] .console__mark {
+  display: none;
+}
+
+.console__exit {
+  --bv: 2px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pad-ink);
+  background: var(--pad-face);
+  border: 0;
+  border-radius: 0;
+  box-shadow: var(--bevel-out);
+  padding: 10px 12px;
+  min-height: 40px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.console__exit:hover {
+  background: color-mix(in srgb, var(--accent) 20%, var(--pad-face));
+}
+
+.console__exit:active {
+  color: var(--bg);
+  background: var(--accent);
+  box-shadow: var(--bevel-in);
+}
+
+/* The itch cards read progress against the window, and the window is no
+   longer the viewport they live in. They fall back to the resolved layout
+   the narrow-screen rules already define. */
+[data-console="on"] .itch {
+  grid-template-columns: 1fr;
+}
+
+[data-console="on"] .itch__rail {
+  display: none;
+}
+
+[data-console="on"] .itch__stage {
+  display: block;
+}
+
+[data-console="on"] .itch__hero {
+  max-width: none;
+  margin-bottom: 26px;
+}
+
+[data-console="on"] .itch[data-driven="true"] .itch__hero,
+[data-console="on"] .itch[data-driven="true"] .itch__build {
+  opacity: 1;
+  transform: none;
+}
+
+/* Below 900px a device inside a device is unusable; the mode exits itself
+   on resize, and these are the belt to that pair of braces. */
+@media (max-width: 899px) {
+  [data-console="on"] {
+    overflow: auto;
+  }
+
+  [data-console="on"] .page,
+  [data-console="on"] .console {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    box-shadow: none;
+  }
+
+  [data-console="on"] .rail {
+    display: block;
+  }
+}
+
+/* Paper has no console. */
+@media print {
+  [data-console="on"] .page {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .console__exit {
+    display: none !important;
+  }
+}

@@ -736,3 +736,67 @@ other.
 Contrast was rechecked after the buttons changed ground: 13.85:1 and 13.57:1
 for button text on the pad face in light and dark, and both primary variants
 above 9:1.
+
+---
+
+## 19. Console mode
+
+An easter egg. Nothing on the page advertises it, and the default experience
+is unchanged — a recruiter scanning for forty seconds never meets it, which
+was the condition for building it at all.
+
+### 19.1 The way in
+
+- **The Konami code**, typed anywhere outside a form field. It is the oldest
+  gamepad reference there is, and anyone who would enjoy the console already
+  knows it by heart.
+- **Connecting a physical controller.** If someone has gone to the trouble of
+  plugging in a pad, the door should already be open.
+
+Escape leaves, as does the shell's exit button. The mode is **not persisted**
+— a returning visitor lands on the ordinary site.
+
+### 19.2 It is a CSS state, never a second render
+
+`documentElement.dataset.console` flips and the same DOM re-lays-out. Nothing
+unmounts, so a crawler or a screen reader sees the identical page in either
+mode. `.page` — the wrapper around `main` and the footer — becomes a fixed,
+bevelled screen with `overflow-y: auto` and proximity snapping; the console
+leaves the hero and becomes the shell's controls.
+
+**No `transform` anywhere in the console block.** A transformed ancestor
+creates a containing block, which would strand the night sky's
+`position: fixed` inside the screen. Centring is done with
+`inset-inline: 0; margin-inline: auto` for exactly that reason, and the
+compiled stylesheet is checked for it.
+
+Section heights stay natural. Forcing each to fill the screen leaves Proof
+stranded in white space and crushes Work's seven cards.
+
+### 19.3 Controllers, any layout
+
+The Gamepad API reports `mapping: "standard"` for pads the browser knows,
+where indices are fixed. Plenty report an empty mapping instead — older
+PlayStation pads, third-party controllers, anything behind an adapter — and
+then the indices mean whatever the manufacturer chose.
+
+So nothing trusts a single index. Direction is read from the standard d-pad
+buttons, from either analogue stick past a deadzone, and from a hat axis, and
+whichever speaks first wins. Confirm accepts any of the four face buttons,
+because "the bottom one" is not a portable idea across layouts. Polling runs
+only while a pad is connected and stops when the last disconnects; a pad
+already present before mount is detected by an explicit first read, since it
+never fires `gamepadconnected` again.
+
+The screen shows the pad's reported name while one is connected.
+
+### 19.4 What gives way
+
+- The itch cards read progress against the window, which is no longer the
+  viewport they occupy. They fall back to the resolved layout the
+  narrow-screen rules already define.
+- The top rail is hidden; it only makes sense against document scroll.
+- Below 900px the mode exits itself on resize, and a media query undoes the
+  layout as well — a device inside a device is unusable, and one guard for
+  something this visible is not enough.
+- Print forces it off.

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import NightSky from "./NightSky";
 import { skyLines } from "@/lib/content";
+import { watchKonami } from "@/lib/konami";
+import { watchGamepads, type Pad } from "@/lib/gamepad";
 
 /**
  * A four-way pad, drawn as pixel art in SVG rather than shipped as an image
@@ -27,12 +29,22 @@ const ACTIONS: Record<Dir, string> = {
 /** Every landmark the pad can move between, in document order. */
 function stops(): HTMLElement[] {
   return Array.from(
-    document.querySelectorAll<HTMLElement>("main section[id], footer[id]"),
+    document.querySelectorAll<HTMLElement>(".page section[id], .page footer[id]"),
   );
 }
 
+/** The window normally; the page wrapper once it becomes the screen. */
+function scroller(): HTMLElement | Window {
+  const page = document.querySelector<HTMLElement>(".page");
+  const consoleOn = document.documentElement.dataset.console === "on";
+  return consoleOn && page ? page : window;
+}
+
 function currentIndex(all: HTMLElement[]): number {
-  const probe = window.scrollY + window.innerHeight * 0.3;
+  const box = scroller();
+  const top = box instanceof Window ? window.scrollY : box.scrollTop;
+  const height = box instanceof Window ? window.innerHeight : box.clientHeight;
+  const probe = top + height * 0.3;
   let index = 0;
   all.forEach((el, i) => {
     if (el.offsetTop <= probe) index = i;
@@ -60,6 +72,9 @@ export default function DPad() {
   const [at, setAt] = useState(0);
   const [where, setWhere] = useState("");
   const [total, setTotal] = useState(0);
+  /* Console mode is an easter egg: no button advertises it. */
+  const [console_, setConsole] = useState(false);
+  const [pad, setPad] = useState<string | null>(null);
   const timers = useRef<number[]>([]);
 
   useEffect(
@@ -81,29 +96,72 @@ export default function DPad() {
       setWhere((all[i]?.id ?? "").replace(/-/g, " "));
     };
     read();
+    const page = document.querySelector<HTMLElement>(".page");
     window.addEventListener("scroll", read, { passive: true });
     window.addEventListener("resize", read);
+    page?.addEventListener("scroll", read, { passive: true });
     return () => {
       window.removeEventListener("scroll", read);
       window.removeEventListener("resize", read);
+      page?.removeEventListener("scroll", read);
     };
   }, []);
+
+  /* A device inside a device does not work, so the mode is desktop-only and
+     leaves on its own if the window gets too narrow. */
+  const wideEnough = useCallback(
+    () => window.matchMedia("(min-width: 900px)").matches,
+    [],
+  );
+
+  useEffect(() => {
+    const off = watchKonami(() => {
+      if (wideEnough()) setConsole((on) => !on);
+    });
+    return off;
+  }, [wideEnough]);
+
+  useEffect(() => {
+    document.documentElement.dataset.console = console_ ? "on" : "off";
+    return () => {
+      delete document.documentElement.dataset.console;
+    };
+  }, [console_]);
+
+  useEffect(() => {
+    if (!console_) return;
+    const onResize = () => {
+      if (!wideEnough()) setConsole(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setConsole(false);
+    };
+    window.addEventListener("resize", onResize);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [console_, wideEnough]);
 
   const go = useCallback((dir: Dir) => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const behavior: ScrollBehavior = reduced ? "auto" : "smooth";
     const all = stops();
 
+    const box = scroller();
+
     if (dir === "up") {
       /* Scroll back to the beginning first, then keep going — the sky only
          arrives once there is nowhere left to scroll. The line is chosen
          here, in an event handler, so the panel never picks during render. */
       setSkyLine(skyLines[Math.floor(Math.random() * skyLines.length)]);
-      if (window.scrollY < 4) {
+      const top = box instanceof Window ? window.scrollY : box.scrollTop;
+      if (top < 4) {
         setSkyOpen(true);
         return;
       }
-      window.scrollTo({ top: 0, behavior });
+      box.scrollTo({ top: 0, behavior });
       timers.current.push(
         window.setTimeout(() => setSkyOpen(true), reduced ? 60 : 520),
       );
@@ -111,7 +169,9 @@ export default function DPad() {
     }
 
     if (dir === "right") {
-      window.scrollTo({ top: document.body.scrollHeight, behavior });
+      const end =
+        box instanceof Window ? document.body.scrollHeight : box.scrollHeight;
+      box.scrollTo({ top: end, behavior });
       return;
     }
 
@@ -136,6 +196,28 @@ export default function DPad() {
     },
     [go],
   );
+
+  /* A real controller drives the same four actions the on-screen pad does.
+     Connecting one also opens the console — if you have gone to the trouble
+     of plugging in a pad, the door should already be open. */
+  useEffect(() => {
+    const off = watchGamepads({
+      onConnect: (id) => {
+        setPad(id.replace(/\s*\([^)]*\)\s*/g, "").trim().slice(0, 22) || "controller");
+        if (wideEnough()) setConsole(true);
+      },
+      onDisconnect: () => setPad(null),
+      onInput: (input: Pad) => {
+        if (input === "back") {
+          setConsole(false);
+          return;
+        }
+        if (input === "confirm") return;
+        go(input);
+      },
+    });
+    return off;
+  }, [go, wideEnough]);
 
   const key = (dir: Dir) => (
     <button
@@ -169,9 +251,11 @@ export default function DPad() {
       <div className="console">
         <div className="console__screen">
           <p className="console__row">
-            <span className="console__tag">{hint ? "GO" : "AT"}</span>
+            <span className="console__tag">
+              {pad ? "P1" : hint ? "GO" : "AT"}
+            </span>
             <span className="console__where">
-              {hint ? ACTIONS[hint] : where || "\u2014"}
+              {pad ?? (hint ? ACTIONS[hint] : where || "\u2014")}
             </span>
           </p>
 
@@ -202,6 +286,16 @@ export default function DPad() {
         <p className="console__mark" aria-hidden="true">
           SM&nbsp;·&nbsp;01
         </p>
+
+        {console_ ? (
+          <button
+            type="button"
+            className="console__exit"
+            onClick={() => setConsole(false)}
+          >
+            Exit — Esc
+          </button>
+        ) : null}
       </div>
 
       <NightSky open={skyOpen} line={skyLine} onClose={() => setSkyOpen(false)} />
