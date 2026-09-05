@@ -461,18 +461,7 @@ footer[id] {
     align-self: start;
   }
 }
-
-@media print {
-  .hero__grid {
-    display: block;
-  }
-
-  .hero__pad {
-    display: none !important;
-  }
-}
-
-.hero__name {
+  .hero__name {
   font-family: var(--display);
   font-weight: 400;
   font-size: clamp(46px, 8.5vw, 104px);
@@ -1343,63 +1332,26 @@ footer[id] {
   }
 
   .hero__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(196px, 26%, 258px);
-  gap: clamp(28px, 5vw, 72px);
-  align-items: start;
-}
-
-/* Sits low against the identity column rather than floating at its top —
-   a control belongs near the hand, not beside the headline. */
-.hero__pad {
-  align-self: end;
-  padding-bottom: 6px;
-}
-
-.hero__padHint {
-  font-family: var(--mono);
-  font-size: 10px;
-  line-height: 1.6;
-  letter-spacing: 0.06em;
-  color: var(--ink-faint);
-  text-align: center;
-  margin: 14px 0 0;
-}
-
-@media (max-width: 979px) {
-  .hero__grid {
-    grid-template-columns: 1fr;
-    gap: 34px;
-  }
-
-  .hero__pad {
-    align-self: start;
-  }
-}
-
-@media print {
-  .hero__grid {
     display: block;
   }
 
   .hero__pad {
     display: none !important;
   }
-}
 
-.hero__name {
+  .hero__name {
     font-size: 26pt;
   }
 
   .hero__thesis {
-    font-size: 12pt;
+    font-size: 13pt;
     max-width: none;
     margin-top: 6pt;
   }
 
-  .hero__print {
-    font-size: 8.5pt;
-    margin-top: 10pt;
+  .hero__claim {
+    font-size: 10pt;
+    max-width: none;
   }
 
   .chip {
@@ -1428,6 +1380,7 @@ footer[id] {
     font-size: 7.5pt;
   }
 }
+
 
 /* Rendered from lib/content.ts, revealed only by the print stylesheet — the
    contact details must not be duplicated as a CSS string. */
