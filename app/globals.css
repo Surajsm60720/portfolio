@@ -469,43 +469,77 @@ a {
   margin-bottom: clamp(30px, 5vh, 56px);
 }
 
-/* ---------- now ---------- */
+/* ---------- now, as a panel in the hero ----------
+   The hero's right side was empty at width while "what is open right now"
+   sat in a section of its own below it. It is the present tense of the same
+   person, so it belongs beside the name. Moving it also removed a section. */
+
+.hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(250px, 30%, 340px);
+  gap: clamp(32px, 6vw, 88px);
+  align-items: start;
+}
+
+.hero__now {
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+}
 
 .now {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  margin: 14px 0 0;
 }
 
 .now__row {
-  display: grid;
-  grid-template-columns: var(--rail) 1fr;
-  gap: var(--rail-gap);
-  padding-block: 20px;
+  padding-block: 13px;
   border-top: 1px solid var(--rule);
+}
+
+.now__row:first-child {
+  border-top: 0;
+  padding-top: 0;
 }
 
 .now__label {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--accent);
-  margin: 0;
+}
+
+.now__body {
+  margin: 5px 0 0;
 }
 
 .now__value {
+  display: block;
   font-family: var(--display);
-  font-size: clamp(19px, 2.2vw, 25px);
+  font-size: clamp(17px, 1.7vw, 20px);
   line-height: 1.2;
-  margin: 0;
+  color: var(--ink);
+}
+
+.now__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: border-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.now__link:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
 }
 
 .now__detail {
+  display: block;
   color: var(--ink-soft);
-  font-size: 15px;
-  margin: 7px 0 0;
-  max-width: 62ch;
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin-top: 5px;
 }
 
 /* ============================================================
@@ -990,8 +1024,14 @@ a {
    complaint simply leads the card, which is the same idea.
    ============================================================ */
 
+@media (max-width: 979px) {
+  .hero__grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+}
+
 @media (max-width: 899px) {
-  .now__row,
   .role,
   .log__row,
   .proof__row {
@@ -1250,9 +1290,18 @@ a {
   .role,
   .proof__row,
   .log__row,
-  .now__row,
   .ledger__group {
     break-inside: avoid;
+  }
+
+  /* Beside the name on screen; stacked under it on paper, where a narrow
+     column beside a 26pt heading reads badly. */
+  .hero__grid {
+    display: block;
+  }
+
+  .hero__now {
+    margin-top: 12pt;
   }
 
   .sec-head,

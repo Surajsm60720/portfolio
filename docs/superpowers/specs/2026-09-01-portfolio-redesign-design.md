@@ -141,15 +141,22 @@ Single page. The only route besides `/` is the existing `/cv.pdf` passthrough.
 | # | Section | Carries |
 |---|---|---|
 | 0 | Top rail (fixed, thin) | Wordmark · live IST clock · theme toggle |
-| 1 | Hero | Name, thesis line, current role, primary links |
+| 1 | Hero | Name, thesis, primary links — and **Now** as a panel beside them |
 | 2 | Now | Three dated lines: day job, current build, last thing shipped |
-| 3 | Work ★ | The signature. Itch → build, one per project |
+| 2 | Work ★ | The signature. Itch → build, one per project |
 | 4 | Escaped | Experience: Plivo, Jabsz, BharatCrest |
-| 5 | Ship log | Dated release stream |
-| 6 | Proof | Publication + DOI, education, certification |
+| 4 | Ship log | Dated release stream |
+| 5 | Proof | Publication + DOI, education, certification |
 | 7 | Off the clock | Personality: gacha cadence, anime, music, self-destroying Linux installs |
-| 7 | Stack ledger | Grouped technologies, each cross-referenced to the project it was used in |
-| 8 | Footer | Two columns: pitch and address beside a link rail, then one line of fine print |
+| 6 | Stack ledger | Grouped technologies, each cross-referenced to the project it was used in |
+| 7 | Footer | Two columns: pitch and address beside a link rail, then one line of fine print |
+
+**Now sits in the hero.** It was a section of its own while the hero's right
+half stood empty at width. It is the present tense of the same person, so it
+belongs beside the name — which fills the space with content rather than
+decoration and removes a section. "Last shipped" is read from the synced ship
+log rather than restated by hand; it was the line on the page most likely to
+go stale, and two sources for one fact is how the last site rotted.
 
 ### 5.1 Deliberate removals
 
