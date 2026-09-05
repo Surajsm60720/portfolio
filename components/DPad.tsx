@@ -10,11 +10,14 @@ import {
 import NightSky from "./NightSky";
 import { skyLines } from "@/lib/content";
 import { cycleTheme } from "@/lib/theme";
+
 import { watchKonami } from "@/lib/konami";
 import { watchGamepads, type Pad } from "@/lib/gamepad";
 import {
   getConsoleServerSnapshot,
   getConsoleSnapshot,
+  goToScreen,
+  goToSection,
   setConsole,
   subscribeConsole,
   toggleConsole,
@@ -48,33 +51,6 @@ const ACTIONS: Record<Input, string> = {
 };
 
 /** Every landmark the pad can move between, in document order. */
-function stops(): HTMLElement[] {
-  return Array.from(
-    document.querySelectorAll<HTMLElement>(
-      ".page section[id], .page footer[id]",
-    ),
-  );
-}
-
-/** The window normally; the page wrapper once it becomes the screen. */
-function scroller(): HTMLElement | Window {
-  const page = document.querySelector<HTMLElement>(".page");
-  const consoleOn = document.documentElement.dataset.console === "on";
-  return consoleOn && page ? page : window;
-}
-
-function currentIndex(all: HTMLElement[]): number {
-  const box = scroller();
-  const top = box instanceof Window ? window.scrollY : box.scrollTop;
-  const height = box instanceof Window ? window.innerHeight : box.clientHeight;
-  const probe = top + height * 0.3;
-  let index = 0;
-  all.forEach((el, i) => {
-    if (el.offsetTop <= probe) index = i;
-  });
-  return index;
-}
-
 /* A three-step triangle on a 12x12 grid, pointing up. An earlier version put
    a stem under the head; at the size these keys actually render, the stem was
    nearly as wide as the head and the whole glyph read as a plus sign. A bare
@@ -88,7 +64,13 @@ const ARROW: [number, number, number, number][] = [
 ];
 
 export default function DPad() {
-  const { on: consoleOn, phase } = useSyncExternalStore(
+  const {
+    on: consoleOn,
+    phase,
+    at,
+    total,
+    where,
+  } = useSyncExternalStore(
     subscribeConsole,
     getConsoleSnapshot,
     getConsoleServerSnapshot,
@@ -96,9 +78,6 @@ export default function DPad() {
   const [skyOpen, setSkyOpen] = useState(false);
   const [skyLine, setSkyLine] = useState(skyLines[0]);
   const [hint, setHint] = useState<Input | null>(null);
-  const [at, setAt] = useState(0);
-  const [where, setWhere] = useState("");
-  const [total, setTotal] = useState(0);
   const [pad, setPad] = useState<string | null>(null);
   /* A transient screen message, so nothing about this fails silently. */
   const [flash, setFlash] = useState<string | null>(null);
@@ -110,29 +89,6 @@ export default function DPad() {
     },
     [],
   );
-
-  /* The screen is what makes this a device rather than an ornament: it
-     reports where on the page you currently are, and what a key would do
-     while you are considering it. */
-  useEffect(() => {
-    const read = () => {
-      const all = stops();
-      const i = currentIndex(all);
-      setTotal(all.length);
-      setAt(i);
-      setWhere((all[i]?.id ?? "").replace(/-/g, " "));
-    };
-    read();
-    const page = document.querySelector<HTMLElement>(".page");
-    window.addEventListener("scroll", read, { passive: true });
-    window.addEventListener("resize", read);
-    page?.addEventListener("scroll", read, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", read);
-      window.removeEventListener("resize", read);
-      page?.removeEventListener("scroll", read);
-    };
-  }, []);
 
   /* A transient message on the screen, so nothing here fails in silence. */
   const say = useCallback((message: string) => {
@@ -180,70 +136,40 @@ export default function DPad() {
     };
   }, [consoleOn]);
 
-  const go = useCallback((input: Input) => {
-    const reduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const behavior: ScrollBehavior = reduced ? "auto" : "smooth";
-    const box = scroller();
-    const top = () => (box instanceof Window ? window.scrollY : box.scrollTop);
-    const view = () =>
-      box instanceof Window ? window.innerHeight : box.clientHeight;
+  const go = useCallback(
+    (input: Input) => {
+      if (input === "start") {
+        setConsole(false);
+        return;
+      }
+      if (input === "select") {
+        cycleTheme();
+        return;
+      }
 
-    if (input === "b") {
-      setConsole(false);
-      return;
-    }
+      const back = input === "up" || input === "b";
+      const forward = input === "down" || input === "a";
 
-    if (input === "select") {
-      cycleTheme();
-      return;
-    }
-
-    if (input === "start") {
-      document
-        .querySelector<HTMLElement>("#contact")
-        ?.scrollIntoView({ behavior, block: "start" });
-      return;
-    }
-
-    if (input === "a") {
-      /* Back to the beginning, and then past it. The line is chosen here, in
-         an event handler, so the panel never picks during render. */
-      setSkyLine(skyLines[Math.floor(Math.random() * skyLines.length)]);
-      if (top() < 4) {
+      /* Going back from the first page keeps going. Up past the top is where
+         the sky is, and it is the only thing above screen one. */
+      if (back && at === 0) {
+        setSkyLine(skyLines[Math.floor(Math.random() * skyLines.length)]);
         setSkyOpen(true);
         return;
       }
-      box.scrollTo({ top: 0, behavior });
-      timers.current.push(
-        window.setTimeout(() => setSkyOpen(true), reduced ? 60 : 520),
-      );
-      return;
-    }
 
-    /* Left and right page within the current screen; up and down move between
-       stages. A d-pad should not have two buttons doing the same thing. */
-    if (input === "left" || input === "right") {
-      const step = view() * 0.82;
-      box.scrollTo({
-        top: top() + (input === "right" ? step : -step),
-        behavior,
-      });
-      return;
-    }
-
-    const all = stops();
-    const i = currentIndex(all);
-    const next =
-      input === "down" ? Math.min(i + 1, all.length - 1) : Math.max(i - 1, 0);
-    all[next]?.scrollIntoView({ behavior, block: "start" });
-  }, []);
+      if (back) return goToScreen(at - 1);
+      if (forward) return goToScreen(at + 1);
+      if (input === "left") return goToSection(-1);
+      if (input === "right") return goToSection(1);
+    },
+    [at],
+  );
 
   /* Arrows work here and only here — focus has to be inside the pad. */
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      const map: Record<string, Dir> = {
+      const map: Record<string, Input> = {
         ArrowUp: "up",
         ArrowDown: "down",
         ArrowLeft: "left",

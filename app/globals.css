@@ -2557,9 +2557,12 @@ footer[id] {
       var(--hud-h) - var(--deck-h) - 20px
   );
   z-index: 56;
+  /* A menu, not a document. One page at a time, moved with the pad. Auto
+     rather than hidden only so an over-long page is still reachable rather
+     than silently clipped — a chunk size in lib/screens.ts being wrong
+     should be visible, not invisible. */
   overflow-y: auto;
   overscroll-behavior: contain;
-  scroll-snap-type: y proximity;
   background: var(--bg);
   padding: 0 clamp(12px, 1.8vw, 26px);
   box-shadow: var(--bevel-in);
@@ -2920,4 +2923,44 @@ footer[id] {
 
 [data-console="on"] .page .role {
   padding-block: clamp(18px, 2.6vh, 28px);
+}
+
+/* ---------- one page at a time ---------- */
+
+[data-console="on"] .page [data-screen="off"] {
+  display: none;
+}
+
+/* Sections drop the divider and the vertical rhythm meant for a scrolling
+   document; each one is now the only thing on screen. */
+[data-console="on"] .page section[data-screen="on"],
+[data-console="on"] .page footer[data-screen="on"] {
+  border-top: 0;
+  padding-block: clamp(18px, 3vh, 32px);
+  animation: page-in 260ms var(--ease) both;
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The first card of a section no longer needs its top rule either. */
+[data-console="on"] .page .itch[data-screen="on"],
+[data-console="on"] .page .role[data-screen="on"] {
+  border-top: 0;
+  padding-top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-console="on"] .page section[data-screen="on"],
+  [data-console="on"] .page footer[data-screen="on"] {
+    animation: none;
+  }
 }

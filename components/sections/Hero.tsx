@@ -13,7 +13,7 @@ import { identity, socials } from "@/lib/content";
  */
 export default function Hero() {
   return (
-    <section className="hero" aria-labelledby="hero-name">
+    <section className="hero" id="intro" aria-labelledby="hero-name">
       <div className="wrap hero__inner">
         <div className="hero__top">
           {/* Your clock. The rail's clock is his — see components/chrome/TopRail. */}
