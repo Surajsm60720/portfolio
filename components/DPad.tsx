@@ -52,17 +52,16 @@ function currentIndex(all: HTMLElement[]): number {
   return index;
 }
 
-/* A chunky arrow on a 12x12 grid, pointing up: a three-step head over a
-   stem, every band two units tall so the stair reads as pixels rather than
-   as a jagged triangle. The other three directions are this shape rotated in
-   CSS — four hand-written paths would be four chances to get the geometry
-   subtly wrong, and the first draft proved it.
+/* A three-step triangle on a 12x12 grid, pointing up. An earlier version put
+   a stem under the head; at the size these keys actually render, the stem was
+   nearly as wide as the head and the whole glyph read as a plus sign. A bare
+   triangle is unmistakable at any size, which is why every real d-pad uses
+   one. The other three directions are this shape rotated in CSS.
    [x, y, width, height] */
 const ARROW: [number, number, number, number][] = [
-  [5, 1, 2, 2],
-  [3, 3, 6, 2],
-  [1, 5, 10, 2],
-  [4, 7, 4, 4],
+  [5, 2, 2, 3],
+  [3, 5, 6, 3],
+  [1, 8, 10, 3],
 ];
 
 export default function DPad() {
@@ -282,6 +281,10 @@ export default function DPad() {
             <span className="console__where" data-flash={Boolean(flash)}>
               {flash ?? pad ?? (hint ? ACTIONS[hint] : where || "\u2014")}
             </span>
+          </p>
+
+          <p className="console__at" aria-hidden="true">
+            {total ? `${at + 1} / ${total}` : ""}
           </p>
 
           <p className="console__bar" aria-hidden="true">

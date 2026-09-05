@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check-css": "node scripts/check-css.mjs"
+    "check-css": "node scripts/check-css.mjs",
+    "probe": "node scripts/probe.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.38.0",
@@ -22,6 +23,7 @@
     "@types/react-dom": "^19.2.5",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.3.4",
+    "playwright-core": "^1.63.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"
   }

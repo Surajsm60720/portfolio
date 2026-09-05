@@ -30,3 +30,8 @@ next-env.d.ts
 
 # bare mirrors used by scripts/sync-github.mjs
 .repo-cache/
+
+# browser probe output
+.probe.png
+.probe-console.png
+.probe.mjs
