@@ -2722,3 +2722,155 @@ footer[id] {
     display: none !important;
   }
 }
+
+/* ============================================================
+   8-BIT MODE
+
+   Inside the screen there is no modern typography left. The
+   tokens are swapped rather than every rule rewritten, so the
+   whole page changes era by changing three variables: Press
+   Start 2P carries anything that was display or a label, VT323
+   carries prose because a screen full of Press Start 2P is a
+   screen nobody reads.
+
+   Everything else here is removing softness — italics that a
+   pixel face has to fake, letter-spacing tuned for a grotesque,
+   fractional sizes, radii, and the one gradient.
+   ============================================================ */
+
+[data-console="on"] .page {
+  --display: var(--font-pixel), "Courier New", monospace;
+  --body: var(--font-crt), "Courier New", monospace;
+  --mono: var(--font-pixel), "Courier New", monospace;
+  /* font-family inherits a computed value, so redefining --body here does
+     not reach anything that does not name it. The screen root has to
+     re-resolve the token for its descendants to inherit the new one. */
+  font-family: var(--body);
+  /* VT323 sets small; the whole screen is scaled up to compensate. */
+  font-size: 20px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+/* A pixel face has no italic, so the browser shears it. Nothing on this
+   screen is allowed to be sheared. */
+[data-console="on"] .page * {
+  font-style: normal !important;
+  text-wrap: wrap !important;
+  border-radius: 0 !important;
+}
+
+/* Press Start 2P is enormous per character. Every display size has to come
+   down or a single heading fills the screen. */
+[data-console="on"] .page .hero__name {
+  font-size: clamp(20px, 2.6vw, 34px);
+  line-height: 1.3;
+  letter-spacing: 0;
+  overflow: visible;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+[data-console="on"] .page .hero__thesis,
+[data-console="on"] .page .foot__pitch {
+  font-size: clamp(13px, 1.5vw, 18px);
+  line-height: 1.5;
+  max-width: none;
+  overflow: visible;
+}
+
+[data-console="on"] .page .title,
+[data-console="on"] .page .itch__name,
+[data-console="on"] .page .role__title,
+[data-console="on"] .page .proof__title,
+[data-console="on"] .page .now__value {
+  font-size: clamp(12px, 1.35vw, 16px);
+  line-height: 1.6;
+  letter-spacing: 0;
+  overflow: visible;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+/* The quote is the one piece of display type that keeps some scale, because
+   it is still the thing the card is built around. */
+[data-console="on"] .page .itch__hero {
+  font-size: clamp(13px, 1.6vw, 19px);
+  line-height: 1.55;
+  text-indent: 0;
+  max-width: 34ch;
+}
+
+/* Labels were tracked out for a grotesque at 10 or 11px. At pixel sizes the
+   tracking reads as broken spacing. */
+[data-console="on"] .page .eyebrow,
+[data-console="on"] .page .chip,
+[data-console="on"] .page .action,
+[data-console="on"] .page .hero__social,
+[data-console="on"] .page .foot__link,
+[data-console="on"] .page .now__label,
+[data-console="on"] .page .proof__kind,
+[data-console="on"] .page .ledger__label,
+[data-console="on"] .page .aside__label {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+}
+
+[data-console="on"] .page .lede,
+[data-console="on"] .page .hero__claim,
+[data-console="on"] .page .itch__body,
+[data-console="on"] .page .role__body,
+[data-console="on"] .page .now__detail,
+[data-console="on"] .page .log__detail,
+[data-console="on"] .page .proof__detail {
+  font-size: 17px;
+  line-height: 1.45;
+  /* Not none: VT323 is narrow, and left uncapped a paragraph ran to about
+     120 characters across the screen. */
+  max-width: 76ch;
+}
+
+[data-console="on"] .page .hero__quip,
+[data-console="on"] .page .itch__note,
+[data-console="on"] .page .ledger__used,
+[data-console="on"] .page .log__date,
+[data-console="on"] .page .role__period,
+[data-console="on"] .page .foot__fine,
+[data-console="on"] .page .rhythm__meta,
+[data-console="on"] .page .log__stamp {
+  font-size: 11px;
+  letter-spacing: 0;
+  line-height: 1.6;
+}
+
+/* Buttons stop being beveled chrome and become plain blocks — the bevel is
+   the housing's language, not the screen's. */
+[data-console="on"] .page .action {
+  box-shadow: none;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 2px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+}
+
+[data-console="on"] .page .action--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+/* The one gradient on the page, and the mask that needs a smooth ramp. */
+[data-console="on"] .page .rhythm__fill {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+[data-console="on"] .page .hero__name > span,
+[data-console="on"] .page .title > span,
+[data-console="on"] .page .foot__pitch > span {
+  transform: none !important;
+}
