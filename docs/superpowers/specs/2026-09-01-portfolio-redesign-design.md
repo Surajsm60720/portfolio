@@ -682,3 +682,40 @@ version put the off-the-clock material in it and that was one thing too many.
 - Under `prefers-reduced-motion` there is no fall and no twinkle — the stars
   are simply there and so is the line.
 - Hidden in print, along with the pad.
+
+---
+
+## 18. Where the pixel language applies
+
+The pad made a second visual language available. Left ungoverned it would
+have spread until the page was a costume, so it has a rule:
+
+> **Pixel treatment goes to things you press and things that are counted.**
+> Prose, headings and the itch quotes stay typographic.
+
+That divides cleanly:
+
+| Pressed | Counted | Neither |
+|---|---|---|
+| The pad · `.action` buttons · the theme toggle · the sky's close | Rhythm bars · the hub's pips · chips | Every heading, every paragraph, the itch quotes, the greeting, the thesis |
+
+**Pressed** surfaces share `--bevel-out` and swap to `--bevel-in` while
+active — one pair of tokens, so a fifth button cannot invent a sixth bevel.
+Depth is set per surface through `--bv`: the pad is 3px because it is a
+sprite, a text button is 2px because it should nod at one rather than dress
+as one.
+
+**Counted** surfaces are segmented rather than continuous. The Rhythm bars
+are masked into 5px cells with 2px gaps, because a count should look
+countable and a stack of cells is how a sprite-era meter reads a quantity.
+Chips lose their radius for the same reason a bar loses its rounded cap.
+
+What deliberately did **not** change: the display serif, all body copy, the
+itch quotes, the greeting, section headings, and the night sky's interior.
+The pixel work is the gamer half of the person; the typography is the half
+that writes design documents. Both are true and neither should swallow the
+other.
+
+Contrast was rechecked after the buttons changed ground: 13.85:1 and 13.57:1
+for button text on the pad face in light and dark, and both primary variants
+above 9:1.
