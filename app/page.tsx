@@ -8,6 +8,7 @@ import Proof from "@/components/sections/Proof";
 import Rhythm from "@/components/sections/Rhythm";
 import StackLedger from "@/components/sections/StackLedger";
 import Footer from "@/components/sections/Footer";
+import DPad from "@/components/DPad";
 
 export default function Home() {
   return (
@@ -26,6 +27,10 @@ export default function Home() {
         </main>
         <Footer />
       </div>
+
+      {/* Not hero furniture: the handheld only appears in console mode, but
+          its listeners — the Konami code, the controller poll — run always. */}
+      <DPad />
     </>
   );
 }

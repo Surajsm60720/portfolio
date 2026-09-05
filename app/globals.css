@@ -433,30 +433,6 @@ footer[id] {
   padding-bottom: clamp(56px, 12vh, 130px);
 }
 
-.hero__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(196px, 26%, 258px);
-  gap: clamp(28px, 5vw, 72px);
-  align-items: start;
-}
-
-/* Sits low against the identity column rather than floating at its top —
-   a control belongs near the hand, not beside the headline. */
-.hero__pad {
-  align-self: end;
-  padding-bottom: 6px;
-}
-
-.hero__padHint {
-  font-family: var(--mono);
-  font-size: 10px;
-  line-height: 1.6;
-  letter-spacing: 0.06em;
-  color: var(--ink-faint);
-  text-align: center;
-  margin: 14px 0 0;
-}
-
 @media (max-width: 979px) {
   .hero__grid {
     grid-template-columns: 1fr;
@@ -1337,14 +1313,6 @@ footer[id] {
     padding-bottom: 12pt;
   }
 
-  .hero__grid {
-    display: block;
-  }
-
-  .hero__pad {
-    display: none !important;
-  }
-
   .hero__name {
     font-size: 26pt;
   }
@@ -2031,6 +1999,13 @@ footer[id] {
    the narrow-screen rules already define. */
 /* The hero reserves room for a fixed rail and a full viewport. Inside a
    544px screen that padding is just a wasted third. */
+/* The console button sits beside the theme toggle rather than hiding in a
+   keystroke. Tinted so it reads as a way in, not another switch. */
+.rail__toggle--console[aria-pressed="true"] {
+  color: var(--bg);
+  background: var(--accent);
+}
+
 [data-console="on"] .hero {
   padding-top: clamp(20px, 4vh, 44px);
   padding-bottom: clamp(28px, 5vh, 56px);

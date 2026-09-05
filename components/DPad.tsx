@@ -1,10 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import NightSky from "./NightSky";
 import { skyLines } from "@/lib/content";
 import { watchKonami } from "@/lib/konami";
 import { watchGamepads, type Pad } from "@/lib/gamepad";
+import {
+  getConsoleServerSnapshot,
+  getConsoleSnapshot,
+  setConsole,
+  subscribeConsole,
+  toggleConsole,
+  wideEnough,
+} from "@/lib/console-mode";
 
 /**
  * A four-way pad, drawn as pixel art in SVG rather than shipped as an image
@@ -29,7 +43,9 @@ const ACTIONS: Record<Dir, string> = {
 /** Every landmark the pad can move between, in document order. */
 function stops(): HTMLElement[] {
   return Array.from(
-    document.querySelectorAll<HTMLElement>(".page section[id], .page footer[id]"),
+    document.querySelectorAll<HTMLElement>(
+      ".page section[id], .page footer[id]",
+    ),
   );
 }
 
@@ -65,14 +81,17 @@ const ARROW: [number, number, number, number][] = [
 ];
 
 export default function DPad() {
+  const { on: consoleOn } = useSyncExternalStore(
+    subscribeConsole,
+    getConsoleSnapshot,
+    getConsoleServerSnapshot,
+  );
   const [skyOpen, setSkyOpen] = useState(false);
   const [skyLine, setSkyLine] = useState(skyLines[0]);
   const [hint, setHint] = useState<Dir | null>(null);
   const [at, setAt] = useState(0);
   const [where, setWhere] = useState("");
   const [total, setTotal] = useState(0);
-  /* Console mode is an easter egg: no button advertises it. */
-  const [console_, setConsole] = useState(false);
   const [pad, setPad] = useState<string | null>(null);
   /* A transient screen message, so nothing about this fails silently. */
   const [flash, setFlash] = useState<string | null>(null);
@@ -108,13 +127,7 @@ export default function DPad() {
     };
   }, []);
 
-  /* A device inside a device does not work, so the mode is desktop-only and
-     leaves on its own if the window gets too narrow. */
-  const wideEnough = useCallback(
-    () => window.matchMedia("(min-width: 900px)").matches,
-    [],
-  );
-
+  /* A transient message on the screen, so nothing here fails in silence. */
   const say = useCallback((message: string) => {
     setFlash(message);
     timers.current.push(window.setTimeout(() => setFlash(null), 2200));
@@ -127,10 +140,10 @@ export default function DPad() {
         say("NEEDS A WIDER WINDOW");
         return;
       }
-      setConsole((on) => !on);
+      toggleConsole();
     });
     return off;
-  }, [wideEnough, say]);
+  }, [say]);
 
   /* The breadcrumb. An easter egg with no trace at all cannot be told apart
      from something that does not work, and the browser console is where
@@ -145,14 +158,7 @@ export default function DPad() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.dataset.console = console_ ? "on" : "off";
-    return () => {
-      delete document.documentElement.dataset.console;
-    };
-  }, [console_]);
-
-  useEffect(() => {
-    if (!console_) return;
+    if (!consoleOn) return;
     const onResize = () => {
       if (!wideEnough()) setConsole(false);
     };
@@ -165,10 +171,12 @@ export default function DPad() {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("keydown", onKey);
     };
-  }, [console_, wideEnough]);
+  }, [consoleOn]);
 
   const go = useCallback((dir: Dir) => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     const behavior: ScrollBehavior = reduced ? "auto" : "smooth";
     const all = stops();
 
@@ -199,7 +207,8 @@ export default function DPad() {
     }
 
     const i = currentIndex(all);
-    const next = dir === "down" ? Math.min(i + 1, all.length - 1) : Math.max(i - 1, 0);
+    const next =
+      dir === "down" ? Math.min(i + 1, all.length - 1) : Math.max(i - 1, 0);
     all[next]?.scrollIntoView({ behavior, block: "start" });
   }, []);
 
@@ -227,26 +236,31 @@ export default function DPad() {
     let off = () => {};
     try {
       off = watchGamepads({
-      onConnect: (id) => {
-        setPad(id.replace(/\s*\([^)]*\)\s*/g, "").trim().slice(0, 22) || "controller");
-        if (wideEnough()) setConsole(true);
-        else say("NEEDS A WIDER WINDOW");
-      },
-      onDisconnect: () => setPad(null),
-      onInput: (input: Pad) => {
-        if (input === "back") {
-          setConsole(false);
-          return;
-        }
-        if (input === "confirm") return;
-        go(input);
-      },
+        onConnect: (id) => {
+          setPad(
+            id
+              .replace(/\s*\([^)]*\)\s*/g, "")
+              .trim()
+              .slice(0, 22) || "controller",
+          );
+          if (wideEnough()) setConsole(true);
+          else say("NEEDS A WIDER WINDOW");
+        },
+        onDisconnect: () => setPad(null),
+        onInput: (input: Pad) => {
+          if (input === "back") {
+            setConsole(false);
+            return;
+          }
+          if (input === "confirm") return;
+          go(input);
+        },
       });
     } catch {
       /* Controller support is a bonus; the on-screen pad is the product. */
     }
     return off;
-  }, [go, wideEnough, say]);
+  }, [go, say]);
 
   const key = (dir: Dir) => (
     <button
@@ -275,52 +289,54 @@ export default function DPad() {
     </button>
   );
 
+  /* The handheld exists only while the page is inside it. Its listeners —
+     the Konami code, the controller poll — run either way, above. */
   return (
     <>
-      <div className="console">
-        <div className="console__screen">
-          <p className="console__row">
-            <span className="console__tag">
-              {flash ? "!!" : pad ? "P1" : hint ? "GO" : "AT"}
+      {consoleOn ? (
+        <div className="console">
+          <div className="console__screen">
+            <p className="console__row">
+              <span className="console__tag">
+                {flash ? "!!" : pad ? "P1" : hint ? "GO" : "AT"}
+              </span>
+              <span className="console__where" data-flash={Boolean(flash)}>
+                {flash ?? pad ?? (hint ? ACTIONS[hint] : where || "\u2014")}
+              </span>
+            </p>
+
+            <p className="console__at" aria-hidden="true">
+              {total ? `${at + 1} / ${total}` : ""}
+            </p>
+
+            <p className="console__bar" aria-hidden="true">
+              {Array.from({ length: total }, (_, i) => (
+                <span className="console__seg" key={i} data-on={i <= at} />
+              ))}
+            </p>
+
+            <span className="console__sr" aria-live="polite">
+              {hint ? ACTIONS[hint] : where ? `At ${where}` : ""}
             </span>
-            <span className="console__where" data-flash={Boolean(flash)}>
-              {flash ?? pad ?? (hint ? ACTIONS[hint] : where || "\u2014")}
-            </span>
+          </div>
+
+          <div
+            className="dpad"
+            role="group"
+            aria-label="Page navigation pad"
+            onKeyDown={onKeyDown}
+          >
+            {key("up")}
+            {key("left")}
+            <span className="dpad__hub" aria-hidden="true" />
+            {key("right")}
+            {key("down")}
+          </div>
+
+          <p className="console__mark" aria-hidden="true">
+            SM&nbsp;·&nbsp;01
           </p>
 
-          <p className="console__at" aria-hidden="true">
-            {total ? `${at + 1} / ${total}` : ""}
-          </p>
-
-          <p className="console__bar" aria-hidden="true">
-            {Array.from({ length: total }, (_, i) => (
-              <span className="console__seg" key={i} data-on={i <= at} />
-            ))}
-          </p>
-
-          <span className="console__sr" aria-live="polite">
-            {hint ? ACTIONS[hint] : where ? `At ${where}` : ""}
-          </span>
-        </div>
-
-        <div
-          className="dpad"
-          role="group"
-          aria-label="Page navigation pad"
-          onKeyDown={onKeyDown}
-        >
-          {key("up")}
-          {key("left")}
-          <span className="dpad__hub" aria-hidden="true" />
-          {key("right")}
-          {key("down")}
-        </div>
-
-        <p className="console__mark" aria-hidden="true">
-          SM&nbsp;·&nbsp;01
-        </p>
-
-        {console_ ? (
           <button
             type="button"
             className="console__exit"
@@ -328,10 +344,14 @@ export default function DPad() {
           >
             Exit — Esc
           </button>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
-      <NightSky open={skyOpen} line={skyLine} onClose={() => setSkyOpen(false)} />
+      <NightSky
+        open={skyOpen}
+        line={skyLine}
+        onClose={() => setSkyOpen(false)}
+      />
     </>
   );
 }
