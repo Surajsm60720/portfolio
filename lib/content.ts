@@ -428,24 +428,28 @@ export const quips: string[] = [
 /* --------------------------------------------------------- hour notes */
 
 /**
- * What each hour of the visitor's day is generally like. One of the four is
- * chosen per visit; the pick is stable for as long as the hour is.
+ * What each hour of the visitor's day is generally like. One line is chosen
+ * per visit; the pick is stable for as long as the hour and the day are.
  *
- * Two rules govern what may go in here:
+ * Three rules govern what may go in here:
  *
  *  1. A note describes the hour, never Suraj. The greeting runs on the
  *     reader's clock, so anything keyed to his data — his peak commit hours,
  *     the chart further down this page — is false for every reader outside
- *     IST. It was the first thing I reached for, hence the rule.
+ *     IST.
  *  2. No invented statistics. Where a note asserts something it is something
  *     that holds generally and can be checked: clocks skipping at 2 AM for
  *     daylight saving, the circadian nadir, the cortisol rise after waking,
  *     meridiem giving us AM and PM, melatonin onset in the late evening.
- *     Everything else is plainly observational and reads that way.
+ *  3. **It must be true on the day it appears.** The first version was
+ *     hour-only, so a Sunday at 09:00 claimed standup was running long and
+ *     markets were opening. Sixteen of ninety-six lines assumed a working
+ *     day. Hours where that matters now carry a weekend set, and 17:00
+ *     carries a Friday one.
  *
- * Indexed 0-23.
+ * Indexed 0-23. Selection is friday, then weekend, then weekday.
  */
-export const hourNotes: string[][] = [
+const weekday: string[][] = [
   [
     "Midnight. The date changed while you were reading this.",
     "The one hour that belongs to two days at once.",
@@ -549,7 +553,7 @@ export const hourNotes: string[][] = [
     "Physical performance peaks in the late afternoon, roughly here.",
   ],
   [
-    "Somewhere a deploy is going out before the weekend. Bold.",
+    "Somewhere a deploy is going out this late in the day. Bold.",
     "Five o'clock \u2014 the hour clocks were built to reach.",
     "The hour of the last honest commit.",
     "A standup is being rescheduled to tomorrow as we speak.",
@@ -591,3 +595,68 @@ export const hourNotes: string[][] = [
     "Eleven. Everything after this is borrowed.",
   ],
 ];
+/** Saturday and Sunday, for the hours where the weekday line would be wrong. */
+const weekend: Record<number, string[]> = {
+  8: [
+    "Nobody is commuting anywhere. That is the entire point of today.",
+    "The hour a weekday would have started. It did not.",
+    "Somewhere a very long breakfast is being assembled.",
+  ],
+  9: [
+    "No standup. Nothing is running long.",
+    "The markets are shut and so, mostly, is everyone.",
+    "The hour that feels early only because it usually is.",
+  ],
+  10: [
+    "Peak focus, spent on something entirely optional.",
+    "The first genuinely unclaimed hour of the week.",
+    "No meeting has any right to this one.",
+  ],
+  13: [
+    "Lunch, with nobody waiting on the other side of it.",
+    "The after-lunch dip, but nothing is expected of you.",
+    "One o'clock, and the day is still mostly ahead.",
+  ],
+  14: [
+    "The afternoon trough, off the clock, which helps.",
+    "The hour of the nap that was not planned.",
+    "Nothing decided now needs to be decided.",
+  ],
+  15: [
+    "Chai, in the country this page was written from.",
+    "No traffic, no school run, no reason to be anywhere.",
+    "The hour that goes missing on a good weekend.",
+  ],
+  17: [
+    "No deploy. Nothing is on fire. Probably.",
+    "The hour the light starts to go and nobody minds.",
+    "Somewhere a side project is getting the good hours for once.",
+  ],
+  18: [
+    "Nobody is commuting home because nobody left.",
+    "The hour a weekday would have ended. It did not start.",
+    "Golden hour, if the sky is cooperating.",
+  ],
+  19: [
+    "Dinner, taken slowly for once.",
+    "The hour the weekend admits it is nearly over.",
+    "Kitchens are loud. Nothing else is.",
+  ],
+};
+
+/** Friday alone — the one line that only makes sense at the end of a week. */
+const friday: Record<number, string[]> = {
+  17: [
+    "Somewhere a deploy is going out before the weekend. Bold.",
+    "The hour Friday stops pretending to be a working day.",
+    "The last honest commit of the week.",
+  ],
+};
+
+/** friday, then weekend, then weekday. `day` is 0 (Sunday) to 6. */
+export function notesFor(hour: number, day: number): string[] {
+  if (day === 5 && friday[hour]) return friday[hour];
+  if ((day === 0 || day === 6) && weekend[hour]) return weekend[hour];
+  return weekday[hour];
+}
+

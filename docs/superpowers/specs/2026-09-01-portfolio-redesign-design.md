@@ -462,6 +462,11 @@ Two rules govern what may go in one:
   that holds generally: the circadian low, postprandial somnolence, solar
   noon drifting from clock noon. The rest are plainly observational, and read
   as observation rather than measurement.
+- **It must be true on the day it appears.** The first version was hour-only.
+  Sixteen of ninety-six lines assumed a working day, so a Sunday at 09:00
+  claimed standup was running long and the markets were opening. Nine hours
+  now carry a weekend set and 17:00 carries a Friday one; selection is
+  friday, then weekend, then weekday. All 168 hour/day combinations resolve.
 
 **The gap clause** reports his wall-clock time, and names the day shift when
 his date differs from the visitor's ("already 03:00 tomorrow", "still 21:30

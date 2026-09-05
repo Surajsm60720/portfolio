@@ -11,7 +11,7 @@
  * the server cannot know the visitor's clock, and getSnapshot has to return a
  * stable reference between ticks.
  */
-import { hourNotes } from "./content";
+import { notesFor } from "./content";
 import { TZ, istClock } from "./time";
 
 export interface Salutation {
@@ -42,21 +42,25 @@ const isoDate = (tz?: string) =>
    getSnapshot during render, so re-rolling on every call would hand React a
    new value each time and loop forever. Re-rolling only when the hour turns
    also means the line does not flicker on the 30-second tick. */
-let rolledHour = -1;
+let rolledKey = "";
 let rolledIndex = 0;
 
-function noteFor(hour: number): string {
-  const options = hourNotes[hour];
-  if (hour !== rolledHour) {
-    rolledHour = hour;
+function noteFor(hour: number, day: number): string {
+  const options = notesFor(hour, day);
+  /* Re-roll when the hour turns, and when the day does — a Saturday 09:00
+     draws from a different set than a Monday one. */
+  const key = `${day}:${hour}`;
+  if (key !== rolledKey) {
+    rolledKey = key;
     rolledIndex = Math.floor(Math.random() * options.length);
   }
-  return options[rolledIndex];
+  return options[rolledIndex % options.length];
 }
 
 function compute(): Salutation {
   const now = new Date();
   const hour = now.getHours();
+  const day = now.getDay();
 
   const theirs = isoDate(TZ).format(now);
   const yours = isoDate().format(now);
@@ -75,7 +79,7 @@ function compute(): Salutation {
 
   return {
     greeting: band(hour),
-    note: noteFor(hour),
+    note: noteFor(hour, day),
     theirClock: istClock(now),
     dayShift,
     bothLate: late(hour) && late(theirHour),
