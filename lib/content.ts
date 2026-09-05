@@ -43,6 +43,8 @@ export interface NowLine {
   detail: string;
 }
 
+/** Day and Night only. "Last shipped" is rendered from the synced ship log —
+    see components/sections/Now.tsx — so it must not also be stated here. */
 export const now: NowLine[] = [
   {
     label: "Day",
@@ -55,12 +57,6 @@ export const now: NowLine[] = [
     value: "Saizen v1.4.2",
     detail:
       "A personal iOS anime client. Currently reworking Home personalization and the chrome controls.",
-  },
-  {
-    label: "Last shipped",
-    value: "saizen.vercel.app",
-    detail:
-      "One-page site for the app, built the same week. Static export, no animation dependencies.",
   },
 ];
 
