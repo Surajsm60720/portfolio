@@ -66,6 +66,25 @@ for (const match of css.matchAll(/\{\s*\}/g)) {
   problems.push(`${FILE}:${css.slice(0, match.index).split("\n").length} empty block`);
 }
 
+/* 5. Tokens at :root must not be composed from custom properties declared
+      elsewhere. --display was built from var(--font-display) at :root while
+      the font classes sat on <body>; the reference resolved against an
+      element that did not have them, so the token was invalid at
+      computed-value time and every heading fell back to the inherited sans
+      for weeks without anything failing. */
+const rootBlock = css.match(/^:root\s*\{([\s\S]*?)^\}/m)?.[1] ?? "";
+const layout = readFileSync("app/layout.tsx", "utf8");
+const onHtml = /<html[\s\S]*?className=\{`[^`]*\.variable/.test(layout);
+for (const ref of rootBlock.matchAll(/var\(--font-([a-z]+)\)/g)) {
+  const declared = new RegExp(`--font-${ref[1]}\\s*:`).test(rootBlock);
+  if (!declared && !onHtml) {
+    problems.push(
+      `${FILE} :root composes var(--font-${ref[1]}) but the font variable ` +
+        `classes are not on <html> — the token will be invalid`,
+    );
+  }
+}
+
 if (problems.length) {
   console.error(`${problems.length} problem(s):`);
   for (const p of problems) console.error(`  ${p}`);

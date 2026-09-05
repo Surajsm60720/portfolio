@@ -54,12 +54,23 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    /* The font variables must live on the same element as the tokens that
+       compose them. globals.css builds --display from var(--font-display) at
+       :root; with these classes on <body> that reference resolved against an
+       element which did not have them, so --display was invalid at
+       computed-value time and every heading silently fell back to the
+       inherited sans. --mono only appeared to work because Tailwind happens
+       to declare its own --font-mono at :root. */
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${display.variable} ${body.variable} ${mono.variable}`}
+    >
       <head>
         {/* Sets data-theme before first paint. No flash. See lib/theme.ts. */}
         <script dangerouslySetInnerHTML={{ __html: PREPAINT_SCRIPT }} />
       </head>
-      <body className={`${display.variable} ${body.variable} ${mono.variable}`}>
+      <body>
         {children}
       </body>
     </html>
