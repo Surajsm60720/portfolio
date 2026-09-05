@@ -40,12 +40,17 @@ function currentIndex(all: HTMLElement[]): number {
   return index;
 }
 
-/* Eight rects on a 12x12 grid, pointing up. The other three directions are
-   this shape rotated in CSS — four hand-written paths would be four chances
-   to get the geometry subtly wrong, and the first draft proved it. */
-const ARROW: [number, number, number][] = [
-  [5, 2, 2], [4, 3, 4], [3, 4, 6], [2, 5, 8],
-  [5, 6, 2], [5, 7, 2], [5, 8, 2], [5, 9, 2],
+/* A chunky arrow on a 12x12 grid, pointing up: a three-step head over a
+   stem, every band two units tall so the stair reads as pixels rather than
+   as a jagged triangle. The other three directions are this shape rotated in
+   CSS — four hand-written paths would be four chances to get the geometry
+   subtly wrong, and the first draft proved it.
+   [x, y, width, height] */
+const ARROW: [number, number, number, number][] = [
+  [5, 1, 2, 2],
+  [3, 3, 6, 2],
+  [1, 5, 10, 2],
+  [4, 7, 4, 4],
 ];
 
 export default function DPad() {
@@ -139,13 +144,13 @@ export default function DPad() {
       aria-label={ACTIONS[dir]}
     >
       <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-        {ARROW.map(([x, y, w]) => (
+        {ARROW.map(([x, y, w, h]) => (
           <rect
             key={`${x}-${y}`}
             x={x}
             y={y}
             width={w}
-            height={1}
+            height={h}
             fill="currentColor"
             shapeRendering="crispEdges"
           />

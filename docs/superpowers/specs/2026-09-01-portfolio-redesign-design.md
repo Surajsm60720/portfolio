@@ -626,10 +626,25 @@ reads as broken.
   breaks scrolling for every keyboard user, which costs far more than this
   control is worth. The pad is a focusable group; arrows drive it only while
   focus is inside it.
-- **One arrow shape, rotated.** Eight rects on a 12×12 grid pointing up,
-  turned in CSS for the other three. The first draft hand-wrote four paths
-  and all four were wrong — geometry that cannot be seen should not be
-  guessed at four times.
+- **One arrow shape, rotated.** A three-step head over a stem on a 12×12
+  grid, every band two units tall so the stair reads as pixels rather than as
+  a jagged triangle. Turned in CSS for the other three directions. The first
+  draft hand-wrote four paths and all four were wrong — geometry that cannot
+  be seen should not be guessed at four times.
+- **It is drawn as a sprite, not as UI.** No radius, no gradients, no blurred
+  shadows anywhere. The raised look is four inset box-shadows acting as a
+  pixel bevel — light along the top and left, dark along the bottom and right
+  — and pressing inverts them, which is how a button has read as pressed
+  since the 8-bit era. The hub inverts permanently, so the centre reads as
+  sunk into the cross. A two-step stair is cut from the outer corners of each
+  arm; without it the cross reads as five plain squares. The pad casts a hard
+  offset `drop-shadow` with zero blur, because a sprite casts a shape.
+- Its palette is four dedicated tokens per theme (`--pad-face`, `--pad-hi`,
+  `--pad-lo`, `--pad-edge`) rather than the page's, since a bevel needs a
+  lit side and a shaded side that the content tokens do not provide.
+- The night sky is a **sibling** of the pad, never a child. `filter` creates
+  a containing block, and a `position: fixed` panel inside a filtered
+  ancestor stops being fixed.
 - **Feedback is colour, not movement.** An earlier version scaled the key on
   press and fired a burst of stars on the way up. Both read as aggressive.
   The pad now shifts colour and nothing moves.

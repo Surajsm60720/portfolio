@@ -1496,15 +1496,35 @@ footer[id] {
 /* ============================================================
    D-PAD — the hero's four-way control
 
-   Pixel art in SVG rather than an image: theme-aware, crisp at any
-   size, one request fewer. One arrow shape is defined pointing up
-   and rotated for the other three.
+   Drawn as a sprite, not as UI. Everything here is hard-edged on
+   purpose: no radius, no gradients, no blurred shadows. The raised
+   look comes from four inset box-shadows acting as a pixel bevel —
+   light along the top and left, dark along the bottom and right —
+   and pressing a key inverts them, which is how a button has read as
+   pressed since the 8-bit era.
 
    It never binds the arrow keys globally. Taking those from the
    browser breaks scrolling for every keyboard user, which costs far
    more than this control is worth; arrows drive it only while focus
    is inside the group.
    ============================================================ */
+
+:root {
+  --px: 3px;
+  --pad-face: #e4ddd0;
+  --pad-hi: #fffdf8;
+  --pad-lo: #b3a893;
+  --pad-edge: #14120f;
+  --pad-ink: #14120f;
+}
+
+[data-theme="dark"] {
+  --pad-face: #23262c;
+  --pad-hi: #3a3f48;
+  --pad-lo: #0d0f12;
+  --pad-edge: #000;
+  --pad-ink: #f5f2ec;
+}
 
 .dpad {
   display: grid;
@@ -1514,71 +1534,122 @@ footer[id] {
     ".    up    ."
     "left hub   right"
     ".    down  .";
-  width: clamp(132px, 15vw, 168px);
+  width: clamp(138px, 16vw, 174px);
   aspect-ratio: 1;
   margin-inline: auto;
+  /* A hard offset shadow, never a blur — a sprite casts a shape. */
+  filter: drop-shadow(var(--px) var(--px) 0 var(--pad-edge));
 }
 
 .dpad__key {
   display: grid;
   place-items: center;
   padding: 0;
-  color: var(--ink-soft);
-  background: var(--panel);
-  border: 1px solid var(--edge);
+  color: var(--pad-ink);
+  background: var(--pad-face);
+  border: 0;
+  border-radius: 0;
   cursor: pointer;
-  transition: color 0.14s var(--ease), background-color 0.14s var(--ease);
+  box-shadow:
+    inset 0 var(--px) 0 var(--pad-hi),
+    inset var(--px) 0 0 var(--pad-hi),
+    inset 0 calc(var(--px) * -1) 0 var(--pad-lo),
+    inset calc(var(--px) * -1) 0 0 var(--pad-lo);
+  transition: background-color 0.14s var(--ease), color 0.14s var(--ease);
+}
+
+/* Two-step stair cut from the outer corners of each arm. This is the
+   detail that stops the cross reading as five plain squares. */
+.dpad__key--up {
+  grid-area: up;
+  clip-path: polygon(
+    0 100%, 0 6px, 6px 6px, 6px 0,
+    calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px, 100% 100%
+  );
+}
+
+.dpad__key--down {
+  grid-area: down;
+  clip-path: polygon(
+    0 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px),
+    calc(100% - 6px) 100%, 6px 100%, 6px calc(100% - 6px), 0 calc(100% - 6px)
+  );
+}
+
+.dpad__key--left {
+  grid-area: left;
+  clip-path: polygon(
+    6px 0, 100% 0, 100% 100%, 6px 100%, 6px calc(100% - 6px),
+    0 calc(100% - 6px), 0 6px, 6px 6px
+  );
+}
+
+.dpad__key--right {
+  grid-area: right;
+  clip-path: polygon(
+    0 0, calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
+    100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px),
+    calc(100% - 6px) 100%, 0 100%
+  );
 }
 
 .dpad__key svg {
-  width: 46%;
-  height: 46%;
+  width: 58%;
+  height: 58%;
+  image-rendering: pixelated;
 }
-
-.dpad__key--up { grid-area: up; }
-.dpad__key--down { grid-area: down; }
-.dpad__key--left { grid-area: left; }
-.dpad__key--right { grid-area: right; }
 
 .dpad__key--down svg { transform: rotate(180deg); }
 .dpad__key--left svg { transform: rotate(-90deg); }
 .dpad__key--right svg { transform: rotate(90deg); }
 
 .dpad__key:hover {
-  color: var(--bg);
-  background: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, var(--pad-face));
 }
 
+/* Pressed: the bevel inverts, so the light comes from the other side. */
 .dpad__key:active {
   color: var(--bg);
   background: var(--accent);
+  box-shadow:
+    inset 0 var(--px) 0 var(--pad-lo),
+    inset var(--px) 0 0 var(--pad-lo),
+    inset 0 calc(var(--px) * -1) 0 var(--pad-hi),
+    inset calc(var(--px) * -1) 0 0 var(--pad-hi);
 }
 
-/* The hub is a position read-out, not a dead centre piece: one pip per
-   landmark, filled up to wherever the page currently is. */
+.dpad__key:focus-visible {
+  outline: var(--px) solid var(--accent);
+  outline-offset: calc(var(--px) * -1);
+}
+
+/* Recessed rather than raised — the bevel runs the opposite way to the
+   keys, so the centre reads as sunk into the cross. */
 .dpad__hub {
   grid-area: hub;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   align-content: center;
   justify-items: center;
-  gap: 2px;
-  padding: 4px;
-  border: 1px solid var(--rule);
-  background: var(--panel);
+  gap: var(--px);
+  padding: calc(var(--px) * 2);
+  background: var(--pad-face);
+  box-shadow:
+    inset 0 var(--px) 0 var(--pad-lo),
+    inset var(--px) 0 0 var(--pad-lo),
+    inset 0 calc(var(--px) * -1) 0 var(--pad-hi),
+    inset calc(var(--px) * -1) 0 0 var(--pad-hi);
 }
 
 .dpad__pip {
-  width: 2px;
-  height: 2px;
-  background: var(--ink-faint);
-  opacity: 0.35;
-  transition: opacity 0.2s var(--ease), background-color 0.2s var(--ease);
+  width: var(--px);
+  height: var(--px);
+  background: var(--pad-lo);
+  transition: background-color 0.2s var(--ease);
 }
 
 .dpad__pip[data-on="true"] {
   background: var(--accent);
-  opacity: 1;
 }
 
 .dpad__hint {
@@ -1588,7 +1659,7 @@ footer[id] {
   letter-spacing: 0.06em;
   color: var(--ink-faint);
   text-align: center;
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   min-height: 2.4em;
 }
 
