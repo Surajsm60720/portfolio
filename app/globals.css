@@ -116,6 +116,13 @@ a {
   padding-block: var(--pad-y);
 }
 
+/* The rail is fixed, so anything jumped to must clear it — otherwise the
+   D-pad lands every section with its heading tucked under the chrome. */
+main section[id],
+footer[id] {
+  scroll-margin-top: 46px;
+}
+
 .section--panel {
   background: var(--panel);
 }
@@ -399,6 +406,51 @@ a {
 .hero {
   padding-top: calc(46px + clamp(64px, 15vh, 150px));
   padding-bottom: clamp(56px, 12vh, 130px);
+}
+
+.hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(160px, 22%, 220px);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+}
+
+/* Sits low against the identity column rather than floating at its top —
+   a control belongs near the hand, not beside the headline. */
+.hero__pad {
+  align-self: end;
+  padding-bottom: 6px;
+}
+
+.hero__padHint {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  text-align: center;
+  margin: 14px 0 0;
+}
+
+@media (max-width: 979px) {
+  .hero__grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .hero__pad {
+    align-self: start;
+  }
+}
+
+@media print {
+  .hero__grid {
+    display: block;
+  }
+
+  .hero__pad {
+    display: none !important;
+  }
 }
 
 .hero__name {
@@ -1267,7 +1319,52 @@ a {
     padding-bottom: 12pt;
   }
 
-  .hero__name {
+  .hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(160px, 22%, 220px);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: start;
+}
+
+/* Sits low against the identity column rather than floating at its top —
+   a control belongs near the hand, not beside the headline. */
+.hero__pad {
+  align-self: end;
+  padding-bottom: 6px;
+}
+
+.hero__padHint {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  text-align: center;
+  margin: 14px 0 0;
+}
+
+@media (max-width: 979px) {
+  .hero__grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .hero__pad {
+    align-self: start;
+  }
+}
+
+@media print {
+  .hero__grid {
+    display: block;
+  }
+
+  .hero__pad {
+    display: none !important;
+  }
+}
+
+.hero__name {
     font-size: 26pt;
   }
 
@@ -1394,4 +1491,120 @@ a {
   letter-spacing: 0.04em;
   color: var(--ink-faint);
   margin: 26px 0 0;
+}
+
+/* ============================================================
+   D-PAD — the hero's four-way control
+
+   Pixel art in SVG rather than an image: theme-aware, crisp at any
+   size, one request fewer. One arrow shape is defined pointing up
+   and rotated for the other three.
+
+   It never binds the arrow keys globally. Taking those from the
+   browser breaks scrolling for every keyboard user, which costs far
+   more than this control is worth; arrows drive it only while focus
+   is inside the group.
+   ============================================================ */
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    ".    up    ."
+    "left hub   right"
+    ".    down  .";
+  width: clamp(132px, 15vw, 168px);
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.dpad__key {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--ink-soft);
+  background: var(--panel);
+  border: 1px solid var(--edge);
+  cursor: pointer;
+  transition: color 0.12s var(--ease), background-color 0.12s var(--ease),
+    transform 0.12s var(--ease);
+}
+
+.dpad__key svg {
+  width: 46%;
+  height: 46%;
+}
+
+.dpad__key--up { grid-area: up; }
+.dpad__key--down { grid-area: down; }
+.dpad__key--left { grid-area: left; }
+.dpad__key--right { grid-area: right; }
+
+.dpad__key--down svg { transform: rotate(180deg); }
+.dpad__key--left svg { transform: rotate(-90deg); }
+.dpad__key--right svg { transform: rotate(90deg); }
+
+.dpad__key:hover {
+  color: var(--bg);
+  background: var(--accent);
+}
+
+/* The press is the whole feedback vocabulary — a pad should feel clicked. */
+.dpad__key[data-pressed="true"] {
+  color: var(--bg);
+  background: var(--accent);
+  transform: scale(0.92);
+}
+
+.dpad__hub {
+  grid-area: hub;
+  border: 1px solid var(--rule);
+  background: var(--panel);
+}
+
+/* ---------- star burst ----------
+   Hard-edged squares, not points, so it reads as sprite work. */
+
+.stars {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+}
+
+.stars__px {
+  position: absolute;
+  background: var(--accent);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: star 900ms var(--ease) forwards;
+}
+
+@keyframes star {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  22% {
+    opacity: 1;
+    transform: translateY(calc(var(--drift) * -0.25)) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(calc(var(--drift) * -1)) scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stars {
+    display: none;
+  }
+}
+
+@media print {
+  .dpad,
+  .stars {
+    display: none !important;
+  }
 }
