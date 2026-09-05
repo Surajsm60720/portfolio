@@ -57,7 +57,12 @@ export default function Rhythm() {
                 className="rhythm__bar"
                 key={hour}
                 data-night={isNightHour(hour)}
-                style={{ "--h": `${(count / peak) * 100}%` } as React.CSSProperties}
+                style={
+                  {
+                    "--h": `${(count / peak) * 100}%`,
+                    "--i": hour,
+                  } as React.CSSProperties
+                }
               >
                 <span className="rhythm__fill" />
                 <span className="rhythm__sr">

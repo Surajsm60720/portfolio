@@ -34,7 +34,11 @@ export default function Quip() {
       aria-live="polite"
       aria-label="Show another note about this page"
     >
-      {index === null ? "" : quips[index]}
+      {index === null ? null : (
+        <span key={index} className="hero__quipLine">
+          {quips[index]}
+        </span>
+      )}
     </button>
   );
 }

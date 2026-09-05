@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import ConsoleLink from "@/components/ConsoleLink";
+import Reveal from "@/components/Reveal";
 import { identity, site, socials } from "@/lib/content";
 
 const links = [
@@ -20,10 +21,14 @@ export default function Footer() {
       <div className="wrap foot__grid">
         <div>
           <p className="eyebrow">Contact</p>
-          <p className="foot__pitch">
-            If you have a problem worth building something for, I would like to
-            hear it.
-          </p>
+          <Reveal>
+            <p className="foot__pitch">
+              <span>
+                If you have a problem worth building something for, I would like
+                to hear it.
+              </span>
+            </p>
+          </Reveal>
           <a className="foot__mail link" href={`mailto:${identity.email}`}>
             {identity.email}
           </a>

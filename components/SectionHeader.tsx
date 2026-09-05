@@ -19,7 +19,7 @@ export default function SectionHeader({
     <Reveal className="sec-head">
       <p className="eyebrow">{eyebrow}</p>
       <h2 className="title" id={titleId}>
-        {title}
+        <span>{title}</span>
       </h2>
       {lede ? <p className="lede">{lede}</p> : null}
     </Reveal>
