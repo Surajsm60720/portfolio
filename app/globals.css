@@ -443,13 +443,60 @@ footer[id] {
     align-self: start;
   }
 }
-  .hero__name {
+  /* ---------- hero bands ----------
+   The hero used to be one narrow left-aligned stack with half the page
+   empty beside it, which made it read as a list rather than a masthead.
+   Four bands now run the width: greeting against role, the name full
+   bleed, the thesis beside its own argument, and the two link sets facing
+   each other. */
+
+.hero__inner {
+  display: grid;
+  gap: clamp(22px, 3.4vh, 40px);
+}
+
+.hero__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 60px);
+}
+
+.hero__where {
+  flex: none;
+  text-align: right;
+  padding-top: 6px;
+}
+
+.hero__body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(28px, 5vw, 76px);
+  align-items: start;
+  padding-top: clamp(14px, 2vh, 26px);
+  border-top: 1px solid var(--rule);
+}
+
+.hero__aside {
+  display: grid;
+  gap: 4px;
+}
+
+.hero__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px clamp(20px, 4vw, 60px);
+}
+
+.hero__name {
   font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(46px, 8.5vw, 104px);
-  line-height: 0.98;
-  letter-spacing: -0.025em;
-  margin: 18px 0 0;
+  font-size: clamp(48px, 10.5vw, 138px);
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+  margin: 0;
 }
 
 .hero__thesis {
@@ -458,16 +505,16 @@ footer[id] {
   line-height: 1.12;
   letter-spacing: -0.02em;
   color: var(--ink);
-  max-width: 20ch;
-  margin: 20px 0 0;
+  max-width: 14ch;
+  margin: 0;
 }
 
 .hero__claim {
   color: var(--ink-soft);
   font-size: clamp(15px, 1.15vw, 17px);
   line-height: 1.55;
-  max-width: 50ch;
-  margin: 16px 0 0;
+  max-width: 54ch;
+  margin: 0;
   text-wrap: pretty;
 }
 
@@ -475,7 +522,6 @@ footer[id] {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 34px;
 }
 
 .hero__socials {
@@ -484,7 +530,7 @@ footer[id] {
   gap: 4px 20px;
   list-style: none;
   padding: 0;
-  margin: 26px 0 0;
+  margin: 0;
 }
 
 .hero__social {
@@ -1033,6 +1079,28 @@ footer[id] {
    ============================================================ */
 
 @media (max-width: 899px) {
+  /* The bands collapse to a stack; two 220px columns of prose is worse
+     than one. */
+  .hero__top,
+  .hero__body,
+  .hero__foot {
+    display: block;
+  }
+
+  .hero__where {
+    text-align: left;
+    margin-top: 16px;
+  }
+
+  .hero__thesis {
+    max-width: none;
+    margin-bottom: 18px;
+  }
+
+  .hero__socials {
+    margin-top: 22px;
+  }
+
   .now__row,
   .role,
   .log__row,
@@ -1313,7 +1381,54 @@ footer[id] {
     padding-bottom: 12pt;
   }
 
-  .hero__name {
+  /* ---------- hero bands ----------
+   The hero used to be one narrow left-aligned stack with half the page
+   empty beside it, which made it read as a list rather than a masthead.
+   Four bands now run the width: greeting against role, the name full
+   bleed, the thesis beside its own argument, and the two link sets facing
+   each other. */
+
+.hero__inner {
+  display: grid;
+  gap: clamp(22px, 3.4vh, 40px);
+}
+
+.hero__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 60px);
+}
+
+.hero__where {
+  flex: none;
+  text-align: right;
+  padding-top: 6px;
+}
+
+.hero__body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: clamp(28px, 5vw, 76px);
+  align-items: start;
+  padding-top: clamp(14px, 2vh, 26px);
+  border-top: 1px solid var(--rule);
+}
+
+.hero__aside {
+  display: grid;
+  gap: 4px;
+}
+
+.hero__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px clamp(20px, 4vw, 60px);
+}
+
+.hero__name {
     font-size: 26pt;
   }
 
@@ -1371,8 +1486,8 @@ footer[id] {
    the gap to his. Both clocks are stated; neither is pretended away. */
 
 .hero__hail {
-  margin: 0 0 20px;
-  max-width: 52ch;
+  margin: 0;
+  max-width: 56ch;
 }
 
 .hero__greeting {
@@ -1402,7 +1517,7 @@ footer[id] {
 
 .hero__quip {
   display: block;
-  margin: 22px 0 0;
+  margin: 14px 0 0;
   padding: 0;
   max-width: 56ch;
   font-family: var(--mono);
