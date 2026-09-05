@@ -48,12 +48,19 @@ export const now: NowLine[] = [
     label: "Day",
     value: "Forward Deployed Engineer, Plivo",
     detail:
-      "Enterprise integration support, and live debugging on voice and messaging APIs.",
+      "Primary technical contact for enterprise customers. Live debugging calls on voice, messaging and console API failures.",
   },
   {
     label: "Night",
     value: "Saizen v1.4.2",
-    detail: "A personal iOS anime client. Currently reworking Home and the chrome controls.",
+    detail:
+      "A personal iOS anime client. Currently reworking Home personalization and the chrome controls.",
+  },
+  {
+    label: "Last shipped",
+    value: "saizen.vercel.app",
+    detail:
+      "One-page site for the app, built the same week. Static export, no animation dependencies.",
   },
 ];
 
