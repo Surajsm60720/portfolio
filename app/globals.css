@@ -29,9 +29,15 @@
   --accent-soft: rgba(31, 61, 143, 0.1);
   --sweep: 255, 180, 84; /* the sweep is always warm — it is the night arriving */
 
-  --display: var(--font-display), Georgia, "Times New Roman", serif;
-  --body: var(--font-body), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Reverted to the system stacks on 2026-09-05, by request. These are what
+     the page was actually rendering before the token bug was fixed: the
+     webfonts had never resolved, so Tailwind's preflight sans was inherited
+     everywhere and the mono fell through to its own stack.
+     The plumbing stays correct — no var() here reaches outside :root — so
+     swapping a real face back in is a one-line change per role. */
+  --display: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --gut: clamp(20px, 5vw, 68px);
   --maxw: 1180px;
@@ -1619,10 +1625,6 @@ footer[id] {
    you are considering it. */
 
 .console {
-  display: none;
-}
-
-[data-js="1"] .console {
   --bv: var(--px);
   display: grid;
   gap: 16px;

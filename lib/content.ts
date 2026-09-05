@@ -428,7 +428,7 @@ export const quips: string[] = [
   "This section is called \u201Chero\u201D. Every portfolio has one. Sorry.",
   "There is a bar chart further down that proves he mostly works at 20:00.",
   "The clock in the corner is his, not yours. The theme follows your system.",
-  "Three typefaces, none of them the framework default. That was the entire argument.",
+  "No webfonts. The type is whatever your system already had loaded.",
   "Nothing here is a stock photo, on the technicality that nothing here is a photo.",
   "Every claim on this page traces to a r\u00e9sum\u00e9 or a README. Low bar. Most sites trip on it.",
   "The chart further down is real commit data, resynced from GitHub every week.",
