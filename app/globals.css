@@ -1624,6 +1624,13 @@ footer[id] {
    do: it reports where on the page you are, and what a key would do while
    you are considering it. */
 
+/* Rendered unconditionally.
+   This has now been hidden twice by a cleverness meant to stop a dead
+   control appearing without JavaScript: first a [data-js] attribute the
+   pre-paint script stamped on <html>, then a mount flag in React. Each
+   worked everywhere I could test and vanished somewhere I could not. A pad
+   that does nothing until scripts load is a far smaller problem than a pad
+   nobody can see, so there is no gate any more. */
 .console {
   --bv: var(--px);
   display: grid;

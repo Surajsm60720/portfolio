@@ -35,3 +35,6 @@ next-env.d.ts
 .probe.png
 .probe-console.png
 .probe.mjs
+.probe-*.png
+.webkit*.png
+.webkit.mjs

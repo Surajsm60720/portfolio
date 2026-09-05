@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import NightSky from "./NightSky";
 import { skyLines } from "@/lib/content";
 import { watchKonami } from "@/lib/konami";
@@ -70,19 +64,7 @@ const ARROW: [number, number, number, number][] = [
   [1, 8, 10, 3],
 ];
 
-/* False on the server, true once React has mounted on the client. The
-   console used to be hidden with a [data-js] attribute the pre-paint script
-   stamped on <html>, and if anything at all interfered with that attribute
-   the control silently vanished with no way to tell it apart from a bug.
-   If this component is rendering, JavaScript is running by definition. */
-const subscribeNever = () => () => {};
-
 export default function DPad() {
-  const mounted = useSyncExternalStore(
-    subscribeNever,
-    () => true,
-    () => false,
-  );
   const [skyOpen, setSkyOpen] = useState(false);
   const [skyLine, setSkyLine] = useState(skyLines[0]);
   const [hint, setHint] = useState<Dir | null>(null);
@@ -242,7 +224,9 @@ export default function DPad() {
      Connecting one also opens the console — if you have gone to the trouble
      of plugging in a pad, the door should already be open. */
   useEffect(() => {
-    const off = watchGamepads({
+    let off = () => {};
+    try {
+      off = watchGamepads({
       onConnect: (id) => {
         setPad(id.replace(/\s*\([^)]*\)\s*/g, "").trim().slice(0, 22) || "controller");
         if (wideEnough()) setConsole(true);
@@ -257,7 +241,10 @@ export default function DPad() {
         if (input === "confirm") return;
         go(input);
       },
-    });
+      });
+    } catch {
+      /* Controller support is a bonus; the on-screen pad is the product. */
+    }
     return off;
   }, [go, wideEnough, say]);
 
@@ -287,8 +274,6 @@ export default function DPad() {
       </svg>
     </button>
   );
-
-  if (!mounted) return null;
 
   return (
     <>

@@ -82,8 +82,27 @@ export interface GamepadWatch {
   onDisconnect?: () => void;
 }
 
+/**
+ * WebKit returns a `GamepadList` from getGamepads() — array-like, but not
+ * iterable. `for...of` over it throws a TypeError, and this runs inside an
+ * effect on mount for every visitor, so in Safari that throw happened during
+ * the commit phase and took the whole component down. The control simply did
+ * not exist there, while every other browser was fine.
+ *
+ * Array.from copes with both shapes. The try/catch is belt to that brace:
+ * nothing about optional controller support should ever be able to remove a
+ * control that works without one.
+ */
+function pads(): (Gamepad | null)[] {
+  try {
+    return Array.from(navigator.getGamepads() ?? []);
+  } catch {
+    return [];
+  }
+}
+
 export function watchGamepads(watch: GamepadWatch): () => void {
-  if (typeof navigator === "undefined" || !navigator.getGamepads) {
+  if (typeof navigator === "undefined" || typeof navigator.getGamepads !== "function") {
     return () => {};
   }
 
@@ -94,12 +113,15 @@ export function watchGamepads(watch: GamepadWatch): () => void {
 
   const tick = () => {
     frame = requestAnimationFrame(tick);
-    const pads = navigator.getGamepads();
     let current: Pad | null = null;
 
-    for (const pad of pads) {
+    for (const pad of pads()) {
       if (!pad) continue;
-      current = read(pad);
+      try {
+        current = read(pad);
+      } catch {
+        current = null;
+      }
       if (current) break;
     }
 
@@ -141,7 +163,7 @@ export function watchGamepads(watch: GamepadWatch): () => void {
 
   /* A pad already held before this mounted will not fire connected again,
      so check once for one that is present but silent. */
-  for (const pad of navigator.getGamepads()) {
+  for (const pad of pads()) {
     if (pad) {
       connected += 1;
       watch.onConnect?.(pad.id);
