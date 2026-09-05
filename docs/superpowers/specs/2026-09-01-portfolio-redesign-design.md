@@ -603,11 +603,21 @@ check. Two authoring addresses are counted; merges are excluded.
 
 ---
 
-## 17. The pad and the sky
+## 17. The console and the sky
 
-The hero's right half carries a four-way pad, drawn as pixel art in SVG.
-It is the gamer half of the person made functional rather than decorative:
-it is a sprite, and it does work.
+The hero's right half carries a handheld: a housed screen above a four-way
+pad, drawn as pixel art in SVG. It is the gamer half of the person made
+functional rather than decorative — it is a sprite, and it does work.
+
+**Amended 2026-09-06.** The pad shipped bare and read as five buttons
+floating in whitespace: too small for a hero whose name runs to 104px, and
+with nothing visible to justify itself. Housing it makes it an object, and
+the screen gives it a job you can watch it doing — it reports which section
+you are currently in, and swaps to a key's destination while you hover or
+focus one. The column widened from 220px to 258px so the object has room to
+be an object.
+
+The screen is dark in both themes, because that is what a screen is.
 
 | Direction | Action |
 |---|---|
@@ -648,8 +658,15 @@ reads as broken.
 - **Feedback is colour, not movement.** An earlier version scaled the key on
   press and fired a burst of stars on the way up. Both read as aggressive.
   The pad now shifts colour and nothing moves.
-- The hub is a position read-out — one pip per landmark, filled to wherever
-  the page is — rather than a dead centre piece.
+- Position moved from pips in the hub to a segment bar in the screen, where
+  it sits beside the name of the place it is counting. The hub is a plain
+  recessed plate again.
+- The whole console is gated on `data-js`. Every control in it needs
+  JavaScript, and a dead handheld is worse than no handheld.
+- The console casts the drop-shadow; the pad inside it explicitly does not.
+  Two hard shadows on nested boxes read as grime rather than as depth.
+- `filter` creates a containing block, so the night sky is a sibling of the
+  console, never a child. Verified against the rendered markup.
 
 ### 17.2 The sky
 

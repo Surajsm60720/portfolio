@@ -429,7 +429,7 @@ footer[id] {
 
 .hero__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(160px, 22%, 220px);
+  grid-template-columns: minmax(0, 1fr) clamp(196px, 26%, 258px);
   gap: clamp(28px, 5vw, 72px);
   align-items: start;
 }
@@ -1344,7 +1344,7 @@ footer[id] {
 
   .hero__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(160px, 22%, 220px);
+  grid-template-columns: minmax(0, 1fr) clamp(196px, 26%, 258px);
   gap: clamp(28px, 5vw, 72px);
   align-items: start;
 }
@@ -1569,7 +1569,8 @@ footer[id] {
     ".    up    ."
     "left hub   right"
     ".    down  .";
-  width: clamp(138px, 16vw, 174px);
+  width: 100%;
+  max-width: 190px;
   aspect-ratio: 1;
   margin-inline: auto;
   /* A hard offset shadow, never a blur — a sprite casts a shape. */
@@ -1654,36 +1655,104 @@ footer[id] {
    keys, so the centre reads as sunk into the cross. */
 .dpad__hub {
   grid-area: hub;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  align-content: center;
-  justify-items: center;
-  gap: var(--px);
-  padding: calc(var(--px) * 2);
   background: var(--pad-face);
   box-shadow: var(--bevel-in);
 }
 
-.dpad__pip {
-  width: var(--px);
-  height: var(--px);
-  background: var(--pad-lo);
+/* ---------- the console ----------
+   The pad on its own read as five buttons floating in whitespace. Housing
+   it turns it into an object, and the screen gives it something visible to
+   do: it reports where on the page you are, and what a key would do while
+   you are considering it. */
+
+.console {
+  display: none;
+}
+
+[data-js="1"] .console {
+  --bv: var(--px);
+  display: grid;
+  gap: 16px;
+  padding: 18px 16px 14px;
+  background: var(--pad-face);
+  box-shadow: var(--bevel-out);
+  filter: drop-shadow(var(--px) var(--px) 0 var(--pad-edge));
+}
+
+.console .dpad {
+  /* The housing already casts the shadow; a second one reads as grime. */
+  filter: none;
+}
+
+/* A screen is dark whichever way the page is, because that is what a screen
+   is. Both themes get the same one. */
+.console__screen {
+  --bv: 2px;
+  display: grid;
+  gap: 8px;
+  padding: 10px 11px 11px;
+  background: #0b1a12;
+  box-shadow: var(--bevel-in);
+}
+
+.console__row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  min-height: 2.6em;
+}
+
+.console__tag {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: #2f7d53;
+}
+
+.console__where {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5cf2a0;
+}
+
+.console__bar {
+  display: flex;
+  gap: 2px;
+  margin: 0;
+}
+
+.console__seg {
+  flex: 1;
+  height: 5px;
+  background: #163b28;
   transition: background-color 0.2s var(--ease);
 }
 
-.dpad__pip[data-on="true"] {
-  background: var(--accent);
+.console__seg[data-on="true"] {
+  background: #5cf2a0;
 }
 
-.dpad__hint {
+.console__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.console__mark {
   font-family: var(--mono);
-  font-size: 10px;
-  line-height: 1.6;
-  letter-spacing: 0.06em;
-  color: var(--ink-faint);
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  color: var(--pad-lo);
   text-align: center;
-  margin: 16px 0 0;
-  min-height: 2.4em;
+  margin: 0;
 }
 
 /* ---------- the night sky ----------

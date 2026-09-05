@@ -58,6 +58,7 @@ export default function DPad() {
   const [skyLine, setSkyLine] = useState(skyLines[0]);
   const [hint, setHint] = useState<Dir | null>(null);
   const [at, setAt] = useState(0);
+  const [where, setWhere] = useState("");
   const [total, setTotal] = useState(0);
   const timers = useRef<number[]>([]);
 
@@ -68,12 +69,16 @@ export default function DPad() {
     [],
   );
 
-  /* The hub reads as a position indicator rather than a dead centre piece. */
+  /* The screen is what makes this a device rather than an ornament: it
+     reports where on the page you currently are, and what a key would do
+     while you are considering it. */
   useEffect(() => {
     const read = () => {
       const all = stops();
+      const i = currentIndex(all);
       setTotal(all.length);
-      setAt(currentIndex(all));
+      setAt(i);
+      setWhere((all[i]?.id ?? "").replace(/-/g, " "));
     };
     read();
     window.addEventListener("scroll", read, { passive: true });
@@ -161,26 +166,43 @@ export default function DPad() {
 
   return (
     <>
-      <div
-        className="dpad"
-        role="group"
-        aria-label="Page navigation pad"
-        onKeyDown={onKeyDown}
-      >
-        {key("up")}
-        {key("left")}
-        <span className="dpad__hub" aria-hidden="true">
-          {Array.from({ length: total }, (_, i) => (
-            <span className="dpad__pip" key={i} data-on={i <= at} />
-          ))}
-        </span>
-        {key("right")}
-        {key("down")}
-      </div>
+      <div className="console">
+        <div className="console__screen">
+          <p className="console__row">
+            <span className="console__tag">{hint ? "GO" : "AT"}</span>
+            <span className="console__where">
+              {hint ? ACTIONS[hint] : where || "\u2014"}
+            </span>
+          </p>
 
-      <p className="dpad__hint" aria-live="polite">
-        {hint ? ACTIONS[hint] : "Arrow keys work while it has focus."}
-      </p>
+          <p className="console__bar" aria-hidden="true">
+            {Array.from({ length: total }, (_, i) => (
+              <span className="console__seg" key={i} data-on={i <= at} />
+            ))}
+          </p>
+
+          <span className="console__sr" aria-live="polite">
+            {hint ? ACTIONS[hint] : where ? `At ${where}` : ""}
+          </span>
+        </div>
+
+        <div
+          className="dpad"
+          role="group"
+          aria-label="Page navigation pad"
+          onKeyDown={onKeyDown}
+        >
+          {key("up")}
+          {key("left")}
+          <span className="dpad__hub" aria-hidden="true" />
+          {key("right")}
+          {key("down")}
+        </div>
+
+        <p className="console__mark" aria-hidden="true">
+          SM&nbsp;·&nbsp;01
+        </p>
+      </div>
 
       <NightSky open={skyOpen} line={skyLine} onClose={() => setSkyOpen(false)} />
     </>
