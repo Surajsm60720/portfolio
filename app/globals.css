@@ -1527,8 +1527,7 @@ footer[id] {
   background: var(--panel);
   border: 1px solid var(--edge);
   cursor: pointer;
-  transition: color 0.12s var(--ease), background-color 0.12s var(--ease),
-    transform 0.12s var(--ease);
+  transition: color 0.14s var(--ease), background-color 0.14s var(--ease);
 }
 
 .dpad__key svg {
@@ -1550,61 +1549,199 @@ footer[id] {
   background: var(--accent);
 }
 
-/* The press is the whole feedback vocabulary — a pad should feel clicked. */
-.dpad__key[data-pressed="true"] {
+.dpad__key:active {
   color: var(--bg);
   background: var(--accent);
-  transform: scale(0.92);
 }
 
+/* The hub is a position read-out, not a dead centre piece: one pip per
+   landmark, filled up to wherever the page currently is. */
 .dpad__hub {
   grid-area: hub;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  padding: 4px;
   border: 1px solid var(--rule);
   background: var(--panel);
 }
 
-/* ---------- star burst ----------
-   Hard-edged squares, not points, so it reads as sprite work. */
+.dpad__pip {
+  width: 2px;
+  height: 2px;
+  background: var(--ink-faint);
+  opacity: 0.35;
+  transition: opacity 0.2s var(--ease), background-color 0.2s var(--ease);
+}
 
-.stars {
+.dpad__pip[data-on="true"] {
+  background: var(--accent);
+  opacity: 1;
+}
+
+.dpad__hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  text-align: center;
+  margin: 14px 0 0;
+  min-height: 2.4em;
+}
+
+/* ---------- the night sky ----------
+   Arrives from overhead after the page has scrolled back to the top, and
+   slides the page down under it. Transform and opacity only. Stars twinkle
+   slowly on a long stagger — this is a room to sit in, not an effect. */
+
+.sky {
   position: fixed;
   inset: 0;
-  z-index: 70;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  background: #05070d;
+  color: #e8ecf6;
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: transform 0.62s var(--ease), opacity 0.28s linear;
+  will-change: transform;
+}
+
+.sky[data-open="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+.sky__field {
+  position: absolute;
+  inset: 0;
   pointer-events: none;
 }
 
-.stars__px {
+.sky__star {
   position: absolute;
-  background: var(--accent);
-  opacity: 0;
-  will-change: transform, opacity;
-  animation: star 900ms var(--ease) forwards;
+  background: #f2f5ff;
+  opacity: 0.7;
+  animation: twinkle 6.5s ease-in-out infinite;
 }
 
-@keyframes star {
-  0% {
-    opacity: 0;
-    transform: translateY(0) scale(0.6);
-  }
-  22% {
-    opacity: 1;
-    transform: translateY(calc(var(--drift) * -0.25)) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(calc(var(--drift) * -1)) scale(0.8);
-  }
+@keyframes twinkle {
+  0%, 100% { opacity: 0.22; }
+  50% { opacity: 0.85; }
+}
+
+.sky__close {
+  position: absolute;
+  top: calc(14px + env(safe-area-inset-top));
+  right: 16px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 40px;
+  color: #e8ecf6;
+  background: transparent;
+  border: 1px solid rgba(232, 236, 246, 0.4);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.15s var(--ease);
+}
+
+.sky__close:hover {
+  background: rgba(232, 236, 246, 0.12);
+}
+
+.sky__inner {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+}
+
+.sky__eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8fa2c8;
+  margin: 0;
+}
+
+.sky__lede {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(20px, 2.8vw, 30px);
+  line-height: 1.28;
+  margin: 12px 0 0;
+  max-width: 26ch;
+}
+
+.sky__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: clamp(20px, 3vw, 40px);
+  list-style: none;
+  padding: 0;
+  margin: clamp(26px, 4vh, 44px) 0 0;
+}
+
+.sky__label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8fa2c8;
+  margin: 0 0 8px;
+}
+
+.sky__body {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(232, 236, 246, 0.82);
+  margin: 0;
+}
+
+.sky__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9db4e8;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(157, 180, 232, 0.4);
+  margin-top: 10px;
+}
+
+.sky__link:hover {
+  border-bottom-color: #9db4e8;
+}
+
+.sky :focus-visible {
+  outline: 2px solid #9db4e8;
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stars {
-    display: none;
+  .sky {
+    transition: opacity 0.01ms;
+    transform: none;
+  }
+
+  .sky__star {
+    animation: none;
+    opacity: 0.6;
   }
 }
 
 @media print {
   .dpad,
-  .stars {
+  .dpad__hint,
+  .sky {
     display: none !important;
   }
 }

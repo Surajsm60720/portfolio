@@ -600,3 +600,54 @@ hides. An automated feed grows without bound; a highlight reel should not.
 Public repositories Suraj owns, excluding forks — the set a visitor can
 verify against his profile. Private work would inflate a number nobody can
 check. Two authoring addresses are counted; merges are excluded.
+
+---
+
+## 17. The pad and the sky
+
+The hero's right half carries a four-way pad, drawn as pixel art in SVG.
+It is the gamer half of the person made functional rather than decorative:
+it is a sprite, and it does work.
+
+| Direction | Action |
+|---|---|
+| Up | Scroll to the top; once there, the night sky arrives from overhead |
+| Down | Next section |
+| Left | Previous section |
+| Right | Jump to contact |
+
+Left and right are placeholders until they are decided. They have real
+behaviour rather than sitting inert, because a control that does nothing
+reads as broken.
+
+### 17.1 Rules
+
+- **The arrow keys are never bound globally.** Taking them from the browser
+  breaks scrolling for every keyboard user, which costs far more than this
+  control is worth. The pad is a focusable group; arrows drive it only while
+  focus is inside it.
+- **One arrow shape, rotated.** Eight rects on a 12×12 grid pointing up,
+  turned in CSS for the other three. The first draft hand-wrote four paths
+  and all four were wrong — geometry that cannot be seen should not be
+  guessed at four times.
+- **Feedback is colour, not movement.** An earlier version scaled the key on
+  press and fired a burst of stars on the way up. Both read as aggressive.
+  The pad now shifts colour and nothing moves.
+- The hub is a position read-out — one pip per landmark, filled to wherever
+  the page is — rather than a dead centre piece.
+
+### 17.2 The sky
+
+Pressing up scrolls back to the beginning and then keeps going: a night sky
+slides down from overhead. It holds the off-the-clock material, which was cut
+as a section for sitting oddly among the professional ones. A sky reached
+only by deliberately going up past the start is the room it always wanted.
+
+- Stars are a fixed list, not randomised — the same sky every time, and
+  nothing to hydrate.
+- It is a modal: Escape and a close button dismiss it, the close button takes
+  focus on open, the panel is `inert` while shut, and body scroll is locked
+  while it is open so the reader cannot move content they cannot see.
+- Under `prefers-reduced-motion` it appears without sliding and the stars do
+  not twinkle.
+- Hidden in print, along with the pad.

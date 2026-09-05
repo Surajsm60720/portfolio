@@ -55,9 +55,6 @@ export default function Hero() {
             look at. See components/DPad.tsx. */}
         <div className="hero__pad">
           <DPad />
-          <p className="hero__padHint">
-            Four ways down the page. Arrow keys work while it has focus.
-          </p>
         </div>
       </div>
     </section>
