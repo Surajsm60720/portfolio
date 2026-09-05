@@ -2089,3 +2089,9 @@ footer[id] {
     display: none !important;
   }
 }
+
+/* A transient message on the screen — the Konami code failing in silence
+   would be indistinguishable from it not working at all. */
+.console__where[data-flash="true"] {
+  color: #ffd166;
+}

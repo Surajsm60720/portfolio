@@ -75,6 +75,8 @@ export default function DPad() {
   /* Console mode is an easter egg: no button advertises it. */
   const [console_, setConsole] = useState(false);
   const [pad, setPad] = useState<string | null>(null);
+  /* A transient screen message, so nothing about this fails silently. */
+  const [flash, setFlash] = useState<string | null>(null);
   const timers = useRef<number[]>([]);
 
   useEffect(
@@ -114,12 +116,34 @@ export default function DPad() {
     [],
   );
 
+  const say = useCallback((message: string) => {
+    setFlash(message);
+    timers.current.push(window.setTimeout(() => setFlash(null), 2200));
+  }, []);
+
   useEffect(() => {
     const off = watchKonami(() => {
-      if (wideEnough()) setConsole((on) => !on);
+      if (!wideEnough()) {
+        /* Silence here would be indistinguishable from a broken feature. */
+        say("NEEDS A WIDER WINDOW");
+        return;
+      }
+      setConsole((on) => !on);
     });
     return off;
-  }, [wideEnough]);
+  }, [wideEnough, say]);
+
+  /* The breadcrumb. An easter egg with no trace at all cannot be told apart
+     from something that does not work, and the browser console is where
+     this particular audience already looks. */
+  useEffect(() => {
+    console.log(
+      "%c SM · 01 %c  ↑ ↑ ↓ ↓ ← → ← → B A  %c or plug in a controller",
+      "background:#0b1a12;color:#5cf2a0;font-family:monospace;padding:3px 6px",
+      "font-family:monospace;letter-spacing:.14em",
+      "font-family:monospace;color:#888",
+    );
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.console = console_ ? "on" : "off";
@@ -205,6 +229,7 @@ export default function DPad() {
       onConnect: (id) => {
         setPad(id.replace(/\s*\([^)]*\)\s*/g, "").trim().slice(0, 22) || "controller");
         if (wideEnough()) setConsole(true);
+        else say("NEEDS A WIDER WINDOW");
       },
       onDisconnect: () => setPad(null),
       onInput: (input: Pad) => {
@@ -217,7 +242,7 @@ export default function DPad() {
       },
     });
     return off;
-  }, [go, wideEnough]);
+  }, [go, wideEnough, say]);
 
   const key = (dir: Dir) => (
     <button
@@ -252,10 +277,10 @@ export default function DPad() {
         <div className="console__screen">
           <p className="console__row">
             <span className="console__tag">
-              {pad ? "P1" : hint ? "GO" : "AT"}
+              {flash ? "!!" : pad ? "P1" : hint ? "GO" : "AT"}
             </span>
-            <span className="console__where">
-              {pad ?? (hint ? ACTIONS[hint] : where || "\u2014")}
+            <span className="console__where" data-flash={Boolean(flash)}>
+              {flash ?? pad ?? (hint ? ACTIONS[hint] : where || "\u2014")}
             </span>
           </p>
 
