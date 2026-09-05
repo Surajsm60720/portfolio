@@ -149,7 +149,7 @@ Single page. The only route besides `/` is the existing `/cv.pdf` passthrough.
 | 6 | Proof | Publication + DOI, education, certification |
 | 7 | Off the clock | Personality: gacha cadence, anime, music, self-destroying Linux installs |
 | 7 | Stack ledger | Grouped technologies, each cross-referenced to the project it was used in |
-| 8 | Footer | Real mailto, correct socials, résumé, and the page's measured cost |
+| 8 | Footer | Two columns: pitch and address beside a link rail, then one line of fine print |
 
 ### 5.1 Deliberate removals
 
@@ -393,22 +393,14 @@ These are drafted from each repository's own README framing and **must be review
 Two additions that are neither interactions nor sections in their own right,
 so the two-signature budget in §0 is untouched.
 
-### 13.1 The page reports its own cost
+### 13.1 Removed: the page cost readout
 
-§9 states a performance budget. A budget a visitor cannot check is a claim,
-so the footer reads the real figures back out of the Performance API —
-request count, bytes transferred, script bytes, font count, third-party
-count, and LCP — and prints them where the page ends.
-
-- Exposed through `useSyncExternalStore` (`lib/page-cost.ts`), not effect
-  state: the numbers are unknowable on the server, they arrive across
-  several events, and `getSnapshot` must return a stable reference between
-  those events.
-- A cached repeat visit reports `transferSize: 0` on every entry. That is
-  reported as **cached**, never as "0 kB" — the flattering reading would be
-  technically true and materially misleading.
-- The row renders nothing until real numbers exist. A placeholder of dashes
-  is worse than an absent row.
+The colophon, and later the footer, carried a live Performance API readout —
+requests, bytes, script bytes, LCP. Cut on 2026-09-05 as noise: a visitor who
+cares about page weight can open the network panel, and it was the last
+surviving piece of the site talking about itself. `components/PageCost.tsx`
+and `lib/page-cost.ts` are deleted; one quip that pointed at it was rewritten
+rather than left standing as a false statement.
 
 ### 13.2 Print
 
@@ -526,7 +518,7 @@ What survived and where it went:
 
 | Was in the colophon | Now |
 |---|---|
-| Page cost readout (§13.1) | Footer, below the links |
+| Page cost readout | Moved to the footer, then removed entirely (§13.1) |
 | Link to this site's source | Footer, in the links row |
 | Design notes, changelog, design-doc links | Removed |
 

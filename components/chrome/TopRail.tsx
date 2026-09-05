@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun } from "lucide-react";
 import {
-  commitTheme,
+  CHOICES,
+  commitChoice,
   getThemeServerSnapshot,
   getThemeSnapshot,
   subscribeTheme,
-  type Theme,
+  type ThemeChoice,
 } from "@/lib/theme";
 import { istClock } from "@/lib/time";
 import { identity } from "@/lib/content";
@@ -23,11 +24,17 @@ function subscribeClock(onChange: () => void) {
   return () => window.clearInterval(id);
 }
 
+const LABEL: Record<ThemeChoice, string> = {
+  auto: "Theme: following your system. Switch to day.",
+  light: "Theme: day. Switch to night.",
+  dark: "Theme: night. Follow your system instead.",
+};
+
 export default function TopRail() {
   /* Both of these are values the server cannot know, so both come through
      useSyncExternalStore with a null server snapshot rather than being set
      from inside an effect. */
-  const theme = useSyncExternalStore(
+  const state = useSyncExternalStore(
     subscribeTheme,
     getThemeSnapshot,
     getThemeServerSnapshot,
@@ -45,27 +52,34 @@ export default function TopRail() {
     [],
   );
 
-  const toggle = useCallback(() => {
-    if (busy.current || !theme) return;
-    const next: Theme = theme === "dark" ? "light" : "dark";
+  const cycle = useCallback(() => {
+    if (busy.current || !state) return;
+    const next = CHOICES[(CHOICES.indexOf(state.choice) + 1) % CHOICES.length];
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      commitTheme(next);
+      commitChoice(next);
       return;
     }
 
     busy.current = true;
     setSweeping(true);
     timers.current.push(
-      window.setTimeout(() => commitTheme(next), SWEEP_SWAP),
+      window.setTimeout(() => commitChoice(next), SWEEP_SWAP),
       window.setTimeout(() => {
         setSweeping(false);
         busy.current = false;
       }, SWEEP_TOTAL),
     );
-  }, [theme]);
+  }, [state]);
 
-  const isDark = theme === "dark";
+  const icon =
+    state === null ? null : state.choice === "auto" ? (
+      <Monitor size={15} />
+    ) : state.choice === "dark" ? (
+      <Moon size={15} />
+    ) : (
+      <Sun size={15} />
+    );
 
   return (
     <>
@@ -76,7 +90,6 @@ export default function TopRail() {
           </a>
 
           <div className="rail__right">
-            {/* The clock is the argument for the theme, so it sits next to it. */}
             <span className="rail__clock" title={`${identity.location} time`}>
               <span className="rail__city">BLR</span>
               <time suppressHydrationWarning>{clock ?? "--:--"}</time>
@@ -85,11 +98,11 @@ export default function TopRail() {
             <button
               type="button"
               className="rail__toggle"
-              onClick={toggle}
-              aria-label={isDark ? "Switch to day theme" : "Switch to night theme"}
-              aria-pressed={isDark}
+              onClick={cycle}
+              aria-label={state ? LABEL[state.choice] : "Change theme"}
+              data-choice={state?.choice}
             >
-              {theme === null ? null : isDark ? <Moon size={15} /> : <Sun size={15} />}
+              {icon}
             </button>
           </div>
         </div>

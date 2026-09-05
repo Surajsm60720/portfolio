@@ -6,32 +6,34 @@ import { NIGHT_FROM, NIGHT_UNTIL } from "@/lib/time";
 const hh = (h: number) => `${String(h).padStart(2, "0")}:00`;
 
 /**
- * The lede is composed from the data, never asserted over it.
- *
  * This section used to open with "Two peaks, not one: before the day starts
  * and after it ends" — a hand-written reading of a snapshot. Once the numbers
  * started syncing weekly that sentence became a claim nobody was checking,
  * and the first drift would have made it the only false statement on a page
- * whose whole argument is that it has none. It is now derived, so it cannot
+ * whose whole argument is that it has none. It is derived now, so it cannot
  * disagree with the chart beneath it.
  */
 function lede(peaks: number[]): string {
+  /* Composed from the data, never asserted over it. It also no longer says
+     the tinted hours drive the palette: the theme follows the reader's
+     operating system now, so that sentence would be false for most
+     visitors. */
   const shape =
     peaks.length === 2 && peaks[0] < 12 && peaks[1] >= 17
       ? `Two peaks, not one — ${hh(peaks[0])} and ${hh(peaks[1])}: before the day starts and after it ends.`
       : peaks.length === 2
         ? `Busiest at ${hh(peaks[0])} and ${hh(peaks[1])}.`
         : `Busiest around ${hh(peaks[0] ?? 0)}.`;
-  return `${shape} The tinted hours are the ones that switch this page to its night palette — the mechanic reads off this chart, not off a mood.`;
+  return `${shape} Tinted bars are the hours after 19:00 and before 06:00 in Bengaluru — how much of this lands at night, rather than a claim about it.`;
 }
 
 /**
  * The evidence for the clock in the top rail.
  *
  * A portfolio claiming "night owl" is a vibe. This is the actual hour-of-day
- * distribution of real commits, and the hours tinted in accent are exactly
- * the ones that make this page go dark — so the mechanic is checkable rather
- * than asserted. Regenerated weekly; see scripts/sync-github.mjs.
+ * distribution of real commits, tinted across Suraj's night hours, so the
+ * claim is checkable rather than asserted. Regenerated weekly; see
+ * scripts/sync-github.mjs.
  */
 export default function Rhythm() {
   const { hours, total, repos, generated, peaks } = data;
