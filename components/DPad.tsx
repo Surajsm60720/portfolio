@@ -16,10 +16,12 @@ import { istClock, subscribeClock } from "@/lib/time";
 import { watchKonami } from "@/lib/konami";
 import { watchGamepads, type Pad } from "@/lib/gamepad";
 import {
+  cancelPick,
+  confirmPick,
   getConsoleServerSnapshot,
   getConsoleSnapshot,
-  goToScreen,
-  goToSection,
+  moveDown,
+  moveUp,
   setConsole,
   subscribeConsole,
   toggleConsole,
@@ -30,23 +32,27 @@ import {
  * A four-way pad, drawn as pixel art in SVG rather than shipped as an image
  * — theme-aware, crisp at any size, one request fewer.
  *
- * It never binds the arrow keys globally. Overriding them would break the
- * browser's own scrolling for every keyboard user, which costs far more than
- * this control is worth. The pad is a focusable group and arrows drive it
- * only while focus is inside it.
+ * It is a menu cursor. All four directions walk the links and buttons of the
+ * page on screen and step to the next or previous page when they run out —
+ * up and left go back, down and right go on. A takes whatever is selected
+ * and B puts it back.
  *
- * Left and right are placeholders. Change ACTIONS and nothing else moves.
+ * The arrow keys are bound globally, but only while console mode is on. The
+ * objection to binding them — that it takes the browser's own scrolling away
+ * from every keyboard user — does not apply here: <html> is overflow:hidden
+ * in this mode and the page is one screen at a time, so there is no scrolling
+ * to take. Outside console mode nothing here listens for them at all.
  */
 type Dir = "up" | "down" | "left" | "right";
 type Face = "a" | "b" | "start" | "select";
 type Input = Dir | Face;
 
 const ACTIONS: Record<Input, string> = {
-  up: "Previous stage",
-  down: "Next stage",
-  left: "Previous area",
-  right: "Next area",
-  a: "Advance",
+  up: "Previous item",
+  left: "Previous item",
+  down: "Next item",
+  right: "Next item",
+  a: "Select",
   b: "Back",
   start: "Power off",
   select: "Toggle theme",
@@ -54,11 +60,18 @@ const ACTIONS: Record<Input, string> = {
 
 /** The deck's manual, in the order a thumb finds them. */
 const LEGEND: [keys: string, what: string][] = [
-  ["\u2191\u2193", "STAGE"],
-  ["\u2190\u2192", "AREA"],
-  ["A", "NEXT"],
+  ["\u2191\u2193\u2190\u2192", "MOVE"],
+  ["A", "SELECT"],
   ["B", "BACK"],
 ];
+
+/** The keyboard's half of the pad, live only inside console mode. */
+const KEYS: Record<string, Dir> = {
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+};
 
 /** Every landmark the pad can move between, in document order. */
 /* A three-step triangle on a 12x12 grid, pointing up. An earlier version put
@@ -85,6 +98,9 @@ export default function DPad() {
     areas,
     visited,
     award,
+    pick,
+    picks,
+    pickName,
   } = useSyncExternalStore(
     subscribeConsole,
     getConsoleSnapshot,
@@ -138,31 +154,15 @@ export default function DPad() {
     );
   }, []);
 
-  useEffect(() => {
-    if (!consoleOn) return;
-    const onResize = () => {
-      if (!wideEnough()) setConsole(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      /* The sky has its own Escape. Without this guard one press closed the
-         sky and powered the console off behind it. */
-      if (e.key === "Escape" && !skyOpen) setConsole(false);
-    };
-    window.addEventListener("resize", onResize);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [consoleOn, skyOpen]);
-
   const go = useCallback(
     (input: Input) => {
       /* In console mode the sky is on the screen rather than over the
          window, so the deck is still under your thumbs while it is up.
-         Anything on the pad comes back down from it. */
+         Anything on the pad comes back down from it — except the two that
+         mean "up", which would otherwise toggle the sky on every second
+         press of a key held to go up. There is nothing above the top. */
       if (skyOpen) {
-        setSkyOpen(false);
+        if (input !== "up" && input !== "left") setSkyOpen(false);
         return;
       }
 
@@ -175,43 +175,60 @@ export default function DPad() {
         return;
       }
 
-      const back = input === "up" || input === "b";
-      const forward = input === "down" || input === "a";
+      if (input === "down" || input === "right") return moveDown();
+      if (input === "a") return confirmPick();
 
-      /* Going back from the first page keeps going. Up past the top is where
-         the sky is, and it is the only thing above screen one. */
-      if (back && at === 0) {
-        setSkyLine(skyLines[Math.floor(Math.random() * skyLines.length)]);
-        setSkyOpen(true);
+      /* Going back runs out eventually. Above the first item of the first
+         page is the sky, and it is the only thing up there. */
+      const moved = input === "b" ? cancelPick() : moveUp();
+      if (moved) return;
+      setSkyLine(skyLines[Math.floor(Math.random() * skyLines.length)]);
+      setSkyOpen(true);
+    },
+    [skyOpen],
+  );
+
+  /* The pad's other half. Live only while the console is on, so outside it
+     the arrow keys still belong to the browser. */
+  useEffect(() => {
+    if (!consoleOn) return;
+    const onResize = () => {
+      if (!wideEnough()) setConsole(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        /* The sky has its own Escape. Without this guard one press closed
+           the sky and powered the console off behind it. */
+        if (!skyOpen) setConsole(false);
         return;
       }
-
-      if (back) return goToScreen(at - 1);
-      if (forward) return goToScreen(at + 1);
-      if (input === "left") return goToSection(-1);
-      if (input === "right") return goToSection(1);
-    },
-    [at, skyOpen],
-  );
-
-  /* Arrows work here and only here — focus has to be inside the pad. */
-  const onKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      const map: Record<string, Input> = {
-        ArrowUp: "up",
-        ArrowDown: "down",
-        ArrowLeft: "left",
-        ArrowRight: "right",
-      };
-      const dir = map[e.key];
+      const dir = KEYS[e.key];
       if (!dir) return;
+      /* Nothing scrolls in this mode, so nothing is taken away by this.
+         Enter is deliberately not bound: the cursor gives the selected item
+         real focus, so the browser already activates it. */
       e.preventDefault();
       go(dir);
-    },
-    [go],
-  );
+    };
+    window.addEventListener("resize", onResize);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [consoleOn, skyOpen, go]);
 
-  /* A real controller drives the same four actions the on-screen pad does.
+  /* What the controller callbacks need, without their effect depending on
+     it. The subscription must be made once and left alone: re-running it
+     re-detects the pads already plugged in, and that fires onConnect again —
+     which turns the console back on. Anything keyed to `on` in the deps
+     would make the console impossible to leave with a pad connected. */
+  const live = useRef({ on: consoleOn, go });
+  useEffect(() => {
+    live.current = { on: consoleOn, go };
+  }, [consoleOn, go]);
+
+  /* A real controller drives the whole deck, not a reduced version of it.
      Connecting one also opens the console — if you have gone to the trouble
      of plugging in a pad, the door should already be open. */
   useEffect(() => {
@@ -230,19 +247,22 @@ export default function DPad() {
         },
         onDisconnect: () => setPad(null),
         onInput: (input: Pad) => {
-          if (input === "back") {
-            setConsole(false);
+          /* The pad drives the console and nothing else. With one connected
+             and the console off, up used to open the night sky over the
+             ordinary page — the pad was steering a menu that was not there.
+             START is the exception, because it is the way back in. */
+          if (!live.current.on) {
+            if (input === "start" && wideEnough()) setConsole(true);
             return;
           }
-          if (input === "confirm") return;
-          go(input);
+          live.current.go(input);
         },
       });
     } catch {
       /* Controller support is a bonus; the on-screen pad is the product. */
     }
     return off;
-  }, [go, say]);
+  }, [say]);
 
   const key = (dir: Dir) => (
     <button
@@ -322,8 +342,17 @@ export default function DPad() {
               {String(found).padStart(2, "0")}/{String(total).padStart(2, "0")}
             </span>
 
+            {/* What the cursor is on, out of what is on this page. Dim
+                while nothing is selected, so the count still says how much
+                there is to reach. */}
+            <span className="hud__pick" data-on={pick >= 0 || undefined}>
+              <b aria-hidden="true" />
+              {pick >= 0 ? String(pick + 1).padStart(2, "0") : "--"}/
+              {String(picks).padStart(2, "0")}
+            </span>
+
             <span className="hud__name">
-              {flash ?? (hint ? ACTIONS[hint] : where || "\u2014")}
+              {flash ?? (hint ? ACTIONS[hint] : pickName || where || "\u2014")}
             </span>
 
             <span className="hud__world">
@@ -353,6 +382,8 @@ export default function DPad() {
               ))}
             </span>
 
+            {/* The selected item announces itself through focus, so this
+                only carries what focus cannot: which page you are on. */}
             <span className="console__sr" aria-live="polite">
               {hint ? ACTIONS[hint] : where ? `At ${where}` : ""}
             </span>
@@ -364,12 +395,7 @@ export default function DPad() {
           <div className="shell__well" aria-hidden="true" />
 
           <div className="shell__deck">
-            <div
-              className="dpad"
-              role="group"
-              aria-label="Stage navigation"
-              onKeyDown={onKeyDown}
-            >
+            <div className="dpad" role="group" aria-label="Menu cursor">
               {key("up")}
               {key("left")}
               <span className="dpad__hub" aria-hidden="true" />

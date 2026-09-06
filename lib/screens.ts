@@ -77,25 +77,64 @@ export function clearScreens(screens: Screen[]): void {
     delete screen.section.dataset.screen;
     for (const item of screen.items) delete item.dataset.screen;
   }
+  document
+    .querySelectorAll<HTMLElement>(".page [data-pick]")
+    .forEach((el) => delete el.dataset.pick);
 }
 
-/** The first page belonging to the section after (or before) this one. */
-export function stepSection(screens: Screen[], index: number, dir: 1 | -1): number {
-  const from = screens[index]?.section;
-  if (!from) return index;
-  if (dir === 1) {
-    for (let i = index + 1; i < screens.length; i += 1) {
-      if (screens[i].section !== from) return i;
+/* ---------- the cursor ----------
+   With one page on screen at a time, the pad is a menu cursor rather than a
+   scrollbar: down walks the links and buttons of the page it is on, and
+   steps to the next page when it runs out of them.
+
+   The list is read from the DOM each time the page changes rather than
+   declared anywhere, for the same reason the pages themselves are: a new
+   project with a new link joins the menu without touching this file. */
+
+/** Everything on the visible page a cursor can land on, in document order. */
+export function selectables(): HTMLElement[] {
+  const box = document.querySelector<HTMLElement>(".page");
+  if (!box) return [];
+  return Array.from(
+    box.querySelectorAll<HTMLElement>("a[href], button:not([disabled])"),
+  ).filter(
+    /* Pages that are not on screen are display:none, so this is also what
+       keeps the cursor inside the page you are looking at. */
+    (el) => el.getClientRects().length > 0,
+  );
+}
+
+/**
+ * Marks one item as the cursor's, and gives it real focus.
+ *
+ * Focus rather than a painted marker alone: Enter then activates the item
+ * without the pad having to forward it, and a screen reader is told what is
+ * selected by the browser rather than by an aria-live message that has to
+ * be kept in step with it.
+ */
+export function paintPick(items: HTMLElement[], index: number): void {
+  const box = document.querySelector<HTMLElement>(".page");
+  /* Cleared across the whole page, not just this list: the previous page's
+     items are display:none rather than gone, and a stale marker on one of
+     them would still be there when it came back on screen. */
+  box
+    ?.querySelectorAll<HTMLElement>("[data-pick]")
+    .forEach((el) => delete el.dataset.pick);
+
+  const item = items[index];
+  if (!item) {
+    if (box?.contains(document.activeElement)) {
+      (document.activeElement as HTMLElement).blur();
     }
-    return screens.length - 1;
+    return;
   }
-  let firstOfCurrent = index;
-  while (firstOfCurrent > 0 && screens[firstOfCurrent - 1].section === from) {
-    firstOfCurrent -= 1;
-  }
-  if (firstOfCurrent === 0) return 0;
-  const previous = screens[firstOfCurrent - 1].section;
-  let i = firstOfCurrent - 1;
-  while (i > 0 && screens[i - 1].section === previous) i -= 1;
-  return i;
+  item.dataset.pick = "on";
+  item.focus();
+}
+
+/** What the HUD calls the selected item. */
+export function labelOf(item: HTMLElement | undefined): string {
+  if (!item) return "";
+  const text = item.getAttribute("aria-label") || item.textContent || "";
+  return text.replace(/\s+/g, " ").trim().slice(0, 28);
 }

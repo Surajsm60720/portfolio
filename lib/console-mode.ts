@@ -12,8 +12,10 @@
 import {
   buildScreens,
   clearScreens,
+  labelOf,
+  paintPick,
+  selectables,
   showScreen,
-  stepSection,
   type Screen,
 } from "./screens";
 
@@ -44,6 +46,11 @@ export type ConsoleState = {
   /** Whether each page has been visited this run. */
   visited: boolean[];
   award: Award | null;
+  /** The cursor: which item on this page is selected, of how many, and
+      what it is called. -1 is nothing selected. */
+  pick: number;
+  picks: number;
+  pickName: string;
 };
 
 /** Must match the animation lengths in globals.css. */
@@ -76,6 +83,11 @@ let visited: boolean[] = [];
 let areas: number[] = [];
 let awards = 0;
 
+/* The cursor. Rebuilt from the DOM on every page change — see selectables()
+   — so a project gaining a link gains a menu entry with nothing to update. */
+let items: HTMLElement[] = [];
+let pick = -1;
+
 const BLANK: ConsoleState = {
   on: false,
   phase: "off",
@@ -87,6 +99,9 @@ const BLANK: ConsoleState = {
   areas: [],
   visited: [],
   award: null,
+  pick: -1,
+  picks: 0,
+  pickName: "",
 };
 
 let current: ConsoleState = BLANK;
@@ -143,18 +158,83 @@ function score(at: number, quiet = false): Partial<ConsoleState> {
   };
 }
 
+/** Reads the page's selectable items and puts the cursor away. */
+function resetPick(): Partial<ConsoleState> {
+  items = selectables();
+  pick = -1;
+  paintPick(items, pick);
+  return { pick, picks: items.length, pickName: "" };
+}
+
+/** Moves the cursor within the page it is already on. */
+function showPick(next: number): void {
+  pick = next;
+  paintPick(items, pick);
+  publish({ pick, picks: items.length, pickName: labelOf(items[pick]) });
+}
+
 /** Moves to a page, clamped, and shows only that one. */
 export function goToScreen(index: number): void {
   if (!screens.length) return;
   const at = Math.max(0, Math.min(index, screens.length - 1));
   showScreen(screens, at);
-  publish({ at, where: nameOf(at), ...score(at) });
+  publish({ at, where: nameOf(at), ...score(at), ...resetPick() });
 }
 
-/** Jumps to the first page of the neighbouring section. */
-export function goToSection(dir: 1 | -1): void {
+/* ---------- the two directions ----------
+   All four keys on the pad drive these two: they walk the items on the page
+   and step to the next or previous page when they run out of them, which is
+   what makes this a menu rather than a pager with a highlight.
+
+   moveUp and cancelPick report failure rather than doing nothing, because
+   the caller has somewhere to send you when there is nothing above: the
+   sky. */
+
+/** Down one item, or on to the next page. */
+export function moveDown(): void {
   if (!screens.length) return;
-  goToScreen(stepSection(screens, current.at, dir));
+  if (pick + 1 < items.length) return showPick(pick + 1);
+  if (current.at + 1 < screens.length) return goToScreen(current.at + 1);
+  /* The last item of the last page. There is nothing below this. */
+}
+
+/** Up one item, then off the list, then back a page. False at the very top. */
+export function moveUp(): boolean {
+  if (!screens.length) return false;
+  if (pick >= 0) {
+    showPick(pick - 1);
+    return true;
+  }
+  if (current.at > 0) {
+    goToScreen(current.at - 1);
+    return true;
+  }
+  return false;
+}
+
+/** Activates the selected item, or advances when nothing is selected. */
+export function confirmPick(): void {
+  if (!screens.length) return;
+  const item = items[pick];
+  if (item) {
+    item.click();
+    return;
+  }
+  if (current.at + 1 < screens.length) goToScreen(current.at + 1);
+}
+
+/** Drops the selection, then goes back a page. False at the very top. */
+export function cancelPick(): boolean {
+  if (!screens.length) return false;
+  if (pick >= 0) {
+    showPick(-1);
+    return true;
+  }
+  if (current.at > 0) {
+    goToScreen(current.at - 1);
+    return true;
+  }
+  return false;
 }
 
 export function screenCount(): number {
@@ -200,6 +280,16 @@ function commit(phase: Phase) {
   const on = phase !== "off" && phase !== "closing";
   let opened: Partial<ConsoleState> = {};
 
+  /* The attributes go on first, before anything reads the DOM below.
+     Whether a page is on screen is a CSS rule keyed to data-console, so
+     asking which items are visible before setting it gets the answer for
+     the ordinary page: every link in the document, not the seven on the
+     screen. */
+  const root = document.documentElement;
+  root.dataset.console = phase === "off" ? "off" : "on";
+  if (phase === "opening" || phase === "closing") root.dataset.phase = phase;
+  else delete root.dataset.phase;
+
   if (on && !screens.length) {
     screens = buildScreens();
     showScreen(screens, 0);
@@ -220,13 +310,15 @@ function commit(phase: Phase) {
     visited = new Array(screens.length).fill(false);
     awards = 0;
     current = { ...current, score: 0, found: 0, award: null };
-    opened = score(0, true);
+    opened = { ...score(0, true), ...resetPick() };
   }
   if (phase === "off" && screens.length) {
     clearScreens(screens);
     screens = [];
     visited = [];
     areas = [];
+    items = [];
+    pick = -1;
   }
 
   current = {
@@ -238,13 +330,14 @@ function commit(phase: Phase) {
     where: screens.length ? nameOf(phase === "off" ? 0 : current.at) : "",
     areas,
     visited,
+    pick,
+    picks: items.length,
+    pickName: labelOf(items[pick]),
     ...opened,
-    ...(phase === "off" ? { score: 0, found: 0, award: null } : {}),
+    ...(phase === "off"
+      ? { score: 0, found: 0, award: null, pick: -1, picks: 0, pickName: "" }
+      : {}),
   };
-  const root = document.documentElement;
-  root.dataset.console = phase === "off" ? "off" : "on";
-  if (phase === "opening" || phase === "closing") root.dataset.phase = phase;
-  else delete root.dataset.phase;
   for (const listener of listeners) listener();
 }
 

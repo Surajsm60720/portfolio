@@ -7,20 +7,36 @@
  * controllers, anything behind an adapter — and then the indices mean
  * whatever the manufacturer decided.
  *
- * So nothing here trusts a single index. Direction is read from the standard
- * d-pad buttons, from either analogue stick, and from a hat axis, and
- * whichever speaks first wins. Confirm accepts any of the four face buttons
- * rather than insisting on button 0, because "the bottom one" is not a
- * portable idea across layouts.
+ * So nothing here trusts a single index for direction. It is read from the
+ * standard d-pad buttons, from either analogue stick, and from a hat axis,
+ * and whichever speaks first wins.
+ *
+ * The face buttons are read exactly where the standard puts them, because
+ * the on-screen deck has four distinctly labelled controls now and there is
+ * no way to honour A, B, SELECT and START by guessing. A pad that reports no
+ * mapping gets a forgiving fallback instead of nothing.
  *
  * Polling only runs while at least one pad is connected, and the loop stops
  * when the last one disconnects.
  */
-export type Pad = "up" | "down" | "left" | "right" | "confirm" | "back";
+export type Pad =
+  | "up"
+  | "down"
+  | "left"
+  | "right"
+  | "a"
+  | "b"
+  | "start"
+  | "select";
 
 const DEADZONE = 0.55;
 /** Repeat rate while a direction is held, in milliseconds. */
 const REPEAT = 260;
+
+/* Only the directions repeat. A held SELECT cycling the theme four times a
+   second, or a held START powering the console on and off, is not a feature
+   anybody asked for. */
+const REPEATS = new Set<Pad>(["up", "down", "left", "right"]);
 
 /** Standard-mapping d-pad indices. Checked first, never relied on alone. */
 const DPAD = { 12: "up", 13: "down", 14: "left", 15: "right" } as const;
@@ -57,21 +73,31 @@ function fromHat(axes: readonly number[]): Pad | null {
   return null;
 }
 
+/**
+ * The four labelled controls, at the indices the standard mapping fixes:
+ * 0 is the bottom face button, 1 the right one, 8 Select and 9 Start. Every
+ * layout the browser calls "standard" agrees on these, whatever the buttons
+ * are printed with — Xbox A/B, PlayStation cross/circle, Nintendo B/A.
+ */
+function fromFace(pad: Gamepad): Pad | null {
+  const b = pad.buttons;
+  if (b[0]?.pressed) return "a";
+  if (b[1]?.pressed) return "b";
+  if (b[8]?.pressed) return "select";
+  if (b[9]?.pressed) return "start";
+
+  /* A pad reporting no mapping put its buttons wherever it liked, and the
+     other two face positions do nothing on a standard one — so treating
+     them as A costs nothing here and gives a shifted layout a way in. */
+  if (pad.mapping !== "standard" && (b[2]?.pressed || b[3]?.pressed)) return "a";
+  return null;
+}
+
 function read(pad: Gamepad): Pad | null {
-  const buttons = pad.buttons;
-
   for (const [index, dir] of Object.entries(DPAD)) {
-    if (buttons[Number(index)]?.pressed) return dir;
+    if (pad.buttons[Number(index)]?.pressed) return dir;
   }
-  /* Any face button confirms. Which one is "A" depends on the layout, and
-     on whether the owner grew up with Nintendo. */
-  for (let i = 0; i <= 3; i += 1) {
-    if (buttons[i]?.pressed) return i === 1 ? "back" : "confirm";
-  }
-  /* Start or Select back out, at their usual indices when they exist. */
-  if (buttons[8]?.pressed || buttons[9]?.pressed) return "back";
-
-  return fromAxes(pad.axes) ?? fromHat(pad.axes);
+  return fromFace(pad) ?? fromAxes(pad.axes) ?? fromHat(pad.axes);
 }
 
 export interface GamepadWatch {
@@ -130,7 +156,7 @@ export function watchGamepads(watch: GamepadWatch): () => void {
       last = null;
       return;
     }
-    if (current !== last || now - lastAt >= REPEAT) {
+    if (current !== last || (REPEATS.has(current) && now - lastAt >= REPEAT)) {
       last = current;
       lastAt = now;
       watch.onInput(current);

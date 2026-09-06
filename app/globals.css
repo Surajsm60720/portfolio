@@ -2769,7 +2769,7 @@ footer[id] {
 .shell__hud {
   position: relative;
   display: grid;
-  grid-template-columns: auto auto auto minmax(0, 1fr) auto auto auto;
+  grid-template-columns: auto auto auto auto minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 12px;
   padding: 0 10px;
@@ -2830,6 +2830,54 @@ footer[id] {
     50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%,
     50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%
   );
+}
+
+/* The cursor's position on this page. Dim until something is selected —
+   the count is still worth reading as "how much is on this screen". */
+.hud__pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #2f7d53;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Drawn, not typed. The pixel face has no triangle, and the mono fallback
+   renders U+25B8 as something close to a full stop at this size. */
+.hud__pick b {
+  width: 7px;
+  height: 9px;
+  background: #163b28;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.hud__pick[data-on] {
+  color: #5cf2a0;
+}
+
+.hud__pick[data-on] b {
+  background: #5cf2a0;
+  animation: pick-blink 900ms steps(1, end) infinite;
+}
+
+@keyframes pick-blink {
+  0%,
+  62% {
+    opacity: 1;
+  }
+  63%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+.shell__hud[data-clear] .hud__pick[data-on] {
+  color: #ffd166;
+}
+
+.shell__hud[data-clear] .hud__pick[data-on] b {
+  background: #ffd166;
 }
 
 .hud__name {
@@ -3155,9 +3203,10 @@ footer[id] {
    screen's — it is moulded into the housing, not displayed. */
 
 .legend {
-  display: grid;
-  grid-template-columns: repeat(4, auto);
-  gap: 4px 14px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 16px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -3452,6 +3501,47 @@ footer[id] {
 
 [data-console="on"] .page .role {
   padding-block: clamp(18px, 2.6vh, 28px);
+}
+
+/* ---------- the cursor ----------
+   What the pad is pointing at. An outline rather than a marker glyph beside
+   the item: the screen scrolls on neither axis, and anything hung off the
+   left of a link at the edge of the page would push a scrollbar into a
+   layout that has no room for one.
+
+   :focus-visible is not enough on its own — the cursor is moved by a
+   thumbstick as often as by a key, and the browser will not always call
+   that a keyboard interaction. */
+[data-console="on"] .page [data-pick="on"],
+[data-console="on"] .page [data-pick="on"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  background: var(--accent-soft);
+  animation: pick-edge 1200ms var(--ease) infinite;
+}
+
+@keyframes pick-edge {
+  0%,
+  100% {
+    outline-color: var(--accent);
+  }
+  50% {
+    outline-color: color-mix(in srgb, var(--accent) 34%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* :focus-visible has to be repeated here. The cursor gives its item real
+     focus, so the rule above matches through its higher-specificity half
+     and an override without it loses. */
+  [data-console="on"] .page [data-pick="on"],
+  [data-console="on"] .page [data-pick="on"]:focus-visible {
+    animation: none;
+  }
+
+  .hud__pick[data-on] b {
+    animation: none;
+  }
 }
 
 /* ---------- one page at a time ---------- */
