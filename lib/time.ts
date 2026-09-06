@@ -18,6 +18,15 @@ const formatter = new Intl.DateTimeFormat("en-GB", {
   hour12: false,
 });
 
+/**
+ * Ten seconds is plenty for a display that only shows hours and minutes.
+ * Both clocks on the site — the top rail's and the console HUD's — share it.
+ */
+export function subscribeClock(onChange: () => void): () => void {
+  const id = window.setInterval(onChange, 10_000);
+  return () => window.clearInterval(id);
+}
+
 /** "03:14" in IST, regardless of where the visitor is. */
 export function istClock(at: Date = new Date()): string {
   return formatter.format(at);

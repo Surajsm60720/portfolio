@@ -8,8 +8,10 @@ import {
   useSyncExternalStore,
 } from "react";
 import NightSky from "./NightSky";
+import Starfield from "./Starfield";
 import { skyLines } from "@/lib/content";
 import { cycleTheme } from "@/lib/theme";
+import { istClock, subscribeClock } from "@/lib/time";
 
 import { watchKonami } from "@/lib/konami";
 import { watchGamepads, type Pad } from "@/lib/gamepad";
@@ -42,13 +44,21 @@ type Input = Dir | Face;
 const ACTIONS: Record<Input, string> = {
   up: "Previous stage",
   down: "Next stage",
-  left: "Page up",
-  right: "Page down",
-  a: "Warp to the top",
-  b: "Power off",
-  start: "Contact",
+  left: "Previous area",
+  right: "Next area",
+  a: "Advance",
+  b: "Back",
+  start: "Power off",
   select: "Toggle theme",
 };
+
+/** The deck's manual, in the order a thumb finds them. */
+const LEGEND: [keys: string, what: string][] = [
+  ["\u2191\u2193", "STAGE"],
+  ["\u2190\u2192", "AREA"],
+  ["A", "NEXT"],
+  ["B", "BACK"],
+];
 
 /** Every landmark the pad can move between, in document order. */
 /* A three-step triangle on a 12x12 grid, pointing up. An earlier version put
@@ -70,11 +80,19 @@ export default function DPad() {
     at,
     total,
     where,
+    found,
+    score,
+    areas,
+    visited,
+    award,
   } = useSyncExternalStore(
     subscribeConsole,
     getConsoleSnapshot,
     getConsoleServerSnapshot,
   );
+  /* The rail — and its clock — is gone in console mode, so the HUD carries
+     it. Same source as the rail's, so the two can never disagree. */
+  const clock = useSyncExternalStore(subscribeClock, istClock, () => null);
   const [skyOpen, setSkyOpen] = useState(false);
   const [skyLine, setSkyLine] = useState(skyLines[0]);
   const [hint, setHint] = useState<Input | null>(null);
@@ -126,7 +144,9 @@ export default function DPad() {
       if (!wideEnough()) setConsole(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setConsole(false);
+      /* The sky has its own Escape. Without this guard one press closed the
+         sky and powered the console off behind it. */
+      if (e.key === "Escape" && !skyOpen) setConsole(false);
     };
     window.addEventListener("resize", onResize);
     window.addEventListener("keydown", onKey);
@@ -134,10 +154,18 @@ export default function DPad() {
       window.removeEventListener("resize", onResize);
       window.removeEventListener("keydown", onKey);
     };
-  }, [consoleOn]);
+  }, [consoleOn, skyOpen]);
 
   const go = useCallback(
     (input: Input) => {
+      /* In console mode the sky is on the screen rather than over the
+         window, so the deck is still under your thumbs while it is up.
+         Anything on the pad comes back down from it. */
+      if (skyOpen) {
+        setSkyOpen(false);
+        return;
+      }
+
       if (input === "start") {
         setConsole(false);
         return;
@@ -163,7 +191,7 @@ export default function DPad() {
       if (input === "left") return goToSection(-1);
       if (input === "right") return goToSection(1);
     },
-    [at],
+    [at, skyOpen],
   );
 
   /* Arrows work here and only here — focus has to be inside the pad. */
@@ -260,6 +288,14 @@ export default function DPad() {
     </button>
   );
 
+  /* Areas are the sections the pages came from; the HUD counts them the way
+     a game counts worlds. */
+  const area = areas[at] ?? 0;
+  /* World 1-3: the area, then how far into it you are. The classic notation,
+     and it says more in six characters than a page number out of twenty. */
+  const stage = at - areas.indexOf(area) + 1;
+  const cleared = total > 0 && found === total;
+
   return (
     <>
       {/* The power-on flash. Present only while the mode is changing. */}
@@ -271,28 +307,61 @@ export default function DPad() {
         <div className="shell">
           {/* The strip above the screen. A stage number and a name is how a
               game tells you where you are, and it is more useful here than a
-              breadcrumb would be. */}
-          <div className="shell__hud">
-            <span className="hud__stage">
-              STAGE {String(at + 1).padStart(2, "0")}/
-              {String(total).padStart(2, "0")}
+              breadcrumb would be. The rest is the run: what has been found,
+              what that scored, and how much of the map is left. */}
+          <div className="shell__hud" data-clear={cleared || undefined}>
+            <span className="hud__player">1P</span>
+
+            <span className="hud__score">
+              <b>SCORE</b>
+              <em>{String(score).padStart(6, "0")}</em>
             </span>
+
+            <span className="hud__found">
+              <i aria-hidden="true" />
+              {String(found).padStart(2, "0")}/{String(total).padStart(2, "0")}
+            </span>
+
             <span className="hud__name">
               {flash ?? (hint ? ACTIONS[hint] : where || "\u2014")}
             </span>
-            <span className="hud__pad">{pad ?? "1P"}</span>
-            <span className="hud__bar" aria-hidden="true">
-              {Array.from({ length: total }, (_, n) => (
-                <span className="hud__seg" key={n} data-on={n <= at} />
+
+            <span className="hud__world">
+              <small>WORLD</small>
+              {area + 1}-{stage}
+            </span>
+            <span className="hud__clock">
+              <small>BLR</small>
+              {clock ?? "--:--"}
+            </span>
+            {/* What is driving this. "1P" is already the badge on the left,
+                so the fallback says the honest thing instead. */}
+            <span className="hud__pad">{pad ?? "KEYS"}</span>
+
+            {/* The map. One tick per page, grouped into areas, so how much
+                is left is a shape rather than a fraction. */}
+            <span className="hud__map" aria-hidden="true">
+              {areas.map((of, n) => (
+                <span
+                  className="hud__seg"
+                  key={n}
+                  data-edge={n > 0 && areas[n - 1] !== of ? "start" : undefined}
+                  data-state={
+                    n === at ? "here" : visited[n] ? "seen" : "new"
+                  }
+                />
               ))}
             </span>
+
             <span className="console__sr" aria-live="polite">
               {hint ? ACTIONS[hint] : where ? `At ${where}` : ""}
             </span>
           </div>
 
-          {/* The screen itself is .page; this only lays scanlines over it. */}
-          <div className="shell__glass" aria-hidden="true" />
+          {/* The hole the screen sits in. The screen itself is .page, a
+              sibling of the housing — see .screen-fx below — so this is what
+              is behind it while the CRT is folding open or shut. */}
+          <div className="shell__well" aria-hidden="true" />
 
           <div className="shell__deck">
             <div
@@ -312,6 +381,15 @@ export default function DPad() {
               <p className="console__mark" aria-hidden="true">
                 SM&nbsp;·&nbsp;01
               </p>
+              {/* The card that used to come in the box. */}
+              <ul className="legend" aria-hidden="true">
+                {LEGEND.map(([keys, what]) => (
+                  <li key={keys}>
+                    <b>{keys}</b>
+                    {what}
+                  </li>
+                ))}
+              </ul>
               <div className="shell__system">
                 {face("select", "SELECT")}
                 {face("start", "START")}
@@ -323,6 +401,54 @@ export default function DPad() {
               {face("a", "A")}
             </div>
           </div>
+        </div>
+      ) : null}
+
+      {/* What the screen is showing behind everything else: the same sky
+          that lives above the top of the document. Pressing up at the start
+          goes there; console mode simply never leaves. A sibling of .page
+          rather than something inside it, because the screen scrolls and
+          the sky must not. */}
+      {consoleOn || phase === "closing" ? (
+        <div className="screen-sky" aria-hidden="true">
+          <Starfield variant="deep" shooting />
+        </div>
+      ) : null}
+
+      {/* Everything that belongs over the screen.
+          Not inside .shell: the housing carries a drop-shadow filter, which
+          makes a stacking context, and nothing inside it can rise above the
+          screen — which is the housing's sibling and painted after it. This
+          overlay is that sibling too, one layer higher, and never takes a
+          pointer event. */}
+      {consoleOn || phase === "closing" ? (
+        <div className="screen-fx" aria-hidden="true">
+          <div className="screen-fx__glass" />
+
+          {/* Each award floats off once. Keyed on the award so a new one
+              restarts the float rather than inheriting the last one's. */}
+          {award ? (
+            <span className="screen-fx__pop" key={`pop-${award.id}`}>
+              +{award.points}
+            </span>
+          ) : null}
+
+          {/* Arriving somewhere is announced, the way a level is. Keyed on
+              the area name, so it plays on entering one and never again
+              while you move around inside it. */}
+          {where ? (
+            <p className="screen-fx__card" key={`card-${where}`}>
+              <small>AREA {area + 1}</small>
+              {where}
+            </p>
+          ) : null}
+
+          {/* Only the awards worth stopping for get the big text. */}
+          {award?.label ? (
+            <p className="screen-fx__fanfare" key={`fan-${award.id}`}>
+              {award.label}
+            </p>
+          ) : null}
         </div>
       ) : null}
 

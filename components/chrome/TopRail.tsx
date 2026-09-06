@@ -16,19 +16,13 @@ import {
   subscribeTheme,
   type ThemeChoice,
 } from "@/lib/theme";
-import { istClock } from "@/lib/time";
+import { istClock, subscribeClock } from "@/lib/time";
 import { identity } from "@/lib/content";
 import ThemeSweep from "./ThemeSweep";
 
 /** Sweep is 520ms total; the palette swaps at 220ms, behind the bright edge. */
 const SWEEP_TOTAL = 520;
 const SWEEP_SWAP = 220;
-
-/** Ten seconds is plenty for a display that only shows hours and minutes. */
-function subscribeClock(onChange: () => void) {
-  const id = window.setInterval(onChange, 10_000);
-  return () => window.clearInterval(id);
-}
 
 const LABEL: Record<ThemeChoice, string> = {
   auto: "Theme: following your system. Switch to day.",

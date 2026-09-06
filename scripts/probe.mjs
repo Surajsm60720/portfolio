@@ -10,9 +10,10 @@
  * This exists because several defects here were invisible to the build, the
  * types, the lint and the served markup, and only a rendered page disagreed:
  * a stylesheet whose braces trapped half its rules inside @media print, font
- * tokens composed at :root from variables declared on <body>, and a control
- * that rendered everywhere except the one browser being reported. All of them
- * looked perfect in every text-based check.
+ * tokens composed at :root from variables declared on <body>, a control that
+ * rendered everywhere except the one browser being reported, and a CRT glass
+ * that painted underneath the screen it was laid over because its parent
+ * carried a filter. All of them looked perfect in every text-based check.
  */
 import { chromium, webkit, firefox } from "playwright";
 
@@ -41,10 +42,10 @@ page.on("console", (m) => {
 await page.goto("http://localhost:3000/", { waitUntil: "networkidle" });
 await page.waitForTimeout(900);
 
-const normal = await page.evaluate(() => {
-  const c = document.querySelector(".console");
-  return c ? getComputedStyle(c).display : "NOT IN DOM";
-});
+const normal = await page.evaluate(() => ({
+  shell: document.querySelector(".shell") ? "IN DOM" : "absent",
+  rail: getComputedStyle(document.querySelector(".rail")).display,
+}));
 
 for (const k of ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"]) {
   await page.keyboard.press(k.length === 1 ? `Key${k.toUpperCase()}` : k);
@@ -52,19 +53,34 @@ for (const k of ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "A
 await page.waitForTimeout(900);
 
 const consoleMode = await page.evaluate(() => {
-  const c = document.querySelector(".console");
-  const p = document.querySelector(".page");
-  if (!c || !p) return "NOT IN DOM";
-  const cb = c.getBoundingClientRect();
-  const pb = p.getBoundingClientRect();
+  const shell = document.querySelector(".shell");
+  const screen = document.querySelector(".page");
+  const fx = document.querySelector(".screen-fx");
+  if (!shell || !screen || !fx) return "NOT IN DOM";
+  const s = shell.getBoundingClientRect();
+  const p = screen.getBoundingClientRect();
+  const f = fx.getBoundingClientRect();
   return {
     dataset: { ...document.documentElement.dataset },
-    size: `${Math.round(cb.width)}x${Math.round(cb.height)}`,
-    gap: `${Math.round(cb.top - pb.bottom)}px`,
+    rail: getComputedStyle(document.querySelector(".rail")).display,
+    shell: `${Math.round(s.width)}x${Math.round(s.height)}`,
+    screen: `${Math.round(p.width)}x${Math.round(p.height)}`,
+    /* The overlay carrying the scanlines and the announcements is a sibling
+       of the screen, not a child, so the two boxes agreeing is the thing
+       worth checking. */
+    overlayAligned:
+      Math.round(p.x) === Math.round(f.x) &&
+      Math.round(p.y) === Math.round(f.y) &&
+      Math.round(p.width) === Math.round(f.width) &&
+      Math.round(p.height) === Math.round(f.height),
+    overflow: screen.scrollHeight - screen.clientHeight,
+    stars: document.querySelectorAll(".screen-sky .stars__dot").length,
+    stages: document.querySelectorAll(".hud__seg").length,
+    hud: document.querySelector(".hud__score")?.textContent,
   };
 });
 
-console.log(`${which}: console in normal mode -> ${normal}`);
+console.log(`${which}: normal mode -> ${JSON.stringify(normal)}`);
 console.log(`${which}: console mode -> ${JSON.stringify(consoleMode)}`);
 console.log(`${which}: problems -> ${problems.length ? problems.join(" | ") : "none"}`);
 

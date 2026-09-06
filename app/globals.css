@@ -1838,14 +1838,14 @@ footer[id] {
   transition: opacity 0.3s linear, visibility 0s;
 }
 
-.sky__field {
+.stars {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
 }
 
-.sky__star {
+.stars__dot {
   position: absolute;
   width: 2px;
   height: 2px;
@@ -1856,12 +1856,13 @@ footer[id] {
   will-change: transform, opacity;
 }
 
-/* Three lanes so the streaks do not arrive as one flat curtain. */
-.sky__star[data-lane="0"] { --len: 60; --fall: -55vh; }
-.sky__star[data-lane="1"] { --len: 95; --fall: -75vh; }
-.sky__star[data-lane="2"] { --len: 40; --fall: -40vh; }
+/* Three lanes so the streaks do not arrive as one flat curtain, and so the
+   field behind the console has some depth to it. */
+.stars__dot[data-lane="0"] { --len: 60; --fall: -55vh; }
+.stars__dot[data-lane="1"] { --len: 95; --fall: -75vh; }
+.stars__dot[data-lane="2"] { --len: 40; --fall: -40vh; }
 
-.sky[data-open="true"] .sky__star {
+.sky[data-open="true"] .stars__dot {
   animation:
     fall 900ms cubic-bezier(0.16, 0.84, 0.3, 1) var(--d) both,
     twinkle 5.2s ease-in-out calc(var(--d) + 1000ms) infinite;
@@ -1947,9 +1948,13 @@ footer[id] {
 
 /* No travel, no twinkle — the sky simply is, and the line is simply there. */
 @media (prefers-reduced-motion: reduce) {
-  .sky[data-open="true"] .sky__star {
+  .sky[data-open="true"] .stars__dot {
     animation: none;
     opacity: 0.55;
+  }
+
+  .stars__shot {
+    display: none;
   }
 
   .sky[data-open="true"] .sky__line {
@@ -1989,36 +1994,16 @@ footer[id] {
   background: var(--pad-edge);
 }
 
-/* The shell. A hard bevelled housing with the page living inside it. */
+/* The screen has no scrollbar. Its geometry is under THE HANDHELD, below;
+   the block that used to be here was the pre-handheld layout and every
+   property in it had since been overridden further down. */
 [data-console="on"] .page {
-  position: fixed;
-  top: 60px;
-  left: 0;
-  right: 0;
-  margin-inline: auto;
-  width: min(1080px, 92vw);
-  height: calc(100dvh - 286px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scroll-snap-type: y proximity;
-  background: var(--bg);
-  padding: 0 clamp(10px, 1.6vw, 22px);
-  box-shadow: var(--bevel-in);
   --bv: var(--px);
   scrollbar-width: none;
 }
 
 [data-console="on"] .page::-webkit-scrollbar {
   display: none;
-}
-
-/* Sections page rather than flow. Heights stay natural — forcing every
-   section to fill the screen leaves Proof stranded in white space and
-   crushes Work's seven cards. */
-[data-console="on"] .page > * > section[id],
-[data-console="on"] .page > footer[id] {
-  scroll-snap-align: start;
-  scroll-margin-top: 0;
 }
 
 /* The console leaves the hero and becomes the shell's controls. Positioned
@@ -2511,12 +2496,214 @@ footer[id] {
    ============================================================ */
 
 :root {
-  /* Clears the fixed rail, which the housing was sliding under. */
-  --shell-top: 58px;
-  --shell-bottom: 16px;
+  /* The rail is hidden in console mode, so nothing above needs clearing —
+     the housing gets the whole viewport. */
+  --shell-top: 18px;
+  --shell-bottom: 18px;
   --shell-pad: 14px;
-  --hud-h: 26px;
+  /* Two rows now: the status line and the map under it. */
+  --hud-h: 46px;
   --deck-h: 150px;
+  --shell-w: min(1060px, 88vw);
+
+  /* The hole in the housing. Two elements are laid into it — the screen and
+     the overlay over the screen — and they are not related in the DOM, so
+     the box they share is arithmetic rather than two sets of numbers that
+     agree until one of them is edited. */
+  --screen-top: calc(var(--shell-top) + var(--shell-pad) + var(--hud-h) + 10px);
+  --screen-w: calc(var(--shell-w) - var(--shell-pad) * 2);
+  --screen-h: calc(
+    100dvh - var(--shell-top) - var(--shell-bottom) - var(--shell-pad) * 2 -
+      var(--hud-h) - var(--deck-h) - 20px
+  );
+}
+
+/* ---------- above the top, on the screen ----------
+   Pressing up at the start goes above the top of the document. Outside
+   console mode that is the whole window, which is the point of it.
+
+   Inside console mode it used to be the whole window too — the sky covered
+   the handheld, HUD, deck and all, and for four seconds there was no
+   console. It belongs on the screen: the same box as .page, between the
+   page and the glass, so the scanlines fall over it and the housing stays
+   in your hands the whole time.
+
+   Layering in console mode, bottom to top:
+     55 housing · 56 the sky behind the screen · 57 the page
+     58 this · 59 glass and announcements                        */
+[data-console="on"] .sky {
+  inset: auto;
+  top: var(--screen-top);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: var(--screen-w);
+  height: var(--screen-h);
+  z-index: 58;
+  overflow: hidden;
+}
+
+/* The streaks were measured against a viewport and are falling through a
+   550px window now. Scaled to the box rather than left at vh, where lane 1
+   arrived from beyond the top of the screen and read as a glitch. */
+[data-console="on"] .sky .stars__dot[data-lane="0"] {
+  --len: 40;
+  --fall: calc(var(--screen-h) * -0.55);
+}
+
+[data-console="on"] .sky .stars__dot[data-lane="1"] {
+  --len: 63;
+  --fall: calc(var(--screen-h) * -0.75);
+}
+
+[data-console="on"] .sky .stars__dot[data-lane="2"] {
+  --len: 26;
+  --fall: calc(var(--screen-h) * -0.4);
+}
+
+/* Everything else on this screen is 8-bit, and an italic grotesque in the
+   middle of it reads as a different website. */
+[data-console="on"] .sky__line {
+  font-family: var(--font-crt), "Courier New", monospace;
+  font-style: normal;
+  font-size: clamp(17px, 2.1vw, 27px);
+  letter-spacing: 0.02em;
+  /* VT323 is narrow, so 22ch of it is a column half the width the same
+     measure gave the grotesque, and the page gutter took most of what was
+     left. Both are set for the screen rather than the window. */
+  padding-inline: 24px;
+  max-width: 42ch;
+}
+
+[data-console="on"] .sky__close {
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 30px;
+}
+
+/* ---------- the screen is always night ----------
+   The background of console mode is the night sky — the same one that is
+   above the top of the document, reached by pressing up at the start. It is
+   behind the screen rather than around the housing, because the sky the
+   reader already found is a place, and the console is inside it.
+
+   Which means the screen cannot follow the theme: white stars on paper is
+   not a sky, and 8-bit text over stars needs one ground, not two. So the
+   screen's palette is pinned to night in both themes.
+
+   SELECT still has a job — it swaps the housing between cream and charcoal,
+   which is the part of a handheld that has a colour. Declared here, after
+   both :root and [data-theme]: equal specificity, so this has to be last.
+
+   --pad-face and --pad-edge are deliberately absent. They are the housing. */
+[data-console="on"] {
+  --bg: #05070d;
+  --panel: #0b0f18;
+  --ink: #f5f2ec;
+  --ink-soft: rgba(245, 242, 236, 0.76);
+  --ink-faint: rgba(245, 242, 236, 0.52);
+  --rule: rgba(245, 242, 236, 0.16);
+  --edge: rgba(245, 242, 236, 0.38);
+  --accent: #ffb454;
+  --accent-soft: rgba(255, 180, 84, 0.12);
+  --scan: rgba(255, 255, 255, 0.055);
+  --vignette: rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- the header is not part of the game ----------
+   Everything the rail carried has somewhere else to be inside the console:
+   the clock is in the HUD, the theme is on SELECT, and the wordmark is
+   printed on the deck. Leaving a page header floating over a handheld was
+   the last thing breaking the illusion. */
+[data-console="on"] .rail {
+  display: none;
+}
+
+/* ---------- the sky behind the screen ----------
+   Shares the screen's box through the --screen-* properties, one layer
+   under the page and two under the glass. A sibling of .page rather than a
+   child of it: the screen scrolls, and a sky that scrolls is a wallpaper. */
+
+.screen-sky {
+  position: fixed;
+  top: var(--screen-top);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: var(--screen-w);
+  height: var(--screen-h);
+  z-index: 56;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 90% at 50% 6%,
+      color-mix(in srgb, var(--accent) 20%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(80% 70% at 10% 98%, rgba(92, 242, 160, 0.1), transparent 62%),
+    #05070d;
+}
+
+/* The stars are the ground, and the page's 8-bit text sits on top of them.
+   Left at full strength they read as noise behind every line, so a scrim
+   knocks the whole field back — still a sky, no longer competing. */
+.screen-sky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 7, 13, 0.58);
+}
+
+/* The console's stars stream in with the boot rather than being simply
+   present, so powering on reads as arriving somewhere. */
+.screen-sky .stars__dot {
+  animation:
+    fall 900ms cubic-bezier(0.16, 0.84, 0.3, 1) var(--d) both,
+    twinkle 5.2s ease-in-out calc(var(--d) + 1000ms) infinite;
+}
+
+/* Declared after .screen-sky .stars__dot rather than beside the sky's own
+   reduced-motion rules: same specificity, so the later one has to be this
+   one or the stars stream in anyway. */
+@media (prefers-reduced-motion: reduce) {
+  .screen-sky .stars__dot {
+    animation: none;
+    opacity: 0.55;
+  }
+}
+
+/* The only large movement in here. Long, uneven intervals — a streak you
+   catch is worth more than a streak that is always going. */
+.stars__shot {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, 0.7);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: shoot var(--dur) linear var(--delay) infinite;
+}
+
+@keyframes shoot {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scaleX(1);
+  }
+  2% {
+    opacity: 0.9;
+    transform: translate(3vw, 2vh) scaleX(34);
+  }
+  9% {
+    opacity: 0;
+    transform: translate(16vw, 11vh) scaleX(34);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(16vw, 11vh) scaleX(1);
+  }
 }
 
 .shell {
@@ -2527,7 +2714,9 @@ footer[id] {
   left: 0;
   right: 0;
   margin-inline: auto;
-  width: min(1120px, 94vw);
+  /* Narrower than it was: the star field is worth seeing around the edges,
+     and a handheld you can see the whole of reads as an object. */
+  width: var(--shell-w);
   z-index: 55;
   display: grid;
   grid-template-rows: var(--hud-h) 1fr var(--deck-h);
@@ -2547,52 +2736,104 @@ footer[id] {
    drift away from the hole cut for it. */
 [data-console="on"] .page {
   position: fixed;
-  top: calc(var(--shell-top) + var(--shell-pad) + var(--hud-h) + 10px);
+  top: var(--screen-top);
   left: 0;
   right: 0;
   margin-inline: auto;
-  width: calc(min(1120px, 94vw) - var(--shell-pad) * 2);
-  height: calc(
-    100dvh - var(--shell-top) - var(--shell-bottom) - var(--shell-pad) * 2 -
-      var(--hud-h) - var(--deck-h) - 20px
-  );
-  z-index: 56;
+  width: var(--screen-w);
+  height: var(--screen-h);
+  z-index: 57;
   /* A menu, not a document. One page at a time, moved with the pad. Auto
      rather than hidden only so an over-long page is still reachable rather
      than silently clipped — a chunk size in lib/screens.ts being wrong
      should be visible, not invisible. */
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: var(--bg);
+  /* The sky is the ground here — see .screen-sky, one layer under. */
+  background: transparent;
   padding: 0 clamp(12px, 1.8vw, 26px);
   box-shadow: var(--bevel-in);
   scrollbar-width: none;
 }
 
-/* ---------- HUD ---------- */
+/* ---------- HUD ----------
+   The strip used to say where you were and nothing else, which is a
+   breadcrumb wearing a green screen. It is a scoreboard now: who is playing,
+   what the run has scored, how much of the map has been found, where you
+   are, the time back home, and a tick per page underneath.
+
+   Two rows in one bevelled well. Everything is the same phosphor green as
+   the rest of the screen furniture — a HUD with a second colour in it is a
+   HUD with a second idea in it. */
 
 .shell__hud {
+  position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto auto minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 12px;
   padding: 0 10px;
   background: #0b1a12;
   box-shadow: var(--bevel-in);
   --bv: 2px;
-}
-
-.hud__stage,
-.hud__pad {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.16em;
   color: #2f7d53;
+}
+
+.shell__hud b,
+.shell__hud small,
+.shell__hud em {
+  font: inherit;
+  font-style: normal;
+}
+
+/* The one square of solid green. It marks the strip as belonging to a
+   player rather than to the page. */
+.hud__player {
+  padding: 2px 5px;
+  background: #5cf2a0;
+  color: #0b1a12;
+  letter-spacing: 0.12em;
+}
+
+.hud__score {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
   white-space: nowrap;
 }
 
+.hud__score em {
+  color: #5cf2a0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+}
+
+.hud__found {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #5cf2a0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* A four-pixel star, drawn rather than typed: the pixel face has no glyph
+   for one, and an emoji star would be the only colour image on the site. */
+.hud__found i {
+  width: 9px;
+  height: 9px;
+  background: #ffd166;
+  clip-path: polygon(
+    50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%,
+    50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%
+  );
+}
+
 .hud__name {
-  font-family: var(--mono);
+  justify-self: center;
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -2600,41 +2841,290 @@ footer[id] {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
 }
 
-.hud__bar {
+.hud__world,
+.hud__clock,
+.hud__pad {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud__world {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  color: #5cf2a0;
+}
+
+.hud__world small,
+.hud__clock small {
+  color: #2f7d53;
+}
+
+.hud__clock {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  color: #5cf2a0;
+}
+
+.hud__pad {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 14ch;
+}
+
+/* ---------- the map ----------
+   One tick per page, with a gap where one area ends and the next begins, so
+   what is left to see is a shape and not a fraction. */
+
+.hud__map {
   grid-column: 1 / -1;
   display: flex;
+  align-items: center;
   gap: 2px;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .hud__seg {
   flex: 1;
-  height: 3px;
+  height: 4px;
   background: #163b28;
   transition: background-color 0.2s var(--ease);
 }
 
-.hud__seg[data-on="true"] {
-  background: #5cf2a0;
+.hud__seg[data-edge="start"] {
+  margin-left: 7px;
 }
 
-/* ---------- the glass ----------
-   Scanlines and a corner vignette, laid over the screen rather than inside
-   it, so nothing has to be applied to the content itself. */
+/* Been there. */
+.hud__seg[data-state="seen"] {
+  background: #2f7d53;
+}
 
-.shell__glass {
-  position: relative;
-  z-index: 57;
-  /* .shell > * turns pointer events back on; the glass must stay out of the
-     way or it swallows every scroll and click meant for the screen. */
-  pointer-events: none !important;
-  /* Black lines on a near-black screen are no lines at all, so the scan
-     colour follows the theme rather than being painted dark either way. */
+/* Here. Taller than the rest and lit, which is the only reading a marker
+   needs to survive at four pixels. */
+.hud__seg[data-state="here"] {
+  height: 8px;
+  background: #5cf2a0;
+  box-shadow: 0 0 6px rgba(92, 242, 160, 0.85);
+}
+
+/* Everything found. The strip goes gold, once, and stays that way for the
+   rest of the run. */
+.shell__hud[data-clear] .hud__seg[data-state="seen"] {
+  background: #b98a2f;
+}
+
+.shell__hud[data-clear] .hud__seg[data-state="here"] {
+  background: #ffd166;
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.9);
+}
+
+.shell__hud[data-clear] .hud__score em,
+.shell__hud[data-clear] .hud__name {
+  color: #ffd166;
+}
+
+.shell__hud[data-clear] .hud__player {
+  background: #ffd166;
+}
+
+/* ---------- the well ----------
+   The recess the screen drops into. Visible only while the CRT is folding
+   open or shut, which is exactly when the housing would otherwise show a
+   blank plate where a screen ought to be. */
+
+.shell__well {
+  background: #05070d;
+  box-shadow: var(--bevel-in);
+  --bv: 2px;
+}
+
+/* ---------- over the screen ----------
+   Scanlines, a vignette, and the two announcements.
+
+   None of this can live inside .shell. The housing carries a drop-shadow
+   filter, and a filter makes a stacking context — so a child of .shell can
+   never paint above .page, which is the housing's sibling and comes after
+   it. This is a sibling too, one layer up, sharing the screen's box through
+   the --screen-* properties and never taking a pointer event. */
+
+.screen-fx {
+  position: fixed;
+  top: var(--screen-top);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: var(--screen-w);
+  height: var(--screen-h);
+  z-index: 59;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Black lines on a near-black screen are no lines at all, so the scan
+   colour follows the theme rather than being painted dark either way. */
+.screen-fx__glass {
+  position: absolute;
+  inset: 0;
   background:
     repeating-linear-gradient(to bottom, var(--scan) 0 1px, transparent 1px 3px),
     radial-gradient(118% 100% at 50% 50%, transparent 54%, var(--vignette));
+}
+
+/* Every award floats off the top-left corner, under the score it came from,
+   and is never mentioned again. */
+.screen-fx__pop {
+  position: absolute;
+  top: 8px;
+  left: clamp(12px, 1.8vw, 26px);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  /* The HUD's gold is legible because the HUD is always dark. This floats
+     over the screen, which is not, so it takes the theme's accent. */
+  color: var(--accent);
+  text-shadow: 0 0 8px var(--bg), 0 0 16px var(--bg);
+  animation: fx-pop 1200ms var(--ease) both;
+}
+
+@keyframes fx-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+/* ---------- the announcements ----------
+   The area card on arriving somewhere, and the fanfare for the awards worth
+   stopping for. Both are keyed in the markup, so each plays once and then
+   sits at zero opacity rather than needing a timer to take it away. */
+
+.screen-fx__card,
+.screen-fx__fanfare {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-pixel), var(--mono);
+}
+
+.screen-fx__card {
+  top: 22px;
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  /* A plate, not floating text. Laid over a page that has its own headings
+     in the same place, a glow was not enough to tell the two apart — the
+     card has to occlude what it is announcing over. */
+  width: fit-content;
+  margin-inline: auto;
+  padding: 12px 26px;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 0 6px var(--bg);
+  font-size: clamp(13px, 1.5vw, 18px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink);
+  animation: fx-card 1600ms var(--ease) both;
+}
+
+.screen-fx__card small {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+}
+
+@keyframes fx-card {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  14%,
+  64% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+/* The bigger news sits in the middle of the screen and gets the accent. */
+.screen-fx__fanfare {
+  top: 42%;
+  width: fit-content;
+  margin-inline: auto;
+  padding: 14px 28px;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 0 6px var(--bg);
+  font-size: clamp(14px, 1.9vw, 24px);
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  animation: fx-fanfare 2000ms var(--ease) both;
+}
+
+@keyframes fx-fanfare {
+  0% {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+  16% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  26% {
+    transform: scale(1);
+  }
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* The sky and the overlay fold with the screen between them. */
+[data-phase="opening"] .screen-sky,
+[data-phase="opening"] .screen-fx {
+  transform-origin: 50% 50%;
+  animation: crt-on 620ms cubic-bezier(0.2, 0.9, 0.25, 1) 60ms both;
+}
+
+[data-phase="closing"] .screen-sky,
+[data-phase="closing"] .screen-fx {
+  transform-origin: 50% 50%;
+  animation: crt-off 460ms cubic-bezier(0.6, 0, 0.8, 0.2) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen-fx__pop,
+  .screen-fx__card,
+  .screen-fx__fanfare {
+    animation-duration: 1ms;
+    animation-delay: 1500ms;
+  }
+
+  [data-phase] .screen-sky,
+  [data-phase] .screen-fx {
+    animation: none !important;
+  }
 }
 
 /* ---------- the deck ---------- */
@@ -2656,7 +3146,46 @@ footer[id] {
 .shell__middle {
   display: grid;
   justify-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+/* ---------- the legend ----------
+   The card that used to come in the box. Four pairs printed on the plate
+   between the pad and the buttons, in the plate's own ink rather than the
+   screen's — it is moulded into the housing, not displayed. */
+
+.legend {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--pad-ink) 52%, var(--pad-face));
+  white-space: nowrap;
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend b {
+  --bv: 2px;
+  display: inline-grid;
+  place-items: center;
+  min-width: 16px;
+  height: 14px;
+  padding: 0 3px;
+  font-weight: 400;
+  font-size: 8px;
+  letter-spacing: 0;
+  color: var(--pad-ink);
+  box-shadow: var(--bevel-in);
 }
 
 .shell__system {
