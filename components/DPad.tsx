@@ -7,10 +7,15 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import NightSky from "./NightSky";
 import Starfield from "./Starfield";
-import { skyLines } from "@/lib/content";
 import { cycleTheme } from "@/lib/theme";
+import {
+  closeSky,
+  getSkyServerSnapshot,
+  getSkySnapshot,
+  openSky,
+  subscribeSky,
+} from "@/lib/sky";
 import { istClock, subscribeClock } from "@/lib/time";
 
 import { watchKonami } from "@/lib/konami";
@@ -109,8 +114,13 @@ export default function DPad() {
   /* The rail — and its clock — is gone in console mode, so the HUD carries
      it. Same source as the rail's, so the two can never disagree. */
   const clock = useSyncExternalStore(subscribeClock, istClock, () => null);
-  const [skyOpen, setSkyOpen] = useState(false);
-  const [skyLine, setSkyLine] = useState(skyLines[0]);
+  /* The sky is a page-level thing with two ways in — see lib/sky.ts. The pad
+     only needs to know whether it is up, so the deck can bring you down. */
+  const { open: skyOpen } = useSyncExternalStore(
+    subscribeSky,
+    getSkySnapshot,
+    getSkyServerSnapshot,
+  );
   const [hint, setHint] = useState<Input | null>(null);
   const [pad, setPad] = useState<string | null>(null);
   /* A transient screen message, so nothing about this fails silently. */
@@ -162,7 +172,7 @@ export default function DPad() {
          mean "up", which would otherwise toggle the sky on every second
          press of a key held to go up. There is nothing above the top. */
       if (skyOpen) {
-        if (input !== "up" && input !== "left") setSkyOpen(false);
+        if (input !== "up" && input !== "left") closeSky();
         return;
       }
 
@@ -181,9 +191,7 @@ export default function DPad() {
       /* Going back runs out eventually. Above the first item of the first
          page is the sky, and it is the only thing up there. */
       const moved = input === "b" ? cancelPick() : moveUp();
-      if (moved) return;
-      setSkyLine(skyLines[Math.floor(Math.random() * skyLines.length)]);
-      setSkyOpen(true);
+      if (!moved) openSky();
     },
     [skyOpen],
   );
@@ -477,12 +485,6 @@ export default function DPad() {
           ) : null}
         </div>
       ) : null}
-
-      <NightSky
-        open={skyOpen}
-        line={skyLine}
-        onClose={() => setSkyOpen(false)}
-      />
     </>
   );
 }

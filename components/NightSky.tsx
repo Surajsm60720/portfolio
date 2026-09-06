@@ -1,8 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { X } from "lucide-react";
 import Starfield from "./Starfield";
+import {
+  closeSky,
+  getSkyServerSnapshot,
+  getSkySnapshot,
+  subscribeSky,
+} from "@/lib/sky";
 
 /**
  * What is above the top of the page.
@@ -17,18 +23,18 @@ import Starfield from "./Starfield";
  *
  * The field itself is components/Starfield.tsx — the console's backdrop is
  * the same sky, and one list keeps the two from drifting apart.
+ *
+ * There are two ways in and they are nowhere near each other in the tree —
+ * the pad's up button, and pulling the ordinary page up past its own top —
+ * so what is open and which line it shows live in lib/sky.ts rather than in
+ * whichever component happens to be the parent.
  */
-
-export default function NightSky({
-  open,
-  line,
-  onClose,
-}: {
-  open: boolean;
-  /** Chosen by whoever opens it — an event handler, never an effect. */
-  line: string;
-  onClose: () => void;
-}) {
+export default function NightSky() {
+  const { open, line } = useSyncExternalStore(
+    subscribeSky,
+    getSkySnapshot,
+    getSkyServerSnapshot,
+  );
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -41,7 +47,7 @@ export default function NightSky({
     document.body.style.overflow = "hidden";
 
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") closeSky();
     };
     window.addEventListener("keydown", onKey);
 
@@ -49,7 +55,7 @@ export default function NightSky({
       document.body.style.overflow = previous;
       window.removeEventListener("keydown", onKey);
     };
-  }, [open, onClose]);
+  }, [open]);
 
   return (
     <div
@@ -67,7 +73,7 @@ export default function NightSky({
       <button
         type="button"
         className="sky__close"
-        onClick={onClose}
+        onClick={closeSky}
         ref={closeRef}
         aria-label="Close and return to the page"
       >

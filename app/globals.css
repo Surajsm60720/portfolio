@@ -391,22 +391,6 @@ footer[id] {
   gap: 10px;
 }
 
-/* The clock is the argument for the theme, so the two sit together. */
-.rail__clock {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 7px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--ink-soft);
-  font-variant-numeric: tabular-nums;
-}
-
-.rail__city {
-  color: var(--ink-faint);
-}
-
 .rail__toggle {
   display: inline-flex;
   align-items: center;
@@ -436,6 +420,8 @@ footer[id] {
 /* ---------- hero ---------- */
 
 .hero {
+  /* The containing block for the two cues, which sit in this padding. */
+  position: relative;
   padding-top: calc(46px + clamp(64px, 15vh, 150px));
   padding-bottom: clamp(56px, 12vh, 130px);
 }
@@ -529,33 +515,6 @@ footer[id] {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-}
-
-.hero__socials {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 20px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.hero__social {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  min-height: 44px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  color: var(--ink-faint);
-  transition: color 0.15s var(--ease);
-}
-
-.hero__social:hover {
-  color: var(--accent);
 }
 
 /* ---------- section header ---------- */
@@ -1104,10 +1063,6 @@ footer[id] {
     margin-bottom: 18px;
   }
 
-  .hero__socials {
-    margin-top: 22px;
-  }
-
   .now__row,
   .role,
   .log__row,
@@ -1310,7 +1265,6 @@ footer[id] {
   /* Nothing that only makes sense on a screen. */
   .rail,
   .sweep,
-  .hero__socials,
   .hero__actions,
   .foot__links {
     display: none !important;
@@ -1807,6 +1761,111 @@ footer[id] {
   color: color-mix(in srgb, var(--pad-ink) 42%, var(--pad-face));
   text-align: center;
   margin: 0;
+}
+
+/* ---------- the two cues ----------
+   The ends of the first screen, said out loud. Down is the ordinary thing
+   the page wants you to do; up is the part nobody would otherwise find.
+
+   Both are absolute inside the hero rather than in its grid. That space was
+   already empty padding, and putting them in the stack cost the greeting —
+   and everything under it — their own height plus a grid gap, which read as
+   the page having been pushed down. Out of flow they cost the layout
+   nothing, and being in the hero rather than fixed to the viewport they
+   still scroll away by themselves. */
+
+.cue {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: fit-content;
+  margin-inline: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 2px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--ink-faint);
+  background: none;
+  border: 0;
+  cursor: pointer;
+  transition: color 0.18s var(--ease);
+}
+
+.cue:hover,
+.cue:focus-visible {
+  color: var(--accent);
+}
+
+/* Each sits in the padding at its own end, clear of the rail above and of
+   the section rule below. */
+.cue--up {
+  top: calc(46px + clamp(16px, 3.6vh, 44px));
+}
+
+.cue--down {
+  bottom: clamp(14px, 3vh, 40px);
+}
+
+/* The chevrons drift the way the gesture goes, a little apologetically. */
+.cue svg {
+  animation: cue-drift 2.6s var(--ease) infinite;
+}
+
+.cue--up svg {
+  --cue-travel: -4px;
+}
+
+.cue--down svg {
+  --cue-travel: 4px;
+}
+
+@keyframes cue-drift {
+  0%,
+  100% {
+    transform: none;
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(var(--cue-travel));
+    opacity: 1;
+  }
+}
+
+/* They arrive with the rest of the hero, first and last. */
+.cue--up {
+  animation: rise 700ms var(--ease) both;
+}
+
+.cue--down {
+  animation: rise 700ms var(--ease) 620ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cue svg {
+    animation: none;
+    opacity: 0.8;
+  }
+
+  .cue--up,
+  .cue--down {
+    animation: none;
+  }
+}
+
+/* Console mode has its own way up, and its own screen. */
+[data-console="on"] .cue {
+  display: none;
+}
+
+@media print {
+  .cue {
+    display: none !important;
+  }
 }
 
 /* ---------- the night sky ----------
@@ -3389,7 +3448,6 @@ footer[id] {
 [data-console="on"] .page .eyebrow,
 [data-console="on"] .page .chip,
 [data-console="on"] .page .action,
-[data-console="on"] .page .hero__social,
 [data-console="on"] .page .foot__link,
 [data-console="on"] .page .now__label,
 [data-console="on"] .page .proof__kind,

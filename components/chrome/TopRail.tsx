@@ -16,7 +16,6 @@ import {
   subscribeTheme,
   type ThemeChoice,
 } from "@/lib/theme";
-import { istClock, subscribeClock } from "@/lib/time";
 import { identity } from "@/lib/content";
 import ThemeSweep from "./ThemeSweep";
 
@@ -31,16 +30,14 @@ const LABEL: Record<ThemeChoice, string> = {
 };
 
 export default function TopRail() {
-  /* Both of these are values the server cannot know, so both come through
-     useSyncExternalStore with a null server snapshot rather than being set
-     from inside an effect. */
+  /* A value the server cannot know, so it comes through useSyncExternalStore
+     with a null server snapshot rather than being set from inside an
+     effect. */
   const state = useSyncExternalStore(
     subscribeTheme,
     getThemeSnapshot,
     getThemeServerSnapshot,
   );
-  const clock = useSyncExternalStore(subscribeClock, istClock, () => null);
-
   const [sweeping, setSweeping] = useState(false);
   const busy = useRef(false);
   const timers = useRef<number[]>([]);
@@ -90,12 +87,6 @@ export default function TopRail() {
           </a>
 
           <div className="rail__right">
-            <span className="rail__clock" title={`${identity.location} time`}>
-              <span className="rail__city">BLR</span>
-              <time suppressHydrationWarning>{clock ?? "--:--"}</time>
-            </span>
-
-
             <button
               type="button"
               className="rail__toggle"
