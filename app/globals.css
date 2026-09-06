@@ -523,45 +523,6 @@ footer[id] {
   margin-bottom: clamp(30px, 5vh, 56px);
 }
 
-/* ---------- now ---------- */
-
-.now {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.now__row {
-  display: grid;
-  grid-template-columns: var(--rail) 1fr;
-  gap: var(--rail-gap);
-  padding-block: 20px;
-  border-top: 1px solid var(--rule);
-}
-
-.now__label {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin: 0;
-}
-
-.now__value {
-  font-family: var(--display);
-  font-size: clamp(19px, 2.2vw, 25px);
-  line-height: 1.2;
-  margin: 0;
-}
-
-.now__detail {
-  color: var(--ink-soft);
-  font-size: 15px;
-  margin: 7px 0 0;
-  max-width: 62ch;
-}
-
 /* ============================================================
    THE ITCH CARD — signature, spec §6a
    The complaint enters alone, then contracts into the margin rail
@@ -1063,7 +1024,6 @@ footer[id] {
     margin-bottom: 18px;
   }
 
-  .now__row,
   .role,
   .log__row,
   .proof__row {
@@ -1325,7 +1285,6 @@ footer[id] {
   .role,
   .proof__row,
   .log__row,
-  .now__row,
   .ledger__group {
     break-inside: avoid;
   }
@@ -3424,8 +3383,7 @@ footer[id] {
 [data-console="on"] .page .title,
 [data-console="on"] .page .itch__name,
 [data-console="on"] .page .role__title,
-[data-console="on"] .page .proof__title,
-[data-console="on"] .page .now__value {
+[data-console="on"] .page .proof__title {
   font-size: clamp(12px, 1.35vw, 16px);
   line-height: 1.6;
   letter-spacing: 0;
@@ -3449,7 +3407,6 @@ footer[id] {
 [data-console="on"] .page .chip,
 [data-console="on"] .page .action,
 [data-console="on"] .page .foot__link,
-[data-console="on"] .page .now__label,
 [data-console="on"] .page .proof__kind,
 [data-console="on"] .page .ledger__label,
 [data-console="on"] .page .aside__label {
@@ -3462,7 +3419,6 @@ footer[id] {
 [data-console="on"] .page .hero__claim,
 [data-console="on"] .page .itch__body,
 [data-console="on"] .page .role__body,
-[data-console="on"] .page .now__detail,
 [data-console="on"] .page .log__detail,
 [data-console="on"] .page .proof__detail {
   font-size: 17px;
@@ -3528,7 +3484,6 @@ footer[id] {
 [data-console="on"] .page .lede,
 [data-console="on"] .page .itch__body,
 [data-console="on"] .page .role__body,
-[data-console="on"] .page .now__detail,
 [data-console="on"] .page .log__detail,
 [data-console="on"] .page .proof__detail {
   display: none;

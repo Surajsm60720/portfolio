@@ -112,7 +112,7 @@ export function SkyCue() {
 /** The hint at the foot of the hero. Scrolls, rather than jumping. */
 export function DownCue() {
   return (
-    <a className="cue cue--down" href="#now">
+    <a className="cue cue--down" href="#work">
       Scroll down to know more about me
       <ChevronDown size={13} aria-hidden="true" />
     </a>

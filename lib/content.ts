@@ -35,31 +35,6 @@ export const socials = [
   { label: "Instagram", href: "https://www.instagram.com/stargazer60720/" },
 ] as const;
 
-/* ---------------------------------------------------------------- now */
-
-export interface NowLine {
-  label: string;
-  value: string;
-  detail: string;
-}
-
-/** Day and Night only. "Last shipped" is rendered from the synced ship log —
-    see components/sections/Now.tsx — so it must not also be stated here. */
-export const now: NowLine[] = [
-  {
-    label: "Day",
-    value: "Forward Deployed Engineer, Plivo",
-    detail:
-      "Shipped an internal triage automation the support team now uses daily, and debugs production voice and messaging failures.",
-  },
-  {
-    label: "Night",
-    value: "Saizen v1.4.2",
-    detail:
-      "A personal iOS anime client. Currently reworking Home personalization and the chrome controls.",
-  },
-];
-
 /* ------------------------------------------------------------ projects */
 
 export interface Project {
@@ -103,16 +78,6 @@ export const projects: Project[] = [
         href: "https://github.com/Surajsm60720/Saizen/blob/main/docs/SECURITY_TEST_PLAN.md",
       },
     ],
-  },
-  {
-    slug: "aegisqa",
-    name: "AegisQA",
-    itch: "Writing test cases out of a spec document is the least interesting part of shipping, and I kept doing it by hand.",
-    what: "A test-generation platform that turns requirement documents, UI screenshots and code changes into reviewed test cases.",
-    body: "Six specialised LLM roles run as a pipeline rather than one prompt: a classifier routes the input, two roles extract requirements and hunt for ambiguity, two generators split happy-path from negative and edge cases, and a judge scores and repairs the fused output. Uploads, jobs and artifacts move through Kafka and MinIO behind a FastAPI service, with regression cases ingested from n8n workflows.",
-    facts: ["6-role pipeline", "Regression ingest", "Job lifecycle tracking"],
-    stack: ["FastAPI", "Next.js", "Kafka", "PostgreSQL", "MinIO", "n8n"],
-    // No links until the repository is public — see spec §5.2.
   },
   {
     slug: "nammalakes",
@@ -294,7 +259,7 @@ export const shipLogCurated: ShipEntry[] = [
     href: "https://addons.mozilla.org/en-US/firefox/addon/llm-chat-navigator/",
   },
   {
-    date: "2025",
+    date: "2025-10",
     label: "NammaLakes paper",
     detail: "Published in IJLTEMAS.",
     href: "https://doi.org/10.51583/IJLTEMAS.2025.1409000060",
@@ -373,9 +338,9 @@ export const ledger: LedgerGroup[] = [
     label: "Languages",
     rows: [
       { name: "TypeScript", usedIn: "Saizen · NanoPrune · this site" },
-      { name: "Python", usedIn: "AegisQA · NammaLakes · Linux Starter Pack" },
+      { name: "Python", usedIn: "NammaLakes · NanoPrune · Linux Starter Pack" },
       { name: "Swift", usedIn: "Saizen · LifeOS" },
-      { name: "SQL", usedIn: "AegisQA · NammaLakes · HRMatcher" },
+      { name: "SQL", usedIn: "NammaLakes · HRMatcher" },
       { name: "Bash", usedIn: "i-made-an-oopsie" },
     ],
   },
@@ -392,19 +357,17 @@ export const ledger: LedgerGroup[] = [
   {
     label: "Backend",
     rows: [
-      { name: "FastAPI", usedIn: "AegisQA · NammaLakes · NanoPrune" },
+      { name: "FastAPI", usedIn: "NammaLakes · NanoPrune" },
       { name: "Node.js", usedIn: "TravelEase" },
       { name: "RabbitMQ", usedIn: "NammaLakes" },
-      { name: "Kafka", usedIn: "AegisQA" },
       { name: "SIP / Voice APIs", usedIn: "Plivo" },
     ],
   },
   {
     label: "Data & cloud",
     rows: [
-      { name: "PostgreSQL", usedIn: "AegisQA · NammaLakes" },
+      { name: "PostgreSQL", usedIn: "NammaLakes" },
       { name: "Supabase", usedIn: "TravelEase" },
-      { name: "MinIO", usedIn: "AegisQA" },
       { name: "Amazon Redshift", usedIn: "Plivo triage automation" },
       { name: "OpenSearch", usedIn: "Plivo — log and trace search" },
       { name: "Vercel", usedIn: "Everything with a live link" },
@@ -413,9 +376,9 @@ export const ledger: LedgerGroup[] = [
   {
     label: "Tooling",
     rows: [
-      { name: "Docker", usedIn: "AegisQA · NammaLakes" },
+      { name: "Docker", usedIn: "NammaLakes" },
       { name: "GitHub Actions", usedIn: "Saizen · LifeOS" },
-      { name: "n8n", usedIn: "AegisQA ingest · Plivo automation" },
+      { name: "n8n", usedIn: "Plivo automation" },
       { name: "Grafana", usedIn: "Plivo — traffic and concurrency" },
       { name: "Wireshark", usedIn: "Plivo — PCAP root cause" },
       { name: "Capacitor", usedIn: "Saizen" },
