@@ -1,6 +1,36 @@
 {
-  "generated": "2026-10-05",
+  "generated": "2026-10-12",
   "entries": [
+    {
+      "date": "2026-10-12",
+      "label": "Tether v3.3",
+      "detail": "Lid-closed Tailscale resilience, battery control, and Neutral readability.",
+      "href": "https://github.com/Surajsm60720/Tether/releases/tag/v3.3"
+    },
+    {
+      "date": "2026-10-09",
+      "label": "Tether v3.2",
+      "detail": "Attach files into a live agent, plus quieter agent networking and Island polish.",
+      "href": "https://github.com/Surajsm60720/Tether/releases/tag/v3.2"
+    },
+    {
+      "date": "2026-10-07",
+      "label": "Tether v2.0",
+      "detail": "Live coding agents and terminal polish on top of the 1.x security line.",
+      "href": "https://github.com/Surajsm60720/Tether/releases/tag/v2.0"
+    },
+    {
+      "date": "2026-10-07",
+      "label": "Tether v1.2",
+      "detail": "Continued security and reliability hardening after 1.1.",
+      "href": "https://github.com/Surajsm60720/Tether/releases/tag/v1.2"
+    },
+    {
+      "date": "2026-10-07",
+      "label": "Tether v1.1",
+      "detail": "Security hardening patch over 1.0. Further hardening continues on the 1.x line (1.2, …).",
+      "href": "https://github.com/Surajsm60720/Tether/releases/tag/v1.1"
+    },
     {
       "date": "2026-08-11",
       "label": "Saizen v1.4.0",
