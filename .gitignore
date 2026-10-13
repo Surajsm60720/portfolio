@@ -33,8 +33,9 @@ next-env.d.ts
 
 # browser probe output
 .probe.png
-.probe-console.png
-.probe.mjs
 .probe-*.png
 .webkit*.png
 .webkit.mjs
+
+# local showreel builds — keep out of the portfolio repo
+/showreel/

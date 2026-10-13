@@ -1,0 +1,13 @@
+{
+  "generated": "2026-10-13",
+  "versions": {
+    "tether": "v3.3",
+    "saizen": "v1.4.7",
+    "lifeos": "v1.0.3"
+  },
+  "sources": {
+    "tether": "release v3.3 · readme v3.3",
+    "saizen": "release v1.4.0 · readme v1.4.7",
+    "lifeos": "readme v1.0.3"
+  }
+}

@@ -1,9 +1,11 @@
 /**
- * Regenerates the two data files the site renders from GitHub:
+ * Regenerates the data files the site renders from GitHub:
  *
- *   lib/commit-hours.json  — hour-of-day distribution behind the Rhythm chart
- *   lib/ship-log.json      — releases, merged at render with the curated
- *                            entries in lib/content.ts
+ *   lib/commit-hours.json     — hour-of-day distribution behind the Rhythm chart
+ *   lib/ship-log.json         — releases, merged at render with the curated
+ *                               entries in lib/content.ts
+ *   lib/project-versions.json — marketing versions for Work-card chips
+ *                               (Tether, Saizen, LifeOS)
  *
  * Run weekly by .github/workflows/sync-github.yml, and by hand with:
  *
@@ -24,14 +26,27 @@
  * else, which is small and fast, and `git log` keeps the offset.
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = join(ROOT, ".repo-cache");
+const VERSIONS_PATH = join(ROOT, "lib", "project-versions.json");
 const USER = "Surajsm60720";
+
+/**
+ * Apps whose Work-card version chip must stay current. GitHub Releases alone
+ * are not enough: Saizen ships patch versions in-app without a new Release
+ * IPA, and LifeOS has no Releases at all. For each app we take the highest
+ * semver found across the latest Release tag and the README header.
+ */
+const VERSIONED = [
+  { slug: "tether", repo: "Tether" },
+  { slug: "saizen", repo: "Saizen" },
+  { slug: "lifeos", repo: "LifeOS" },
+];
 
 /** Both addresses Suraj has authored with. */
 const AUTHORS = ["1ds22is166@dsce.edu.in", "surajsm218@gmail.com"];
@@ -103,6 +118,109 @@ function hoursFor(path) {
   for (const author of AUTHORS) args.push(`--author=${author}`);
   const out = git(args, path).trim();
   return out ? out.split("\n") : [];
+}
+
+/* --------------------------------------------------------- versions --- */
+
+function normalizeVersion(raw) {
+  const m = String(raw).match(/v?(\d+(?:\.\d+)*)/i);
+  return m ? `v${m[1]}` : null;
+}
+
+function semverParts(v) {
+  return v.replace(/^v/i, "").split(".").map((n) => Number(n) || 0);
+}
+
+/** Highest semver wins; equal lengths compare component-wise. */
+function maxVersion(candidates) {
+  const versions = candidates.filter(Boolean);
+  if (!versions.length) return null;
+  return versions.sort((a, b) => {
+    const A = semverParts(a);
+    const B = semverParts(b);
+    const n = Math.max(A.length, B.length);
+    for (let i = 0; i < n; i += 1) {
+      const d = (B[i] || 0) - (A[i] || 0);
+      if (d) return d;
+    }
+    return 0;
+  })[0];
+}
+
+/** Marketing version from a README — the patterns these three repos use. */
+function versionFromReadme(text) {
+  const patterns = [
+    /Saizen\s*[·•]\s*v?(\d+(?:\.\d+)*)/i,
+    /\*\*Version\s+v?(\d+(?:\.\d+)*)\*\*/i,
+    /^Version\s+v?(\d+(?:\.\d+)*)\.?\s*$/im,
+    /^#\s+[^\n]*?\bv(\d+(?:\.\d+)*)\b/m,
+  ];
+  for (const re of patterns) {
+    const m = text.match(re);
+    if (m) return normalizeVersion(m[1]);
+  }
+  return null;
+}
+
+async function latestReleaseVersion(repo) {
+  try {
+    const r = await api(`/repos/${USER}/${repo}/releases/latest`);
+    return normalizeVersion(r.tag_name);
+  } catch (err) {
+    /* 404 = no releases (LifeOS). Anything else should surface. */
+    if (String(err.message).includes("-> 404")) return null;
+    throw err;
+  }
+}
+
+async function readmeVersion(repo) {
+  /* default_branch varies (main vs master); the API resolves the default. */
+  const res = await fetch(
+    `https://api.github.com/repos/${USER}/${repo}/readme`,
+    { headers: { ...headers, accept: "application/vnd.github.raw" } },
+  );
+  if (res.status === 404) return null;
+  if (res.status === 403 || res.status === 429) {
+    const remaining = res.headers.get("x-ratelimit-remaining");
+    if (remaining === "0") {
+      throw new RateLimited("GitHub rate limit reached while reading READMEs.");
+    }
+  }
+  if (!res.ok) throw new Error(`GET /repos/${USER}/${repo}/readme -> ${res.status}`);
+  return versionFromReadme(await res.text());
+}
+
+async function resolveVersions(previous) {
+  const versions = { ...(previous.versions || {}) };
+  const sources = {};
+  for (const { slug, repo } of VERSIONED) {
+    let fromRelease = null;
+    let fromReadme = null;
+    try {
+      fromRelease = await latestReleaseVersion(repo);
+      fromReadme = await readmeVersion(repo);
+    } catch (err) {
+      if (err instanceof RateLimited) throw err;
+      console.warn(`  version ${repo}: ${err.message}`);
+    }
+    const next = maxVersion([fromRelease, fromReadme]);
+    if (next) {
+      versions[slug] = next;
+      const parts = [];
+      if (fromRelease) parts.push(`release ${fromRelease}`);
+      if (fromReadme) parts.push(`readme ${fromReadme}`);
+      sources[slug] = parts.join(" · ") || "resolved";
+    } else if (versions[slug]) {
+      sources[slug] = `kept previous ${versions[slug]}`;
+      console.warn(`  version ${repo}: no live source; kept ${versions[slug]}`);
+    } else {
+      throw new Error(
+        `No version for ${repo} (${slug}) and nothing previous to keep. ` +
+          "Seed lib/project-versions.json or publish a Release / README version.",
+      );
+    }
+  }
+  return { versions, sources };
 }
 
 /* --------------------------------------------------------- releases --- */
@@ -205,3 +323,26 @@ await writeFile(
   `${JSON.stringify({ generated, entries: releases }, null, 2)}\n`,
 );
 console.log(`${releases.length} releases`);
+
+const previousVersions = existsSync(VERSIONS_PATH)
+  ? JSON.parse(readFileSync(VERSIONS_PATH, "utf8"))
+  : { versions: {} };
+
+let versioned;
+try {
+  versioned = await resolveVersions(previousVersions);
+} catch (err) {
+  if (err instanceof RateLimited) {
+    console.error(`project-versions.json left unchanged — ${err.message}`);
+    process.exit(1);
+  }
+  throw err;
+}
+
+await writeFile(
+  VERSIONS_PATH,
+  `${JSON.stringify({ generated, versions: versioned.versions, sources: versioned.sources }, null, 2)}\n`,
+);
+for (const { slug, repo } of VERSIONED) {
+  console.log(`${repo}: ${versioned.versions[slug]} (${versioned.sources[slug]})`);
+}

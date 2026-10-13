@@ -9,7 +9,15 @@
  * The previous build of this site went nine months stale because copy was
  * scattered across nine components. It lives here now so a release means
  * editing one file.
+ *
+ * Marketing versions for Tether / Saizen / LifeOS are not edited here —
+ * they come from lib/project-versions.json, regenerated weekly by
+ * scripts/sync-github.mjs (highest semver across GitHub Release + README).
  */
+
+import projectVersions from "./project-versions.json";
+
+const V = projectVersions.versions;
 
 export const identity = {
   name: "Suraj Menon",
@@ -59,12 +67,34 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    slug: "tether",
+    name: "Tether",
+    itch: "The file was stuck on the Mac in the other room, and every way to get it wanted a cloud account.",
+    what: "A Mac host and iPhone client that browse shared folders, send files, run a scoped terminal and drive allowlisted coding agents — locally, with no account.",
+    body: "Pair once with a QR code; the phone keeps a Keychain device key and opens the Mac again without typing a password. Only the folders you share are visible, every session is ChaChaPoly over Network.framework with no third-party crypto, and allowlisted agents (Claude Code, Cursor Agent, Codex and related CLIs) run as a live PTY on the Mac with Live Activity status on the Island. Away from home Wi-Fi, a saved address or a small self-hosted relay keeps the same encrypted channel.",
+    facts: [V.tether, "No cloud", "ChaChaPoly", "Live Activity"],
+    stack: ["Swift", "SwiftUI", "Network.framework", "CryptoKit", "WidgetKit"],
+    repo: "https://github.com/Surajsm60720/Tether",
+    live: "https://tethersite.vercel.app",
+    note: "No third-party networking or crypto libraries.",
+    docs: [
+      {
+        label: "PRD",
+        href: "https://github.com/Surajsm60720/Tether/blob/master/docs/PRD.md",
+      },
+      {
+        label: "Design",
+        href: "https://github.com/Surajsm60720/Tether/blob/master/docs/DESIGN.md",
+      },
+    ],
+  },
+  {
     slug: "saizen",
     name: "Saizen",
     itch: "Every anime client I tried wanted an account, an ad, or a subscription.",
     what: "A personal iOS anime client that resolves installable stream modules and plays them in a custom native player.",
     body: "Watch installs source modules rather than shipping a fixed scraper, so a broken source is a module update instead of an app release. Playback runs through custom AVPlayer chrome with AniSkip opening and ending marks, gesture seeking and speed control. Downloads hold a resilient queue with pause, resume and offline library playback; AniList and MAL sign-in back the home rails.",
-    facts: ["v1.4.2", "Sideload only", "HLS + MP4", "AniList / MAL"],
+    facts: [V.saizen, "Sideload only", "HLS + MP4", "AniList / MAL"],
     stack: ["Next.js", "Capacitor 7", "Swift", "AVPlayer", "TypeScript"],
     repo: "https://github.com/Surajsm60720/Saizen",
     live: "https://saizen.vercel.app",
@@ -97,7 +127,7 @@ export const projects: Project[] = [
     itch: "I kept missing things I had already told myself I would remember.",
     what: "A calendar-centric iOS app for tracking day-to-day life, game events and entertainment progress — locally, with no accounts.",
     body: "One entry model covers IRL plans, gacha-game cadence and reading logs, with recurrence and occurrence-level completion. A Dynamic Island Live Activity surfaces today at a glance, an Ongoing Events tab holds multi-day windows and the current weekly or monthly cycle, and everything stays on device behind an optional Face ID lock with JSON backup and restore.",
-    facts: ["v1.0.2", "Local-first", "Live Activity", "No accounts"],
+    facts: [V.lifeos, "Local-first", "Live Activity", "No accounts"],
     stack: ["Swift", "SwiftUI", "WidgetKit", "MapKit"],
     repo: "https://github.com/Surajsm60720/LifeOS",
     live: "https://lifeossite.vercel.app/",
@@ -209,18 +239,26 @@ export interface ShipEntry {
  */
 export const shipLogCurated: ShipEntry[] = [
   {
+    date: "2026-10",
+    label: "Tether site",
+    detail: "Marketing site for the Mac and iPhone pair — local files, terminal and agents.",
+    href: "https://tethersite.vercel.app",
+  },
+  {
     date: "2026-08-28",
     label: "Saizen site",
     detail: "One-page static site for the app. No animation dependencies.",
     href: "https://saizen.vercel.app",
   },
   {
-    /* Saizen's README is explicit that 1.4.1 and 1.4.2 shipped in-app rather
-       than as GitHub release IPAs, so the sync cannot see them. */
-    date: "2026-08-22",
-    label: "Saizen v1.4.2",
+    /* Saizen patch versions ship in-app without a GitHub Release IPA, so the
+       Releases half of the sync never sees them. Work-card chips still move
+       via lib/project-versions.json (README-aware). This curated row is the
+       ship-log highlight for the patch — update the detail when it matters. */
+    date: "2026-09",
+    label: "Saizen v1.4.7",
     detail:
-      "Home personalization reliability and liquid-glass chrome controls. Shipped in-app, not as a GitHub release.",
+      "Soft captions and Continue Watching cleanup. Shipped in-app, not as a GitHub release.",
     href: "https://github.com/Surajsm60720/Saizen",
   },
   {
@@ -230,9 +268,11 @@ export const shipLogCurated: ShipEntry[] = [
     href: "https://lifeossite.vercel.app/",
   },
   {
-    date: "2026-08-17",
-    label: "LifeOS v1.0.2",
-    detail: "Map-first place picker and occurrence-cycle Ongoing Events.",
+    /* LifeOS has no GitHub Releases. Work chips sync from the README; this
+       row is the ship-log highlight for the patch. */
+    date: "2026-09-25",
+    label: "LifeOS v1.0.3",
+    detail: "Pity counters for Genshin, Star Rail and Wuthering Waves.",
     href: "https://github.com/Surajsm60720/LifeOS",
   },
   {
@@ -339,7 +379,7 @@ export const ledger: LedgerGroup[] = [
     rows: [
       { name: "TypeScript", usedIn: "Saizen · NanoPrune · this site" },
       { name: "Python", usedIn: "NammaLakes · NanoPrune · Linux Starter Pack" },
-      { name: "Swift", usedIn: "Saizen · LifeOS" },
+      { name: "Swift", usedIn: "Tether · Saizen · LifeOS" },
       { name: "SQL", usedIn: "NammaLakes · HRMatcher" },
       { name: "Bash", usedIn: "i-made-an-oopsie" },
     ],
@@ -349,7 +389,7 @@ export const ledger: LedgerGroup[] = [
     rows: [
       { name: "Next.js", usedIn: "Saizen · LifeOS site · Jabsz migration" },
       { name: "React", usedIn: "NammaLakes · TravelEase · HRMatcher" },
-      { name: "SwiftUI", usedIn: "LifeOS" },
+      { name: "SwiftUI", usedIn: "Tether · LifeOS" },
       { name: "Tailwind CSS", usedIn: "Linux Starter Pack · TravelEase" },
       { name: "Recharts", usedIn: "NammaLakes · NanoPrune" },
     ],
@@ -361,6 +401,7 @@ export const ledger: LedgerGroup[] = [
       { name: "Node.js", usedIn: "TravelEase" },
       { name: "RabbitMQ", usedIn: "NammaLakes" },
       { name: "SIP / Voice APIs", usedIn: "Plivo" },
+      { name: "Network.framework", usedIn: "Tether — Bonjour, TCP, relay" },
     ],
   },
   {
@@ -378,6 +419,8 @@ export const ledger: LedgerGroup[] = [
     rows: [
       { name: "Docker", usedIn: "NammaLakes" },
       { name: "GitHub Actions", usedIn: "Saizen · LifeOS" },
+      { name: "CryptoKit", usedIn: "Tether — ChaChaPoly / HKDF" },
+      { name: "WidgetKit", usedIn: "Tether · LifeOS" },
       { name: "n8n", usedIn: "Plivo automation" },
       { name: "Grafana", usedIn: "Plivo — traffic and concurrency" },
       { name: "Wireshark", usedIn: "Plivo — PCAP root cause" },
