@@ -27,14 +27,14 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
 
       - name: Cache repository mirrors
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .repo-cache
           key: repo-mirrors-${{ github.run_id }}
