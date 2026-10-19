@@ -81,4 +81,19 @@ jobs:
           read from cloned history so the author's timezone offset survives;
           the REST API discards it. Project versions take the highest semver
           across each app's latest Release and its README header."
-          git push
+          # Rebase-and-retry: a human push landing on main between this
+          # job's checkout and this push would otherwise reject the bot's
+          # push, fail the run, and silently drop the week's data.
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected — main moved (human push raced us). Rebasing and retrying ($attempt/3)."
+            git pull --rebase origin main || {
+              echo "::error::Rebase failed on attempt $attempt."
+              exit 1
+            }
+          done
+          echo "::error::Could not push after 3 attempts."
+          exit 1
